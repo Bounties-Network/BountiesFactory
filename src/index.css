@@ -1,0 +1,52 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800);
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  color: #fff;
+  font-family: "Open Sans";
+  /*background: #0F1E33; /* For browsers that do not support gradients */
+  background-color: #28252b;
+  background: -webkit-linear-gradient(#2A4558, #28252b); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(#2A4558, #28252b); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(#2A4558, #28252b3); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(#2A4558, #28252b); /* Standard syntax */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica";
+
+
+
+  /*display: flex;
+  justify-content: center;
+  align-items: center;*/
+}
+
+
+
+ul {
+  list-style: none;
+}
+
+
+table,
+thead {
+  width: 100%;
+}
+
+#colourBody {
+  background-color: #0F1E33;
+  background: -webkit-linear-gradient(#2A4558, #0F1E33); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(#2A4558, #0F1E33); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(#2A4558, #0F1E33); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(#2A4558, #0F1E33); /* Standard syntax */
+  background-repeat: no-repeat;
+    background-attachment: fixed;
+}
