@@ -130,10 +130,6 @@ module.exports = {
         screw_ie8: true
       }
     }),
-    new ExtractTextPlugin('[name].[contenthash].css'),
-
-    new CopyWebpackPlugin([{
-       from: './build/index.html', to: './build/200.html'
-    }])
+    new ExtractTextPlugin('[name].[contenthash].css')
   ]
 };
