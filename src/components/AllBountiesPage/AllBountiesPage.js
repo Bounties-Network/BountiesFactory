@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import './AppContainer.css'
+import './AllBountiesPage.css'
 
 import Web3 from 'web3';
 
@@ -26,7 +26,7 @@ import Dialog from 'material-ui/Dialog';
 
 
 
-class AppContainer extends Component {
+class AllBountiesPage extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -226,7 +226,7 @@ class AppContainer extends Component {
       }
     }
     var recentList = [];
-    for (i = 0; i < 3 && i < this.state.bounties.length; i++){
+    for (i = 0; i < 3; i++){
         recentList.push(this.state.bounties[i]);
     }
     const modalActions = [
@@ -257,15 +257,18 @@ class AppContainer extends Component {
         <AccountFacts total={this.state.totalMe}/>
         <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
         <FlatButton href="/newBounty/" style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
+
       </div>
         <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "120px"}}>
 
         <div style={{width: "276px", float: "left", display: "block", marginRight: "15px"}}>
-        {newList.length !== 0 && <MyContractList list={newList} acc={this.state.accounts[0]} loading={this.state.loading}/>}
+        {this.state.bounties && <MyContractList list={newList} acc={this.state.accounts[0]} loading={this.state.loading}/>}
+
+
         </div>
         <div style={{width: "744px", float: "left", display: "block"}}>
-          {activeList.length !== 0 && <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.myBountiesLoading} title={'Active Bounties'}/>}
-          {recentList.length !== 0 && <ContractList list={recentList} acc={this.state.accounts[0]} loading={this.state.myBountiesLoading} title={'Recent Bounties'}/>}
+        {activeList.length != 0 && <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.myBountiesLoading} title={'Active Bounties'}/>}
+        {recentList.length != 0 && <ContractList list={recentList} acc={this.state.accounts[0]} loading={this.state.myBountiesLoading} title={'Recent Bounties'}/>}
         </div>
       </div>
 
@@ -277,4 +280,4 @@ class AppContainer extends Component {
   }
 }
 
-export default AppContainer
+export default AllBountiesPage
