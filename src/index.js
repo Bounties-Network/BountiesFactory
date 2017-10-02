@@ -7,6 +7,7 @@ import NewBounty from './components/NewBounty/NewBounty';
 import TokenBrowser from './components/TokenBrowser/TokenBrowser';
 import AllBountiesPage from './components/AllBountiesPage/AllBountiesPage';
 
+
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 import './index.css'
