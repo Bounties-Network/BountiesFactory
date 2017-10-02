@@ -40,7 +40,7 @@ class ContractList extends Component {
     }
     return (
       <div className='ContractList'>
-      <h3 style={{fontFamily: "Open Sans", marginTop: "31px", marginBottom: "31px", textAlign: "center", color: "white", width: "100%"}}> Recent Bounties</h3>
+      <h3 style={{fontFamily: "Open Sans", marginTop: "31px", marginBottom: "31px", textAlign: "center", color: "white", width: "100%"}}> {this.props.title}</h3>
       {this.props.loading &&
         <div style={{width: "100%"}}>
           <div style={{marginLeft: "300px", marginTop: "60px", overflow: "hidden", }}>

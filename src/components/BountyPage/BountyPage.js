@@ -280,17 +280,20 @@ class BountyPage extends Component {
       for (var j = 0; j < total; j++){
         bountyContract.getFulfillment(i,j, (err, succ)=> {
           console.log("got ful", succ);
-          fulfillments.push({
-            paid: succ[0],
-            accepted: succ[1],
-            fulfiller: succ[2],
-            data: succ[3],
+          ipfs.catJSON(succ[3], (err, result)=> {
+            fulfillments.push({
+              paid: succ[0],
+              accepted: succ[1],
+              fulfiller: succ[2],
+              data: result.description,
+            });
+            if (fulfillments.length === total){
+              var totalFul = this.state.fulfillments;
+              totalFul[i] = fulfillments;
+              this.setState({fulfillments: totalFul});
+            }
           });
-          if (fulfillments.length === total){
-            var totalFul = this.state.fulfillments;
-            totalFul[i] = fulfillments;
-            this.setState({fulfillments: totalFul});
-          }
+
         });
       }
     });
@@ -308,9 +311,12 @@ class BountyPage extends Component {
       }
     }
 
-    bountyContract.fulfillBounty(data, index, {from: this.state.accounts[0]}, (cerr, succ)=> {
-      window.location.reload();
+    ipfs.addJSON({description: data}, (err, succ)=> {
+      bountyContract.fulfillBounty(succ, index, {from: this.state.accounts[0]}, (cerr, succ)=> {
+        window.location.reload();
+      });
     });
+
 
 
   }
