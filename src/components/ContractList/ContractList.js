@@ -30,6 +30,8 @@ class ContractList extends Component {
                       acc={acc}
                       balance={contract.balance}
                       tokenDetails={contract.tokenDetails}
+                      bountyId={contract.bountyId}
+                      symbol={contract.symbol}
                       />
         );
       });

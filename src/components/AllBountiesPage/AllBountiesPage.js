@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 import './AllBountiesPage.css'
 
+
 import Web3 from 'web3';
 
 const web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io"));
 const json = require('../../../contracts.json');
 const networkId = json.networkId;
-const BountyFactoryContract = web3.eth.contract(json.interfaces.BountyFactory).at(json.registryAddress);
+const StandardBounties = web3.eth.contract(json.interfaces.StandardBounties).at(json.standardBountiesAddress);
+
 
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
@@ -45,6 +47,7 @@ class AllBountiesPage extends Component {
     this.getInitialData = this.getInitialData.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
     this.handleClose = this.handleClose.bind(this);
+    this.getBounty = this.getBounty.bind(this);
   }
   componentDidMount() {
 
@@ -103,106 +106,16 @@ class AllBountiesPage extends Component {
           }, 100);
           this.setState({accounts: accs});
           var bounties = [];
-
-          BountyFactoryContract.getInstanceCount((cerr, succ) => {
-            var total = parseInt(succ,10);
+          StandardBounties.getNumBounties((err, succ)=> {
+            var total = parseInt(succ, 10);
             this.setState({total: total});
-            if (total === 0){
-                this.setState({loading: false, myBountiesLoading: false});
-            }
             for (var i = 0; i < total; i++){
-              BountyFactoryContract.instances(i, (cerr, succ) => {
-                var bountyContract = web3.eth.contract(json.interfaces.StandardBounty).at(succ);
+              this.getBounty(i, bounties, total);
 
-                var bountyAddr = succ;
-                web3.eth.getBalance(bountyContract.address , (cerr, succ) => {
-
-                  var balance = web3.fromWei(parseInt(succ, 10), 'ether');
-
-                  bountyContract.data((cerr, succ) => {
-                    ipfs.catJSON(succ, (err, result) => {
-                      var bountyData = result;
-
-                      bountyContract.totalFulfillmentAmounts((cerr, succ)=> {
-                        var value = web3.fromWei(parseInt(succ, 10), 'ether');
-
-                        bountyContract.bountyStage((cerr, succ) => {
-                          var stage = parseInt(succ, 10);
-
-                          if (stage === 0){
-                            stage = "Draft";
-                          } else if (stage === 1){
-                            stage = "Active";
-                          } else {
-                            stage = "Dead";
-                          }
-
-                          bountyContract.issuer((cerr, succ) => {
-                            var issuer = succ;
-                            var mine = false;
-                            if (issuer === this.state.accounts[0]){
-                              mine = true;
-                            }
-                            if (bountyData.isToken !== '0'){
-
-                              var tokenContract = web3.eth.contract(json.interfaces.HumanStandardToken).at(bountyData.isToken);
-                              tokenContract.name((err, succ)=> {
-                                var name = succ;
-                                tokenContract.symbol((err, succ)=> {
-                                  var symbol = this.toUTF8(succ);
-                                  tokenContract.decimals((err, succ)=> {
-                                    var decimals = parseInt(succ, 10);
-                                    tokenContract.balanceOf(bountyContract.address, (err, succ)=> {
-                                      var newAmount = succ;
-                                      var decimalToMult = new BN(10, 10);
-                                      var decimalUnits = new BN(decimals, 10);
-                                      decimalToMult = decimalToMult.pow(decimalUnits);
-                                      newAmount = newAmount.div(decimalToMult);
-
-                                      var tokenDetails = {name: name, symbol: symbol, balance: parseInt(newAmount, 10), decimals: decimals};
-                                      bounties.push({bountyAddr:bountyAddr,
-                                                    bountyData: bountyData,
-                                                    shouldOpen: false,
-                                                    value: value,
-                                                    stage: stage,
-                                                    mine: mine,
-                                                    issuer: issuer,
-                                                    balance: tokenDetails.balance,
-                                                    tokenDetails: tokenDetails});
-                                      if (bounties.length === total){
-                                        this.setState({bounties: bounties, loading: false});
-                                      }
-                                    });
-                                  });
-                                });
-                              });
-                            } else {
-                              bounties.push({bountyAddr:bountyAddr,
-                                            bountyData: bountyData,
-                                            shouldOpen: false,
-                                            value: value,
-                                            stage: stage,
-                                            mine: mine,
-                                            issuer: issuer,
-                                            balance: balance,
-                                            tokenDetails: {}});
-                              if (bounties.length === total){
-                                this.setState({bounties: bounties, loading: false, myBountiesLoading: false});
-                              }
-                            }
-                          });
-                        });
-                      });
-                    });
-                  });
-                });
-              });
             }
+
           });
-          BountyFactoryContract.getInstantiationCount(this.state.accounts[0], (cerr, succ) => {
-            var total = parseInt(succ,10);
-            this.setState({totalMe: total});
-          });
+
         }
       }
       }.bind(this));
@@ -210,6 +123,83 @@ class AllBountiesPage extends Component {
     } else {
       this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
     }
+  }
+  getBounty(bountyId, bounties, total){
+    StandardBounties.getBounty(bountyId, (err, succ)=> {
+      StandardBounties.getBountyData(bountyId, (err, data)=> {
+        ipfs.catJSON(data, (err, result)=> {
+          var stage;
+          if (parseInt(succ[4], 10) === 0){
+            stage = "Draft";
+          } else if (parseInt(succ[4], 10) === 1){
+            stage = "Active";
+          } else {
+            stage = "Dead";
+          }
+          var newDate = new Date(parseInt(succ[1], 10)*1000);
+
+          if (!succ[3]){
+            var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
+            var balance = web3.fromWei(parseInt(succ[6], 10), 'ether');
+            bounties.push({
+              bountyId: bountyId,
+              issuer: succ[0],
+              deadline: newDate.toUTCString(),
+              value: value,
+              paysTokens: succ[3],
+              stage: stage,
+              owedAmount: parseInt(succ[5], 10),
+              balance: balance,
+              bountyData: result,
+              symbol: "ETH"
+            });
+            if (bounties.length === total){
+              this.setState({bounties: bounties, loading: false});
+            }
+          } else {
+            StandardBounties.getBountyToken(bountyId, (err, address)=> {
+              var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
+              HumanStandardToken.symbol((err, symbol)=> {
+                HumanStandardToken.decimals((err, dec)=> {
+
+                  var decimals = parseInt(dec, 10);
+                  var newAmount = succ[2];
+                  var decimalToMult = new BN(10, 10);
+                  var decimalUnits = new BN(decimals, 10);
+                  decimalToMult = decimalToMult.pow(decimalUnits);
+                  newAmount = newAmount.div(decimalToMult);
+
+                  var balance = succ[6];
+                  balance = balance.div(decimalToMult);
+
+                  bounties.push({
+                    bountyId: bountyId,
+                    issuer: succ[0],
+                    deadline: newDate.toUTCString(),
+                    value: parseInt(newAmount, 10),
+                    paysTokens: succ[3],
+                    stage: stage,
+                    owedAmount: parseInt(succ[5], 10),
+                    balance: parseInt(balance, 10),
+                    bountyData: result,
+                    symbol: this.toUTF8(symbol)
+                  });
+                  if (bounties.length === total){
+                    this.setState({bounties: bounties, loading: false});
+                  }
+                });
+              });
+
+            });
+
+          }
+
+        });
+
+      });
+
+    });
+
   }
 
   render() {
@@ -219,6 +209,7 @@ class AllBountiesPage extends Component {
         newList.push(this.state.bounties[i]);
       }
     }
+    var totalMe = newList.length;
     var activeList = [];
     for (i = 0; i < this.state.bounties.length; i++){
       if (this.state.bounties[i].stage === "Active"){
@@ -226,9 +217,10 @@ class AllBountiesPage extends Component {
       }
     }
     var recentList = [];
-    for (i = 0; i < 3; i++){
-        recentList.push(this.state.bounties[i]);
+    for (var j = 0; j < 3 && j < this.state.bounties.length; j++){
+        recentList.push(this.state.bounties[j]);
     }
+    console.log("lists", this.state.bounties);
     const modalActions = [
     <FlatButton
       label="Retry"
@@ -254,21 +246,18 @@ class AllBountiesPage extends Component {
           </div>
         </a>
         <BountiesFacts total={this.state.total}/>
-        <AccountFacts total={this.state.totalMe}/>
+        <AccountFacts total={totalMe}/>
         <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
         <FlatButton href="/newBounty/" style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
-
       </div>
         <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "120px"}}>
 
         <div style={{width: "276px", float: "left", display: "block", marginRight: "15px"}}>
-        {this.state.bounties && <MyContractList list={newList} acc={this.state.accounts[0]} loading={this.state.loading}/>}
-
-
+        {newList.length !== 0 && <MyContractList list={newList} acc={this.state.accounts[0]} loading={this.state.loading}/>}
         </div>
         <div style={{width: "744px", float: "left", display: "block"}}>
-        {activeList.length != 0 && <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.myBountiesLoading} title={'Active Bounties'}/>}
-        {recentList.length != 0 && <ContractList list={recentList} acc={this.state.accounts[0]} loading={this.state.myBountiesLoading} title={'Recent Bounties'}/>}
+          {activeList.length !== 0 && <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Active Bounties'}/>}
+          {recentList.length !== 0 && <ContractList list={recentList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Recent Bounties'}/>}
         </div>
       </div>
 

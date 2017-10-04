@@ -51,13 +51,13 @@ class ContractCard extends Component {
     }
 
     var reward = this.props.value;
-    var url = ("/bounty/" + this.props.bountyAddress);
+    var url = ("/bounty/" + this.props.bountyId);
     return (
       <a href={url} style={{textDecoration: "none", padding: "0px", width: "700px"}}>
         <div style={{width: "100%", marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgba(10, 22, 40, 0.5)", color: "white", border: "0"}} className="ContractCard">
           <div style={{float: "left", display: "inline-block", width: "150px", marginLeft: "-7.5px", marginRight: "7.5px"}}>
             <h1 style={{textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px", color: "#65C5AA"}}>{reward}</h1>
-            <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>{this.props.tokenDetails.symbol? this.props.tokenDetails.symbol : 'ETH'}</h5>
+            <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>{this.props.symbol? this.props.symbol : 'ETH'}</h5>
             <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Balance:</b> {this.props.balance}</p>
           </div>
           <div style={{float: "left", display: "inline-block", width: "510px", border: "1px solid #65C5AA", borderWidth: "0 0 0 1px", paddingLeft: "15px", marginTop: "15px"}}>
