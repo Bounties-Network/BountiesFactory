@@ -41,6 +41,7 @@ import SvgTranslations from 'material-ui/svg-icons/action/language';
 import SvgSocial from 'material-ui/svg-icons/social/share';
 import SvgQuestion from 'material-ui/svg-icons/action/question-answer';
 import SvgSurvey from 'material-ui/svg-icons/editor/drag-handle';
+import SvgEdit from 'material-ui/svg-icons/editor/mode-edit';
 
 import Dialog from 'material-ui/Dialog';
 
@@ -77,7 +78,7 @@ class BountyPage extends Component {
                   sourceFileName: "",
                   sourceFileHash: "",
                   description: "",
-                  requirements: []
+                  categories: []
                 },
                 contractAddr: "0x0",
                 issuerContact: "0x0",
@@ -96,7 +97,11 @@ class BountyPage extends Component {
         fulfillmentError: "",
         transferError: "",
         deadlineError: "",
-        increasePayoutError: ""
+        increasePayoutError: "",
+        descriptionError: "",
+        editDescription: false,
+        titleError: "",
+        editTitle: false,
 
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
@@ -115,6 +120,11 @@ class BountyPage extends Component {
     this.handleComment = this.handleComment.bind(this);
     this.handleIncreasePayout = this.handleIncreasePayout.bind(this);
     this.handlecaptureFile = this.handlecaptureFile.bind(this);
+    this.handleChangeDescriptionEdit = this.handleChangeDescriptionEdit.bind(this);
+    this.handleSubmitNewDescription = this.handleSubmitNewDescription.bind(this);
+    this.handleChangeTitleEdit = this.handleChangeTitleEdit.bind(this);
+    this.handleSubmitNewTitle = this.handleSubmitNewTitle.bind(this);
+
 
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
@@ -363,6 +373,71 @@ class BountyPage extends Component {
     }
 
   }
+
+  handleChangeDescriptionEdit(evt) {
+    evt.preventDefault();
+
+    this.setState({editDescription: !this.state.editDescription});
+  }
+
+  handleSubmitNewDescription(evt){
+    evt.preventDefault();
+
+    var description = evt.target.description.value;
+
+    if (description === ""){
+      this.setState({descriptionError: "Please enter a valid bounty description"});
+    } else {
+      this.setState({descriptionError: ""});
+      var newData = {
+        title: this.state.contract.bountyData.title,
+        description: description,
+        sourceFileHash: this.state.contract.bountyData.sourceFileHash,
+        sourceFileName: this.state.contract.bountyData.sourceFileName,
+        contact: this.state.contract.bountyData.contact,
+        categories: this.state.contract.bountyData.categories
+      };
+      ipfs.addJSON(newData, (err, result)=>{
+        StandardBounties.changeBountyData(this.state.bountyId, result, {from: this.state.accounts[0]}, (cerr, succ)=> {
+          window.location.reload();
+        });
+      });
+
+    }
+
+  }
+  handleChangeTitleEdit(evt) {
+    evt.preventDefault();
+
+    this.setState({editTitle: !this.state.editTitle});
+  }
+
+  handleSubmitNewTitle(evt){
+    evt.preventDefault();
+
+    var title = evt.target.title.value;
+
+    if (title === ""){
+      this.setState({titleError: "Please enter a valid bounty title"});
+    } else {
+      this.setState({titleError: ""});
+      var newData = {
+        title: title,
+        description: this.state.contract.bountyData.description,
+        sourceFileHash: this.state.contract.bountyData.sourceFileHash,
+        sourceFileName: this.state.contract.bountyData.sourceFileName,
+        contact: this.state.contract.bountyData.contact,
+        categories: this.state.contract.bountyData.categories
+      };
+      ipfs.addJSON(newData, (err, result)=>{
+        StandardBounties.changeBountyData(this.state.bountyId, result, {from: this.state.accounts[0]}, (cerr, succ)=> {
+          window.location.reload();
+        });
+      });
+
+    }
+
+  }
   handlecaptureFile (event) {
     event.stopPropagation()
     event.preventDefault()
@@ -606,7 +681,7 @@ handleClose(){
         actions=(
           <div style={{marginTop: "15px", width: "100%"}}>
             <div style={{display: "block"}}>
-              <ActivateForm onhandleActivate={this.handleActivate} tokenDetails={this.state.tokenDetails} amount={web3.fromWei(this.state.contract.value, 'ether')}/>
+              <ActivateForm onhandleActivate={this.handleActivate} tokenDetails={this.state.tokenDetails} amount={this.state.contract.value}/>
               <ChangeDeadlineForm onhandleChangeDeadline={this.handleChangeDeadline} deadlineError={this.state.deadlineError}/>
             </div>
             <div style={{display: "block"}}>
@@ -813,7 +888,22 @@ handleClose(){
                   </div>
                 </div>
                 <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "470px"}}>
-                  <h3 style={{margin: "0px", width: "100%"}}> {this.state.contract.bountyData.title}</h3>
+                {this.state.editTitle?
+                  <form className='AddProject' onSubmit={this.handleSubmitNewTitle} style={{color: "white"}}>
+                    <input id='title' style={{border: "none", width: "450px"}} className='SendAmount' type='text' defaultValue={this.state.contract.bountyData.title}/>
+                    {this.state.titleError &&
+                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.titleError}</p>}
+
+                    <button type='submit' className='AddBtn' style={{backgroundColor: "rgb(101, 197, 170)", border:"0px", width: "200px", margin: "0 auto", color: "rgb(21, 38, 57)", display: "block", marginTop: "15px"}}>Update</button>
+                  </form>
+                  :
+
+                  <h3 style={{margin: "0px", width: "100%"}}> {this.state.contract.bountyData.title}<SvgEdit style={{color: "#65C5AA", height: "18px", width: "18px"}} onClick={this.handleChangeTitleEdit}/></h3>
+
+                }
+
+
+
                   <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty Stage:</b> {this.state.contract.stage}</p>
                   <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Deadline:</b> {this.state.contract.deadline}</p>
 
@@ -838,7 +928,22 @@ handleClose(){
                 </div>
                 <div style={{width: "100%"}}>
                 <p style={{ fontSize: "12px", width: "940px", margin: "0px 15px 15px 15px", padding: "0px"}}>
-                  <b style={{color: "#FFDE46", fontWeight: "200"}}>Description: </b><br/>{ this.state.contract.bountyData.description}
+                  <b style={{color: "#FFDE46", fontWeight: "200"}}>Description: </b>
+                  <SvgEdit style={{color: "#65C5AA", height: "14px", width: "14px"}} onClick={this.handleChangeDescriptionEdit}/>
+                  <br/>
+                  {this.state.editDescription?
+                    <form className='AddProject' onSubmit={this.handleSubmitNewDescription} style={{color: "white"}}>
+                      <textarea rows="3" id='description' className='SendAmount' type='text'  style={{width: "904px", marginBottom: "15px", fontSize: "12px", padding: "10px"}} defaultValue={this.state.contract.bountyData.description}/>
+                      {this.state.descriptionError &&
+                        <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.descriptionError}</p>}
+
+                      <button type='submit' className='AddBtn' style={{backgroundColor: "rgb(101, 197, 170)", border:"0px", width: "200px", margin: "0 auto", color: "rgb(21, 38, 57)", display: "block", marginTop: "15px"}}>Update</button>
+                    </form>
+                    :
+
+                    this.state.contract.bountyData.description
+                  }
+
                 </p>
 
                 </div>

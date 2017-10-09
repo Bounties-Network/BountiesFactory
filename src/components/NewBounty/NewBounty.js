@@ -170,7 +170,7 @@ class NewBounty extends Component {
     } else {
       this.setState({titleError: ""});
     }
-    if (title === ""){
+    if (description === ""){
       foundError = true;
       this.setState({descriptionError: "You must enter a description, with requirements for your bounty"});
     } else {
@@ -200,20 +200,23 @@ class NewBounty extends Component {
     var date = deadline.getTime()/1000|0;
     date +=  "";
 
-    var value = 0;
-    if (evt.target.deposit_amount){
-      value = evt.target.deposit_amount.value;
-    }
+    if (this.state.activateNow === "now"){
+      var value = 0;
+      if (evt.target.deposit_amount){
+        value = evt.target.deposit_amount.value;
+      }
 
-    if (value === "" || value === 0){
-      foundError = true;
-      this.setState({valueError: "You must activate your bounty with a non-zero amount"});
-    } else if (value < fulfillmentAmount){
-      foundError = true;
-      this.setState({valueError: "You must activate your bounty with at least enough funds to pay out once"});
-    }else {
-      this.setState({deadlineError: ""});
+      if (value === "" || value === 0){
+        foundError = true;
+        this.setState({valueError: "You must activate your bounty with a non-zero amount"});
+      } else if (value < fulfillmentAmount){
+        foundError = true;
+        this.setState({valueError: "You must activate your bounty with at least enough funds to pay out once"});
+      }else {
+        this.setState({valueError: ""});
+      }
     }
+    console.log("did i find errors?", foundError, this.state.activateNow);
     if (!foundError){
       var stringAmount = 0;
       var stringValue = 0;
@@ -229,8 +232,10 @@ class NewBounty extends Component {
           contact: info,
           categories: this.state.optionsList
         };
+        console.log("about to add JSON");
 
         ipfs.addJSON(submit, (err, result)=> {
+          console.log("added JSON", err, result);
           if (this.state.activateNow === "now"){
 
             StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, stringAmount, {from: this.state.accounts[0], value: stringAmount}, (cerr, succ)=> {
@@ -379,7 +384,7 @@ class NewBounty extends Component {
               <h3 style={{fontFamily: "Open Sans", margin: "24px", textAlign: "Center", fontWeight: "500", width: "950px"}}>Create a New Bounty</h3>
               <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "white"}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
-                <input id='contract_title' style={{border: "none", width: "950px"}} className='SendAmount' type='number' step="any" />
+                <input id='contract_title' style={{border: "none", width: "950px"}} className='SendAmount' type='text' />
                 {this.state.titleError &&
                   <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.titleError}</p>}
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Description</label>

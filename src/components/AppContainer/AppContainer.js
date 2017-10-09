@@ -86,6 +86,7 @@ class AppContainer extends Component {
       // Use Mist/MetaMask's provider
       web3.setProvider(window.web3.currentProvider);
       if (networkId !== web3.version.network){
+        console.log("network, ", web3.version.network, networkId);
           this.setState({modalError: ("Please change your Ethereum network to the " + json.networkName), modalOpen: true});
       } else {
       web3.eth.getAccounts(function(err, accs){
