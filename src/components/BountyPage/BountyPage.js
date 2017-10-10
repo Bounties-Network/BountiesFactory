@@ -78,8 +78,7 @@ class BountyPage extends Component {
                   sourceFileName: "",
                   sourceFileHash: "",
                   description: "",
-                  categories: []
-                },
+                  categories: []},
                 contractAddr: "0x0",
                 issuerContact: "0x0",
                 shouldOpen: false,
@@ -179,74 +178,80 @@ class BountyPage extends Component {
           this.setState({accounts: accs});
           StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
             StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
-              ipfs.catJSON(data, (err, result)=> {
-                var stage;
-                if (parseInt(succ[4], 10) === 0){
-                  stage = "Draft";
-                } else if (parseInt(succ[4], 10) === 1){
-                  stage = "Active";
-                } else {
-                  stage = "Dead";
-                }
-                var newDate = new Date(parseInt(succ[1], 10)*1000);
+              if (data){
+                console.log("data", data);
+
+                ipfs.catJSON(data, (err, result)=> {
+                  var stage;
+                  if (parseInt(succ[4], 10) === 0){
+                    stage = "Draft";
+                  } else if (parseInt(succ[4], 10) === 1){
+                    stage = "Active";
+                  } else {
+                    stage = "Dead";
+                  }
+                  var newDate = new Date(parseInt(succ[1], 10)*1000);
 
 
-                if (!succ[3]){
-                  var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
-                  var balance = web3.fromWei(parseInt(succ[6], 10), 'ether');
-                  console.log("balance: ", value, balance);
-                  this.setState({contract: {
-                    issuer: succ[0],
-                    deadline: newDate.toUTCString(),
-                    value: value,
-                    paysTokens: succ[3],
-                    stage: stage,
-                    owedAmount: parseInt(succ[5], 10),
-                    balance: balance,
-                    bountyData: result,
-                    symbol: "ETH",
-                    mine: (succ[0] === this.state.accounts[0])
-                  }, loading: false});
-                } else {
-                  StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
-                    var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
-                    HumanStandardToken.symbol((err, symbol)=> {
-                      HumanStandardToken.decimals((err, dec)=> {
+                  if (!succ[3]){
+                    var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
+                    var balance = web3.fromWei(parseInt(succ[6], 10), 'ether');
+                    console.log("balance: ", value, balance);
+                    this.setState({contract: {
+                      issuer: succ[0],
+                      deadline: newDate.toUTCString(),
+                      value: value,
+                      paysTokens: succ[3],
+                      stage: stage,
+                      owedAmount: parseInt(succ[5], 10),
+                      balance: balance,
+                      bountyData: result,
+                      symbol: "ETH",
+                      mine: (succ[0] === this.state.accounts[0])
+                    }, loading: false});
+                  } else {
+                    StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
+                      var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
+                      HumanStandardToken.symbol((err, symbol)=> {
+                        HumanStandardToken.decimals((err, dec)=> {
 
-                        var decimals = parseInt(dec, 10);
-                        var newAmount = succ[2];
-                        var decimalToMult = new BN(10, 10);
-                        var decimalUnits = new BN(decimals, 10);
-                        decimalToMult = decimalToMult.pow(decimalUnits);
-                        newAmount = newAmount.div(decimalToMult);
+                          var decimals = parseInt(dec, 10);
+                          var newAmount = succ[2];
+                          var decimalToMult = new BN(10, 10);
+                          var decimalUnits = new BN(decimals, 10);
+                          decimalToMult = decimalToMult.pow(decimalUnits);
+                          newAmount = newAmount.div(decimalToMult);
 
-                        var balance = succ[6];
-                        balance = balance.div(decimalToMult);
+                          var balance = succ[6];
+                          balance = balance.div(decimalToMult);
 
 
-                        this.setState({contract: {
-                          issuer: succ[0],
-                          deadline: newDate.toUTCString(),
-                          value: parseInt(newAmount, 10),
-                          paysTokens: succ[3],
-                          stage: stage,
-                          owedAmount: parseInt(succ[5], 10),
-                          balance: parseInt(balance, 10),
-                          bountyData: result,
-                          symbol: this.toUTF8(symbol),
-                          mine: (succ[0] === this.state.accounts[0]),
-                          decimals: decimals,
-                          tokenContract: HumanStandardToken,
-                        }, loading: false});
+                          this.setState({contract: {
+                            issuer: succ[0],
+                            deadline: newDate.toUTCString(),
+                            value: parseInt(newAmount, 10),
+                            paysTokens: succ[3],
+                            stage: stage,
+                            owedAmount: parseInt(succ[5], 10),
+                            balance: parseInt(balance, 10),
+                            bountyData: result,
+                            symbol: this.toUTF8(symbol),
+                            mine: (succ[0] === this.state.accounts[0]),
+                            decimals: decimals,
+                            tokenContract: HumanStandardToken,
+                          }, loading: false});
 
+                        });
                       });
+
                     });
 
-                  });
+                  }
 
-                }
+                });
+              }
 
-              });
+
 
             });
 
@@ -453,8 +458,7 @@ class BountyPage extends Component {
     let ipfsId;
     // eslint-disable-next-line
     const buffer = Buffer.from(reader.result);
-    this.ipfsApi.add(buffer)
-    .then((response) => {
+    ipfs.add(buffer, (err, response)=> {
       console.log("response", response);
 
       ipfsId = response[0].hash;
@@ -462,10 +466,8 @@ class BountyPage extends Component {
 
       this.setState({sourceFileHash: ipfsId});
 
+    });
 
-    }).catch((err) => {
-      console.error(err)
-    })
   }
 isAddress(address) {
     // function isAddress(address) {
@@ -762,7 +764,7 @@ handleClose(){
             <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
               <div style={{width: "60%", display: "inline-block", float: "left"}}>
                 <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Bounty Hunter: </b>
-                <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://rinkeby.etherscan.io/address/"+ this.state.fulfillments[i].fulfiller}>{this.state.fulfillments[i].fulfiller}</a></p>
+                <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.fulfillments[i].fulfiller}>{this.state.fulfillments[i].fulfiller}</a></p>
               </div>
               <div style={{width: "10%", display: "inline-block", float: "left", borderRight: "1px solid #65C5AA", paddingRight: "15px"}}>
                 <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "right"}}>{this.state.fulfillments[i].accepted? "Accepted" : "Not Yet Accepted"}</p>
@@ -842,7 +844,7 @@ handleClose(){
           <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
               <h5 style={{margin: "15px 0px"}}><b style={{color: "#FFDE46", fontSize: "16px"}}>{this.state.commentsAbout[i].title}</b></h5>
               <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>By: </b>
-              <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://rinkeby.etherscan.io/address/"+ this.state.commentsAbout[i].from}>{this.state.commentsAbout[i].from}</a></p>
+              <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.commentsAbout[i].from}>{this.state.commentsAbout[i].from}</a></p>
               <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>On: </b>{this.state.commentsAbout[i].date}</p>
               <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Comment: </b>{this.state.commentsAbout[i].description}</p>
           </div>
@@ -888,6 +890,11 @@ handleClose(){
                   </div>
                 </div>
                 <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "470px"}}>
+                {
+                  this.state.contract.stage === "Draft"
+                  &&
+                  <SvgEdit style={{color: "#65C5AA", height: "18px", width: "18px", paddingRight: "5px"}} className={"iconHover"} onClick={this.handleChangeTitleEdit}/>
+                }
                 {this.state.editTitle?
                   <form className='AddProject' onSubmit={this.handleSubmitNewTitle} style={{color: "white"}}>
                     <input id='title' style={{border: "none", width: "450px"}} className='SendAmount' type='text' defaultValue={this.state.contract.bountyData.title}/>
@@ -898,7 +905,7 @@ handleClose(){
                   </form>
                   :
 
-                  <h3 style={{margin: "0px", width: "100%"}}> {this.state.contract.bountyData.title}<SvgEdit style={{color: "#65C5AA", height: "18px", width: "18px"}} onClick={this.handleChangeTitleEdit}/></h3>
+                  <h3 style={{margin: "0px", width: "100%", display: "inline"}}> {this.state.contract.bountyData.title}</h3>
 
                 }
 
@@ -908,7 +915,7 @@ handleClose(){
                   <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Deadline:</b> {this.state.contract.deadline}</p>
 
                   <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Contact the bounty issuer:</b> { this.state.contract.bountyData.contact}</p>
-                  <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Issuer Address:</b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://rinkeby.etherscan.io/address/"+ this.state.contract.issuerContact}>{ this.state.contract.issuer}</a></p>
+                  <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Issuer Address:</b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.contract.issuerContact}>{ this.state.contract.issuer}</a></p>
                   {this.state.contract.bountyData.sourceFileHash &&
                   <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Associated File: </b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.contract.bountyData.sourceFileHash}> {this.state.contract.bountyData.sourceFileName} </a> </p>}
                 </div>
@@ -928,10 +935,15 @@ handleClose(){
                 </div>
                 <div style={{width: "100%"}}>
                 <p style={{ fontSize: "12px", width: "940px", margin: "0px 15px 15px 15px", padding: "0px"}}>
+                {
+                  this.state.contract.stage === "Draft"
+                  &&
+                  <SvgEdit style={{color: "#65C5AA", height: "14px", width: "14px",paddingRight: "5px"}} className={"iconHover"} onClick={this.handleChangeDescriptionEdit}/>
+                }
+
                   <b style={{color: "#FFDE46", fontWeight: "200"}}>Description: </b>
-                  <SvgEdit style={{color: "#65C5AA", height: "14px", width: "14px"}} onClick={this.handleChangeDescriptionEdit}/>
                   <br/>
-                  {this.state.editDescription?
+                  {(this.state.editDescription)?
                     <form className='AddProject' onSubmit={this.handleSubmitNewDescription} style={{color: "white"}}>
                       <textarea rows="3" id='description' className='SendAmount' type='text'  style={{width: "904px", marginBottom: "15px", fontSize: "12px", padding: "10px"}} defaultValue={this.state.contract.bountyData.description}/>
                       {this.state.descriptionError &&
@@ -953,7 +965,7 @@ handleClose(){
             </div>
             { this.state.loading &&
 
-              <div style={{marginLeft: "480px", marginTop: "60px", overflow: "hidden"}}>
+              <div style={{marginLeft: "480px", marginTop: "60px", overflow: "hidden", marginBottom: "60px"}}>
               <Halogen.ScaleLoader color={"#65C5AA"} />
               </div>
             }
@@ -972,6 +984,8 @@ handleClose(){
             {comments}
           </div>
         </div>
+        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)"}}>&copy; Bounties Network, a ConsenSys Formation <br/>
+        This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
       </div>
     </div>
     )

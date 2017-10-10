@@ -17,7 +17,7 @@ class MyContractCard extends Component {
     return (
       <a  href={url} style={{textDecoration: "none", padding: "0px", width: "245px"}}>
       <div style={{width: "100%", marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgba(10, 22, 40, 0.75)", color: "white", border: "0", borderLeft: "1px solid #65C5AA"}} className="ContractCard">
-        <div style={{float: "left", display: "inline-block", width: "200px", paddingLeft: "15px", marginTop: "15px"}}>
+        <div style={{float: "left", display: "inline-block", width: "200px", paddingLeft: "15px"}}>
           <h4 style={{margin: "0px", width: "100%"}}> {title}</h4>
           <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Balance:</b> {this.props.balance + (this.props.symbol? this.props.symbol : 'ETH')}</p>
           <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty Stage: </b>{this.props.stage}</p>

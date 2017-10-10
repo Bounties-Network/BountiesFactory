@@ -45,3 +45,9 @@
     background-color: #fff;
   }
 }
+.iconHover{
+  cursor: pointer;
+}
+.iconHover:hover{
+  color: rgb(255, 222, 70) !important;
+}

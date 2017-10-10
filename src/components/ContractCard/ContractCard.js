@@ -63,7 +63,7 @@ class ContractCard extends Component {
           <div style={{float: "left", display: "inline-block", width: "510px", border: "1px solid #65C5AA", borderWidth: "0 0 0 1px", paddingLeft: "15px", marginTop: "15px"}}>
             <h4 style={{margin: "0px", width: "100%"}}> {this.props.data.title}</h4>
             <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty Stage: </b>{this.props.stage}</p>
-            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty deployed by:  </b><a target={"_blank"} style={{color: "#65C5AA"}} href={"https://rinkeby.etherscan.io/address/"+ this.props.issuer}>{ this.props.issuer}</a></p>
+            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty deployed by:  </b><a target={"_blank"} style={{color: "#65C5AA"}} href={"https://etherscan.io/address/"+ this.props.issuer}>{ this.props.issuer}</a></p>
             <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Contact the bounty issuer: </b>{this.props.data.contact}</p>
           </div>
           <a style={{marginTop: "59px", color: "#65C5AA", textAlign: "right"}}> <SvgArrow style={{color: "#65C5AA", fontSize: "44px"}}/></a>

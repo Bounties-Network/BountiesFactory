@@ -21,7 +21,6 @@ import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
 import AccountFacts from 'components/AccountFacts/AccountFacts';
 
 import ContractList from 'components/ContractList/ContractList';
-import MyContractList from 'components/MyContractList/MyContractList';
 
 import Dialog from 'material-ui/Dialog';
 
@@ -217,7 +216,7 @@ class AllBountiesPage extends Component {
       }
     }
     var recentList = [];
-    for (var j = 0; j < 3 && j < this.state.bounties.length; j++){
+    for (var j = 0; j < this.state.bounties.length; j++){
         recentList.push(this.state.bounties[j]);
     }
     console.log("lists", this.state.bounties);
@@ -252,12 +251,8 @@ class AllBountiesPage extends Component {
       </div>
         <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "120px"}}>
 
-        <div style={{width: "276px", float: "left", display: "block", marginRight: "15px"}}>
-        {newList.length !== 0 && <MyContractList list={newList} acc={this.state.accounts[0]} loading={this.state.loading}/>}
-        </div>
-        <div style={{width: "744px", float: "left", display: "block"}}>
-          {activeList.length !== 0 && <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Active Bounties'}/>}
-          {recentList.length !== 0 && <ContractList list={recentList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Recent Bounties'}/>}
+        <div style={{width: "744px", margin: "0 auto", display: "block"}}>
+          {recentList.length !== 0 && <ContractList list={recentList} acc={this.state.accounts[0]} loading={this.state.loading} title={'All Bounties'}/>}
         </div>
       </div>
 

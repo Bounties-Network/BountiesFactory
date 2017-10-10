@@ -36,7 +36,7 @@ class MyContractList extends Component {
     }
     var error;
     if (this.props.list.length === 0){
-      error = (<p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46"}}>You have not created any bounties yet!</p>)
+      error = (<p style={{fontSize: "12px", color: "#FFDE46", textAlign: "center", width: "100%"}}>You have not created any bounties yet!</p>)
     }
     return (
       <div className='ContractList'>

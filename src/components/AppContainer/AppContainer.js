@@ -113,6 +113,9 @@ class AppContainer extends Component {
               this.getBounty(i, bounties, total);
 
             }
+            if (total === 0){
+              this.setState({loading: false});
+            }
 
           });
 
@@ -239,30 +242,34 @@ class AppContainer extends Component {
        >
          {this.state.modalError}
        </Dialog>
-      <div id="colourBody" style={{minHeight: "100vh"}}>
-      <div style={{overflow: "hidden"}}>
-        <a href="/" style={{width: "276px", overflow: "hidden", display: "inline-block", float: "left", padding: "1.25em 0em"}}>
-          <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "44px"}}>
-          </div>
-        </a>
-        <BountiesFacts total={this.state.total}/>
-        <AccountFacts total={totalMe}/>
-        <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-        <FlatButton href="/newBounty/" style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
-      </div>
+      <div id="colourBody" style={{minHeight: "100vh", position: "relative"}}>
+        <div style={{overflow: "hidden"}}>
+          <a href="/" style={{width: "276px", overflow: "hidden", display: "inline-block", float: "left", padding: "1.25em 0em"}}>
+            <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "44px"}}>
+            </div>
+          </a>
+          <BountiesFacts total={this.state.total}/>
+          <AccountFacts total={totalMe}/>
+          <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
+          <FlatButton href="/newBounty/" style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
+          <FlatButton href="/allbounties/" style={{backgroundColor: "rgba(0,0,0,0)", border:"1px solid #65C5AA", color: "#65C5AA", width: "150px", marginTop: '18px', float: "right", marginRight: "15px"}} > All Bounties </FlatButton>
+
+        </div>
         <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "120px"}}>
 
-        <div style={{width: "276px", float: "left", display: "block", marginRight: "15px"}}>
-        {newList.length !== 0 && <MyContractList list={newList} acc={this.state.accounts[0]} loading={this.state.loading}/>}
+          <div style={{width: "276px", float: "left", display: "block", marginRight: "15px"}}>
+            {<MyContractList list={newList} acc={this.state.accounts[0]} loading={this.state.loading}/>}
+          </div>
+          <div style={{width: "744px", float: "left", display: "block"}}>
+            {activeList.length !== 0 && <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Active Bounties'}/>}
+            {<ContractList list={recentList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Recent Bounties'}/>}
+          </div>
         </div>
-        <div style={{width: "744px", float: "left", display: "block"}}>
-          {activeList.length !== 0 && <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Active Bounties'}/>}
-          {recentList.length !== 0 && <ContractList list={recentList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Recent Bounties'}/>}
-        </div>
+        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100vw", display: "block", bottom: "0", position: "absolute"}}>&copy; Bounties Network, a ConsenSys Formation <br/>
+        This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
+
       </div>
 
-
-      </div>
     </div>
 
     )

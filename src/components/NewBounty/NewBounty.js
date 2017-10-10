@@ -16,6 +16,8 @@ const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 const ipfsAPI = require('ipfs-api');
 
+import ipfsFiles from "browser-ipfs";
+
 import { browserHistory } from 'react-router';
 
 import logo from '../AppContainer/images/logo.svg';
@@ -75,9 +77,13 @@ class NewBounty extends Component {
       contactError: "",
       deadlineError: "",
       tokenAddressError: "",
-      valueError: ""
+      valueError: "",
+      fileUploadError: "",
+      didUploadFile: false,
+      fileUploadFinished: false
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
+    ipfsFiles.setProvider({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 
 
     this.getInitialData = this.getInitialData.bind(this);
@@ -187,6 +193,12 @@ class NewBounty extends Component {
       this.setState({deadlineError: "You must enter a valid deadline for your bounty"});
     } else {
       this.setState({deadlineError: ""});
+    }
+    if (this.state.didUploadFile && !this.state.fileUploadFinished){
+      foundError = true;
+      this.setState({fileUploadError: "You must wait for your file upload to complete"});
+    } else {
+      this.setState({fileUploadError: ""});
     }
 
     if (info === ""){
@@ -304,7 +316,7 @@ class NewBounty extends Component {
     event.stopPropagation()
     event.preventDefault()
     const file = event.target.files[0]
-    this.setState({sourceFileName: file.name});
+    this.setState({sourceFileName: file.name, didUploadFile: true});
 
 
     let reader = new window.FileReader()
@@ -315,19 +327,17 @@ class NewBounty extends Component {
     let ipfsId
 
     const buffer = Buffer.from(reader.result);
-    this.ipfsApi.add(buffer)
-    .then((response) => {
+    console.log("about to save...", buffer, reader);
+
+    ipfs.add([buffer], (err, response)=> {
       console.log("response", response);
 
       ipfsId = response[0].hash;
       console.log("response", ipfsId);
 
-      this.setState({sourceFileHash: ipfsId});
+      this.setState({sourceFileHash: ipfsId, fileUploadFinished: true});
+    });
 
-
-    }).catch((err) => {
-      console.error(err)
-    })
   }
   handleTokenChange(evt){
     this.setState({payoutMethod: evt.target.value});
@@ -370,67 +380,68 @@ class NewBounty extends Component {
         >
           {this.state.modalError}
         </Dialog>
-        <div id="colourBody">
+        <div id="colourBody" style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
           <div style={{overflow: "hidden"}}>
-            <a href="/" style={{width: "276px", overflow: "hidden", display: "inline-block", float: "left", padding: "1.25em 0em"}}>
-            <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", float: "left", marginLeft: "44px", display: "block"}}>
+            <a href="/" style={{width: "276px", overflow: "hidden", display: "block", float: "left", padding: "1.25em 0em"}}>
+            <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", float: "left", marginLeft: "44px", display: "inline-block"}}>
             </div>
             </a>
             <BountiesFacts total={this.state.total}/>
             <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
           </div>
-          <div style={{display: "block", width: "1050px", margin: "0 auto"}}>
-            <div style={{float: "left", display: "inline-block", overflow: "hidden", width: "1000px", padding: "15px", margin: "0 auto", paddingBottom: "60px", marginBottom: "15px", marginTop: "30px", backgroundColor: "rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #65C5AA", color :"white"}} className="ContractCard">
-              <h3 style={{fontFamily: "Open Sans", margin: "24px", textAlign: "Center", fontWeight: "500", width: "950px"}}>Create a New Bounty</h3>
+            <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", paddingBottom: "60px", marginBottom: "15px", marginTop: "30px", backgroundColor: "rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #65C5AA", color :"white"}} className="ContractCard">
+              <h3 style={{fontFamily: "Open Sans", margin: "24px", textAlign: "Center", fontWeight: "500", width: "1000px"}}>Create a New Bounty</h3>
               <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "white"}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
-                <input id='contract_title' style={{border: "none", width: "950px"}} className='SendAmount' type='text' />
+                <input id='contract_title' style={{border: "none", width: "1000px"}} className='SendAmount' type='text' />
                 {this.state.titleError &&
                   <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.titleError}</p>}
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Description</label>
-                <textarea rows="3" id='contract_description' className='SendAmount' type='text'  style={{width: "945px", marginBottom: "15px", fontSize: "16px", padding: "10px"}}/>
+                <textarea rows="3" id='contract_description' className='SendAmount' type='text'  style={{width: "995px", marginBottom: "15px", fontSize: "16px", padding: "10px"}}/>
                 {this.state.descriptionError &&
                   <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.descriptionError}</p>}
                 <div style={{display: "inline-block"}}>
-                  <div style={{width: "465px", marginRight: "15px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} >Payout Method</label>
-                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: "white", width: "457px", height: "40px", display: "block"}}>
+                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: "white", width: "490px", height: "40px", display: "block"}}>
                       <option value="ETH">ETH</option>
                       <option value="ERC">ERC20 Token </option>
                     </select>
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "10px", marginBottom: "15px"}}>the token which will be used to pay out the reward</p>
 
                   </div>
-                  <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount</label>
-                    <input id="fulfillmentAmount" style={{width: "440px", border: "none"}}></input>
+                    <input id="fulfillmentAmount" style={{width: "470px", border: "0px"}}></input>
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
                   </div>
                 </div>
                 <div style={{display: "inline-block"}}>
-                  <div style={{width: "465px", marginRight: "15px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
                     <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
-                    <div style={{width: "440px", display: "block", border: "1px solid white", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px"}}>
+                    <div style={{width: "475px", display: "block", border: "1px solid white", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px"}}>
                       <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "4px", marginTop: "-1px"}}> Upload </label>
                       <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
                     </div>
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any files required by bounty hunters</p>
+                    {this.state.fileUploadError &&
+                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fileUploadError}</p>}
                   </div>
-                  <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='contact_info'>Contact Info</label>
-                    <input id="contact_info" style={{width: "440px", border: "none"}}></input>
+                    <input id="contact_info" style={{width: "468px", border: "none"}}></input>
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>for bounty hunters to be able to contact you off-chain</p>
                     {this.state.contactError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.contactError}</p>}
                   </div>
                 </div>
                 <div style={{display: "inline-block"}}>
-                  <div style={{width: "465px", marginRight: "15px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} >When to Activate</label>
-                    <select onChange={this.handleActivateNowChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: "white", width: "457px", height: "40px", display: "block"}}>
+                    <select onChange={this.handleActivateNowChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: "white", width: "490px", height: "40px", display: "block"}}>
                       <option value="later">Later</option>
                       <option value="now">Now</option>
                     </select>
@@ -438,20 +449,20 @@ class NewBounty extends Component {
                   </div>
                   <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='bounty_deadline'>Bounty Deadline (UTC)</label>
-                    <input id='bounty_deadline' style={{border: "none", width: "440px"}} type='datetime-local' />
+                    <input id='bounty_deadline' style={{border: "none", width: "470px"}} type='datetime-local' />
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the deadline for submitting any bugs</p>
                     {this.state.deadlineError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.deadlineError}</p>}
                   </div>
                 </div>
                 <div style={{display: "inline-block"}}>
-                  <div style={{width: "465px", marginRight: "15px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} >Bounty Category</label>
                     <Select multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select task categories" options={CATEGORIES} onChange={this.handleSelectChange} />
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px", marginBottom: "15px"}}>the types of tasks being bountied</p>
                   </div>
                   {this.state.encrypt &&
-                  <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
 
                       <label style={{fontSize: "12px"}} >Encrypt File Submissions</label>
                       <select onChange={this.handleEncryptChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: "white", width: "457px", height: "40px", display: "block"}}>
@@ -465,14 +476,14 @@ class NewBounty extends Component {
                   {this.state.payoutMethod === "ERC" && (
                     <div style={{float: "left", display: "inline-block"}}>
                       <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
-                      <input id='token_address' style={{border: "none", width: "950px"}} className='SendAmount' type='text'/>
+                      <input id='token_address' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
                       <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
                     </div>
                   )}
                   {this.state.activateNow === "now" && (
                     <div style={{float: "left", display: "inline-block"}}>
                       <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Deposit Amount</label>
-                      <input id='deposit_amount' style={{border: "none", width: "950px"}} className='SendAmount' type='text'/>
+                      <input id='deposit_amount' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
                       <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the amount of ETH or tokens you wish to deposit</p>
                       {this.state.valueError &&
                         <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.valueError}</p>}
@@ -481,7 +492,9 @@ class NewBounty extends Component {
                 <button type='submit' className='AddBtn' style={{backgroundColor: "rgb(101, 197, 170)", border:"0px", width: "200px", margin: "0 auto", color: "rgb(21, 38, 57)", display: "block", marginTop: "30px"}}>Create</button>
               </form>
             </div>
-          </div>
+
+          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a ConsenSys Formation <br/>
+          This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
         </div>
       </div>
     )
