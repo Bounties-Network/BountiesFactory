@@ -53,7 +53,6 @@ class ContractCard extends Component {
     var reward = this.props.value;
     var url = ("/bounty/" + this.props.bountyId);
     return (
-      <a href={url} style={{textDecoration: "none", padding: "0px", width: "700px"}}>
         <div style={{width: "100%", marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgba(10, 22, 40, 0.5)", color: "white", border: "0"}} className="ContractCard">
           <div style={{float: "left", display: "inline-block", width: "150px", marginLeft: "-7.5px", marginRight: "7.5px"}}>
             <h1 style={{textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px", color: "#65C5AA"}}>{reward}</h1>
@@ -66,12 +65,11 @@ class ContractCard extends Component {
             <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty deployed by:  </b><a target={"_blank"} style={{color: "#65C5AA"}} href={"https://etherscan.io/address/"+ this.props.issuer}>{ this.props.issuer}</a></p>
             <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Contact the bounty issuer: </b>{this.props.data.contact}</p>
           </div>
-          <a style={{marginTop: "59px", color: "#65C5AA", textAlign: "right"}}> <SvgArrow style={{color: "#65C5AA", fontSize: "44px"}}/></a>
+          <a style={{marginTop: "59px", color: "#65C5AA", textAlign: "right"}} href={url}> <SvgArrow style={{color: "#65C5AA", fontSize: "44px"}}/></a>
           <div style={{display: "block", margin: "0 auto"}}>
             {categories}
           </div>
         </div>
-      </a>
     )
   }
 }

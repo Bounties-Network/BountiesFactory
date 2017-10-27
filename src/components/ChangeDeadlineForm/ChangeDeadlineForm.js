@@ -4,14 +4,14 @@ import './ChangeDeadlineForm.css'
 class ChangeDeadlineForm extends Component {
   render() {
     return (
-      <div style={{width: "467px", display: "inline-block", paddingLeft: "15px"}}>
-        <form className='Activate' onSubmit={this.props.onhandleDeadlineChange} style={{width: "100%", display: "inline-block", marginTop: "30px"}}>
-          <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px"}}> Change Bounty Deadline</h3>
+      <div style={{width: "467px", paddingLeft: "15px", paddingRight: "15px", display: "block", margin: "0 auto", marginTop: "30px", marginBottom: "15px"}}>
+        <form className='Activate' onSubmit={this.props.onhandleDeadlineChange} style={{width: "100%"}}>
+          <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}> Change Bounty Deadline</h3>
           <label style={{fontSize: "12px"}} htmlFor='bounty_deadline'>Updated Deadline (UTC)</label>
-          <input id='bounty_deadline' type='datetime-local' style={{width: "450px", border: "0px"}}/>
+          <input id='bounty_deadline' type='datetime-local' style={{width: "450px", border: "0px", height: "22px"}}/>
           {this.props.deadlineError &&
             <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.props.deadlineError}</p>}
-          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "rgba(255, 255, 255, 0.18)", border:"0px"}}>Extend</button>
+          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#65C5AA", border:"0px"}}>Extend</button>
 
         </form>
       </div>

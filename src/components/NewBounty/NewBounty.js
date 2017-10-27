@@ -27,6 +27,8 @@ import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
 
 import Select from 'react-select';
 import Dialog from 'material-ui/Dialog';
+import LinearProgress from 'material-ui/LinearProgress';
+
 
 
 
@@ -80,7 +82,10 @@ class NewBounty extends Component {
       valueError: "",
       fileUploadError: "",
       didUploadFile: false,
-      fileUploadFinished: false
+      fileUploadFinished: false,
+      submitting: false,
+      loadingAmount: 10,
+      loadingString: "",
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
     ipfsFiles.setProvider({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
@@ -152,6 +157,13 @@ class NewBounty extends Component {
       }
     } else {
       this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
+      setInterval(function() {
+        if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
+          this.getInitialData();
+        } else {
+          console.log("window", window.web3);
+        }
+      }, 100);
     }
 
   }
@@ -169,6 +181,7 @@ class NewBounty extends Component {
     if (evt.target.token_address){
       tokenAddress = evt.target.token_address.value;
     }
+
     var foundError = false;
     if (title === ""){
       foundError = true;
@@ -194,6 +207,7 @@ class NewBounty extends Component {
     } else {
       this.setState({deadlineError: ""});
     }
+
     if (this.state.didUploadFile && !this.state.fileUploadFinished){
       foundError = true;
       this.setState({fileUploadError: "You must wait for your file upload to complete"});
@@ -213,6 +227,7 @@ class NewBounty extends Component {
     date +=  "";
 
     if (this.state.activateNow === "now"){
+      console.log("activating now");
       var value = 0;
       if (evt.target.deposit_amount){
         value = evt.target.deposit_amount.value;
@@ -228,8 +243,8 @@ class NewBounty extends Component {
         this.setState({valueError: ""});
       }
     }
-    console.log("did i find errors?", foundError, this.state.activateNow);
     if (!foundError){
+      this.setState({submitting: true, loadingAmount: 10});
       var stringAmount = 0;
       var stringValue = 0;
       if (this.state.payoutMethod === "ETH"){
@@ -244,21 +259,68 @@ class NewBounty extends Component {
           contact: info,
           categories: this.state.optionsList
         };
-        console.log("about to add JSON");
+          this.setState({loadingAmount: 15});
 
         ipfs.addJSON(submit, (err, result)=> {
-          console.log("added JSON", err, result);
+          this.setState({loadingAmount: 50});
           if (this.state.activateNow === "now"){
+            this.setState({loadingString: "Please confirm the Ethereum transaction to issue and activate your bounty"});
 
-            StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, stringAmount, {from: this.state.accounts[0], value: stringAmount}, (cerr, succ)=> {
+            StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, stringValue, {from: this.state.accounts[0], value: stringValue}, (cerr, succ)=> {
+              if (err){
+                console.log("cerr", err);
+                this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
 
-              browserHistory.push('/');
+              } else {
+                console.log("tx success", succ);
+                this.setState({loadingAmount: 80, loadingString: "Waiting for your transaction to be confirmed on the blockchain..."});
+                var hasSucceeded = false;
+                setInterval(function() {
+                  if (!hasSucceeded){
+                    web3.eth.getTransaction(succ, (err, succ)=> {
+                      if (succ.blockNumber){
+                        this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
+                        hasSucceeded = true;
+                        setTimeout(function(){
+                            browserHistory.push('/');
+
+                        }, 3000);
+                      }
+                    });
+                  }
+                }.bind(this), 100);
+              }
+              //browserHistory.push('/');
             });
           } else {
+            this.setState({loadingString: "Please confirm the Ethereum transaction to issue your bounty"});
+            StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, {from: this.state.accounts[0]}, (err, succ)=> {
+              if (err){
+                console.log("cerr", err);
+                this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
 
-            StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, {from: this.state.accounts[0]}, (cerr, succ)=> {
+              } else {
+                console.log("tx success", succ);
+                this.setState({loadingAmount: 80, loadingString: "Waiting for your transaction to be confirmed on the blockchain..."});
+                var hasSucceeded = false;
+                setInterval(function() {
+                  if (!hasSucceeded){
+                    web3.eth.getTransaction(succ, (err, succ)=> {
+                      if (succ.blockNumber){
+                        this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
+                        hasSucceeded = true;
+                        setTimeout(function(){
+                            browserHistory.push('/');
 
-              browserHistory.push('/');
+                        }, 3000);
+                      }
+                    });
+                  }
+                }.bind(this), 100);
+              }
+
+
+              //browserHistory.push('/');
             });
 
           }
@@ -282,27 +344,90 @@ class NewBounty extends Component {
             contact: info,
             categories: this.state.optionsList
           };
-
+          this.setState({loadingAmount: 15});
           ipfs.addJSON(submit, (err, result)=> {
-            console.log("got result", result, err);
+            this.setState({loadingAmount: 40});
             if (this.state.activateNow === "now"){
-              console.log("about to approve", StandardBounties.address);
+              this.setState({loadingString: "Please confirm the Ethereum transaction to transfer the tokens for the new bounty"});
 
-              tokenContract.approve(StandardBounties.address, stringAmount, {from: this.state.accounts[0]}, (err, succ)=> {
-                StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, stringAmount, {from: this.state.accounts[0], value: stringValue}, (cerr, succ)=> {
-                  if (cerr){
-                    console.log('error:', cerr);
-                  }
-                  browserHistory.push('/');
-                });
+              tokenContract.approve(StandardBounties.address, stringValue, {from: this.state.accounts[0]}, (err, succ)=> {
+                if (err){
+                  console.log("cerr", err);
+                  this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
+
+                } else {
+                  console.log("tx success", succ);
+                  this.setState({loadingAmount: 60, loadingString: "Waiting for your token transfer transaction to be confirmed on the blockchain..."});
+                  var hasSucceeded = false;
+                  setInterval(function() {
+                    if (!hasSucceeded){
+                      web3.eth.getTransaction(succ, (err, succ)=> {
+                        if (succ.blockNumber){
+                          hasSucceeded = true;
+                          this.setState({loadingString: "Please confirm the Ethereum transaction to issue and activate your new bounty", loadingAmount: 80});
+                          StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, stringValue, {from: this.state.accounts[0]}, (cerr, succ)=> {
+                            if (err){
+                              console.log("cerr", err);
+                              this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
+
+                            } else {
+                              console.log("tx success", succ);
+                              this.setState({loadingAmount: 90, loadingString: "Waiting for your new bounty transaction to be confirmed on the blockchain..."});
+                              var hasSucceeded = false;
+                              setInterval(function() {
+                                if (!hasSucceeded){
+                                  web3.eth.getTransaction(succ, (err, succ)=> {
+                                    if (succ.blockNumber){
+                                      this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
+                                      hasSucceeded = true;
+                                      setTimeout(function(){
+                                          browserHistory.push('/');
+
+                                      }, 3000);
+                                    }
+                                  });
+                                }
+                              }.bind(this), 100);
+                            }
+                            //browserHistory.push('/');
+                          });
+
+                        }
+                      });
+                    }
+                  }.bind(this), 100);
+                }
+
               });
 
             } else {
+              this.setState({loadingString: "Please confirm the Ethereum transaction to issue your bounty"});
+
               StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, {from: this.state.accounts[0]}, (cerr, succ)=> {
-                if (cerr){
-                  console.log('error:', cerr);
+                if (err){
+                  console.log("cerr", err);
+                  this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
+
+                } else {
+                  console.log("tx success", succ);
+                  this.setState({loadingAmount: 80, loadingString: "Waiting for your transaction to be confirmed on the blockchain..."});
+                  var hasSucceeded = false;
+                  setInterval(function() {
+                    if (!hasSucceeded){
+                      web3.eth.getTransaction(succ, (err, succ)=> {
+                        if (succ.blockNumber){
+                          this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
+                          hasSucceeded = true;
+                          setTimeout(function(){
+                              browserHistory.push('/');
+
+                          }, 3000);
+                        }
+                      });
+                    }
+                  }.bind(this), 100);
                 }
-                browserHistory.push('/');
+                //browserHistory.push('/');
               });
             }
           });
@@ -332,10 +457,8 @@ class NewBounty extends Component {
     ipfs.add([buffer], (err, response)=> {
       console.log("response", response);
 
-      ipfsId = response[0].hash;
-      console.log("response", ipfsId);
 
-      this.setState({sourceFileHash: ipfsId, fileUploadFinished: true});
+      this.setState({sourceFileHash: response, fileUploadFinished: true});
     });
 
   }
@@ -412,7 +535,7 @@ class NewBounty extends Component {
                   </div>
                   <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount</label>
-                    <input id="fulfillmentAmount" style={{width: "470px", border: "0px"}}></input>
+                    <input id="fulfillmentAmount" style={{width: "470px", border: "0px"}} type="number" step="any"></input>
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
@@ -461,6 +584,15 @@ class NewBounty extends Component {
                     <Select multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select task categories" options={CATEGORIES} onChange={this.handleSelectChange} />
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px", marginBottom: "15px"}}>the types of tasks being bountied</p>
                   </div>
+                  {this.state.activateNow === "now" && (
+                    <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                      <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Deposit Amount</label>
+                      <input id='deposit_amount' style={{border: "none", width: "470px"}} className='SendAmount' type='number' step="any"/>
+                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the amount of ETH or tokens you wish to deposit</p>
+                      {this.state.valueError &&
+                        <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.valueError}</p>}
+                    </div>
+                  )}
                   {this.state.encrypt &&
                   <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
 
@@ -480,16 +612,15 @@ class NewBounty extends Component {
                       <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
                     </div>
                   )}
-                  {this.state.activateNow === "now" && (
-                    <div style={{float: "left", display: "inline-block"}}>
-                      <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Deposit Amount</label>
-                      <input id='deposit_amount' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
-                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the amount of ETH or tokens you wish to deposit</p>
-                      {this.state.valueError &&
-                        <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.valueError}</p>}
+                {this.state.submitting &&
+                  <div style={{width: "50%", display: "block", margin: "0 auto", marginTop: "30px"}}>
+                  <p style={{fontSize: "14px", textAlign: "center"}}> {this.state.loadingString} </p>
+
+                    <LinearProgress mode="determinate" value={this.state.loadingAmount} color="rgb(255, 222, 70)"/>
                     </div>
-                  )}
+                }
                 <button type='submit' className='AddBtn' style={{backgroundColor: "rgb(101, 197, 170)", border:"0px", width: "200px", margin: "0 auto", color: "rgb(21, 38, 57)", display: "block", marginTop: "30px"}}>Create</button>
+
               </form>
             </div>
 

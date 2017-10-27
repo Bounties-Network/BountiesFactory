@@ -125,6 +125,13 @@ class AppContainer extends Component {
     }
     } else {
       this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
+      setInterval(function() {
+        if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
+          this.getInitialData();
+        } else {
+          console.log("window", window.web3);
+        }
+      }, 100);
     }
   }
   getBounty(bountyId, bounties, total){
@@ -143,7 +150,7 @@ class AppContainer extends Component {
 
           if (!succ[3]){
             var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
-            var balance = web3.fromWei(parseInt(succ[6], 10), 'ether');
+            var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
             bounties.push({
               bountyId: bountyId,
               issuer: succ[0],
@@ -151,7 +158,6 @@ class AppContainer extends Component {
               value: value,
               paysTokens: succ[3],
               stage: stage,
-              owedAmount: parseInt(succ[5], 10),
               balance: balance,
               bountyData: result,
               symbol: "ETH"
@@ -172,7 +178,7 @@ class AppContainer extends Component {
                   decimalToMult = decimalToMult.pow(decimalUnits);
                   newAmount = newAmount.div(decimalToMult);
 
-                  var balance = succ[6];
+                  var balance = succ[5];
                   balance = balance.div(decimalToMult);
 
                   bounties.push({
@@ -185,7 +191,7 @@ class AppContainer extends Component {
                     owedAmount: parseInt(succ[5], 10),
                     balance: parseInt(balance, 10),
                     bountyData: result,
-                    symbol: this.toUTF8(symbol)
+                    symbol: symbol
                   });
                   if (bounties.length === total){
                     this.setState({bounties: bounties, loading: false});
@@ -245,7 +251,7 @@ class AppContainer extends Component {
       <div id="colourBody" style={{minHeight: "100vh", position: "relative"}}>
         <div style={{overflow: "hidden"}}>
           <a href="/" style={{width: "276px", overflow: "hidden", display: "inline-block", float: "left", padding: "1.25em 0em"}}>
-            <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "44px"}}>
+            <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "60px"}}>
             </div>
           </a>
           <BountiesFacts total={this.state.total}/>

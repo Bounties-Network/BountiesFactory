@@ -241,7 +241,7 @@ class AllBountiesPage extends Component {
       <div id="colourBody" style={{minHeight: "100vh"}}>
       <div style={{overflow: "hidden"}}>
         <a href="/" style={{width: "276px", overflow: "hidden", display: "inline-block", float: "left", padding: "1.25em 0em"}}>
-          <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "44px"}}>
+          <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "60px"}}>
           </div>
         </a>
         <BountiesFacts total={this.state.total}/>
