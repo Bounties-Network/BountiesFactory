@@ -50,7 +50,10 @@ class MyContractList extends Component {
           <p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46"}}> Loading from the blockchain... </p>
         </div>
       }
+        <div style={{ backgroundColor: "rgba(10, 22, 40, 0.75)"}}>
         {contractsList}
+
+        </div>
         {!this.props.loading &&error}
       </div>
     )

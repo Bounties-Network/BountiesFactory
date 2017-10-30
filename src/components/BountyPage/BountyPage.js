@@ -665,15 +665,18 @@ class BountyPage extends Component {
   }
 isAddress(address) {
     // function isAddress(address) {
+
         if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
         // check if it has the basic requirements of an address
+        console.log("not address");
         return false;
+
     } else if (/^(0x)?[0-9a-f]{40}$/.test(address) || /^(0x)?[0-9A-F]{40}$/.test(address)) {
         // If it's all small caps or all all caps, return "true
         return true;
     } else {
         // Otherwise check each case
-        return this.isChecksumAddress(address);
+        return true;
     }
 }
 handleCloseTxLoading(){
@@ -688,6 +691,7 @@ isChecksumAddress(address) {
     for (var i = 0; i < 40; i++ ) {
         // the nth letter should be uppercase if the nth digit of casemap is 1
         if ((parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) || (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])) {
+          console.log("not checksum");
             return false;
         }
     }
@@ -1333,7 +1337,7 @@ handleSelectChange(value) {
           <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
               <h5 style={{margin: "15px 0px"}}><b style={{fontSize: "16px"}}>{myComments[i].title}</b></h5>
               <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>By: </b>
-              <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ myComments[i].from}>{myComments[i].from}</a></p>
+              <a style={{color: "#65C5AA"}} target={"_blank"} href={"/user/"+ myComments[i].from}>{myComments[i].from}</a></p>
               <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>On: </b>{myComments[i].date}</p>
               <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Comment: </b>{myComments[i].description}</p>
           </div>
@@ -1403,7 +1407,7 @@ handleSelectChange(value) {
                   <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Deadline:</b> {this.state.contract.deadline}</p>
 
                   <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Contact the bounty issuer:</b> { this.state.contract.bountyData.contact}</p>
-                  <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty Issuer:</b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.contract.issuerContact}>{ this.state.contract.issuer}</a></p>
+                  <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty Issuer:</b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"/user/"+ this.state.contract.issuer}>{ this.state.contract.issuer}</a></p>
                   {this.state.contract.bountyData.sourceFileHash &&
                   <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Associated File: </b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.contract.bountyData.sourceFileHash}> {this.state.contract.bountyData.sourceFileName} </a> </p>}
                   {this.state.contract.paysTokens &&

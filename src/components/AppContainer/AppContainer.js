@@ -3,7 +3,7 @@ import './AppContainer.css'
 
 import Web3 from 'web3';
 
-const web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io"));
+const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
 const json = require('../../../contracts.json');
 const networkId = json.networkId;
 const StandardBounties = web3.eth.contract(json.interfaces.StandardBounties).at(json.standardBountiesAddress);
@@ -17,13 +17,11 @@ const utf8 = require('utf8');
 import logo from './images/logo.svg';
 import FlatButton from 'material-ui/FlatButton';
 import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
-import AccountFacts from 'components/AccountFacts/AccountFacts';
 
 import ContractList from 'components/ContractList/ContractList';
-import MyContractList from 'components/MyContractList/MyContractList';
 
 import Dialog from 'material-ui/Dialog';
-
+import SvgArrow from 'material-ui/svg-icons/hardware/keyboard-arrow-right';
 
 
 
@@ -40,13 +38,18 @@ class AppContainer extends Component {
       total: 0,
       totalMe: 0,
       loading: true,
-      myBountiesLoading: true
+      myBountiesLoading: true,
+      selectedStage: "Active",
+      selectedMine: "ANY",
     }
 
     this.getInitialData = this.getInitialData.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.getBounty = this.getBounty.bind(this);
+    this.handleChangeStage = this.handleChangeStage.bind(this);
+    this.handleMineChange = this.handleMineChange.bind(this);
+    this.handleChangeToMine = this.handleChangeToMine.bind(this);
   }
   componentDidMount() {
 
@@ -89,6 +92,8 @@ class AppContainer extends Component {
         console.log("network, ", web3.version.network, networkId);
           this.setState({modalError: ("Please change your Ethereum network to the " + json.networkName), modalOpen: true});
       } else {
+
+
       web3.eth.getAccounts(function(err, accs){
         if (err){
           console.log ('error fetching accounts', err);
@@ -124,6 +129,21 @@ class AppContainer extends Component {
       }.bind(this));
     }
     } else {
+      var bounties = [];
+      StandardBounties.getNumBounties((err, succ)=> {
+        var total = parseInt(succ, 10);
+        this.setState({total: total});
+        for (var i = 0; i < total; i++){
+          this.getBounty(i, bounties, total);
+
+        }
+        if (total === 0){
+          this.setState({loading: false});
+        }
+
+      });
+      /*
+
       this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
       setInterval(function() {
         if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
@@ -132,6 +152,7 @@ class AppContainer extends Component {
           console.log("window", window.web3);
         }
       }, 100);
+      */
     }
   }
   getBounty(bountyId, bounties, total){
@@ -193,6 +214,7 @@ class AppContainer extends Component {
                     bountyData: result,
                     symbol: symbol
                   });
+                  console.log("bounties", bounties);
                   if (bounties.length === total){
                     this.setState({bounties: bounties, loading: false});
                   }
@@ -210,34 +232,66 @@ class AppContainer extends Component {
     });
 
   }
+  handleChangeStage(evt){
+    evt.preventDefault();
+    var selected = evt.target.value;
+    console.log("selected", selected);
+    this.setState({selectedStage: selected});
+  }
+
+  handleMineChange(evt){
+    evt.preventDefault();
+    var selected = evt.target.value;
+    this.setState({selectedMine: selected});
+  }
+  handleChangeToMine(evt){
+    evt.preventDefault();
+    this.setState({selectedMine: "MINE"});
+  }
 
   render() {
     var newList = [];
+    var totalMe = 0;;
+    var activeList = [];
+    var activeMe = 0;
+    var draftMe = 0;
+    var deadMe = 0;
     for (var i = 0; i < this.state.bounties.length; i++){
       if (this.state.bounties[i].issuer === this.state.accounts[0]){
         newList.push(this.state.bounties[i]);
+        totalMe++;
+        if (this.state.bounties[i].stage === "Active"){
+          activeMe++;
+        }
+        if (this.state.bounties[i].stage === "Draft"){
+          draftMe++;
+        }
+        if (this.state.bounties[i].stage === "Dead"){
+          deadMe++;
+        }
       }
-    }
-    var totalMe = newList.length;
-    var activeList = [];
-    for (i = 0; i < this.state.bounties.length; i++){
-      if (this.state.bounties[i].stage === "Active"){
-        activeList.push(this.state.bounties[i]);
+      if (this.state.bounties[i].stage === this.state.selectedStage || this.state.selectedStage === "ANY"){
+        if (this.state.selectedMine === "ANY"){
+          activeList.push(this.state.bounties[i]);
+        } else if (this.state.selectedMine === "MINE" && this.state.bounties[i].issuer === this.state.accounts[0]){
+          activeList.push(this.state.bounties[i]);
+        } else if (this.state.selectedMine === "NOT MINE" && this.state.bounties[i].issuer !== this.state.accounts[0]){
+          activeList.push(this.state.bounties[i]);
+        }
       }
     }
     var recentList = [];
     for (var j = 0; j < 3 && j < this.state.bounties.length; j++){
         recentList.push(this.state.bounties[j]);
     }
-    console.log("lists", this.state.bounties);
     const modalActions = [
     <FlatButton
       label="Retry"
       primary={true}
       onClick={this.handleClose}
+      style={{color: "#65C5AA"}}
     />
   ];
-
     return (
       <div>
       <Dialog
@@ -255,20 +309,77 @@ class AppContainer extends Component {
             </div>
           </a>
           <BountiesFacts total={this.state.total}/>
-          <AccountFacts total={totalMe}/>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
           <FlatButton href="/newBounty/" style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
-          <FlatButton href="/allbounties/" style={{backgroundColor: "rgba(0,0,0,0)", border:"1px solid #65C5AA", color: "#65C5AA", width: "150px", marginTop: '18px', float: "right", marginRight: "15px"}} > All Bounties </FlatButton>
-
         </div>
-        <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "120px"}}>
+        <div style={{ display: "block", overflow: "hidden", width: "1100px", margin: "0 auto", paddingBottom: "120px"}}>
 
-          <div style={{width: "276px", float: "left", display: "block", marginRight: "15px"}}>
-            {<MyContractList list={newList} acc={this.state.accounts[0]} loading={this.state.loading}/>}
+          <div style={{width: "245px", float: "left", display: "block", marginRight: "15px"}}>
+            <h3 style={{fontFamily: "Open Sans", marginTop: "31px", marginBottom: "31px", textAlign: "center", color: "white", width: "100%"}}>My Profile</h3>
+            <div style={{display: "block", width: "215px", backgroundColor: "rgba(10, 22, 40, 0.5)", overflow: "hidden", marginTop: "15px", padding: "15px"}}>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "200", textAlign: "center", lineHeight: "24px"}}>You have posted  <b style={{color: "#65C5AA", fontSize: "24px"}}>{totalMe}</b> bounties</h5>
+              <div style={{marginBottom: "15px", borderBottom: "1px solid #65C5AA", display: "block", overflow: "hidden"}}>
+                <div style={{width: "33%", float: "left", display: "block"}}>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "white", width: "100%", fontWeight: "200", lineHeight: "24px", borderRight:"1px solid #65C5AA"}}><b style={{ fontSize: "24px"}}>{draftMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 186, 20)", width: "100%", fontWeight: "200" }}>Draft</h5>
+
+                </div>
+                <div style={{width: "33%", float: "left", display: "block"}}>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "white", width: "100%", fontWeight: "200",  lineHeight: "24px", borderRight:"1px solid #65C5AA"}}><b style={{fontSize: "24px"}}>{activeMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 222, 70)" , width: "100%", fontWeight: "200" }}>Active</h5>
+
+
+                </div>
+                <div style={{width: "33%", float: "left", display: "block"}}>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "white", width: "100%", fontWeight: "200", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{deadMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "#65C5AA", width: "100%", fontWeight: "200"}}>Dead</h5>
+
+                </div>
+              </div>
+
+              <FlatButton
+                label="My Profile"
+                primary={true}
+                labelPosition="before"
+                href={"/user/" + this.state.accounts[0]}
+                style={{color: "white", width: "100%", backgroundColor: "rgba(256, 256, 256, 0.05)"}}
+                icon={<SvgArrow style={{color: "#65C5AA", fontSize: "44px"}}/>}
+              />
+              <FlatButton
+                label="My Bounties"
+                primary={true}
+                labelPosition="before"
+                onClick={this.handleChangeToMine}
+                style={{color: "white", width: "100%", backgroundColor: "rgba(256, 256, 256, 0.05)", marginTop: "15px"}}
+                icon={<SvgArrow style={{color: "#65C5AA", fontSize: "44px"}}/>}
+              />
+
+            </div>
+
           </div>
-          <div style={{width: "744px", float: "left", display: "block"}}>
-            {activeList.length !== 0 && <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Active Bounties'}/>}
-            {<ContractList list={recentList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Recent Bounties'}/>}
+          <div style={{width: "630px", float: "left", display: "block"}}>
+            <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Bounties'}/>
+          </div>
+          <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}}>
+            <h3 style={{fontFamily: "Open Sans", marginTop: "31px", marginBottom: "31px", textAlign: "center", color: "white", width: "100%"}}>Filter</h3>
+            <div style={{display: "block", width: "100%", backgroundColor: "rgba(10, 22, 40, 0.5)", overflow: "hidden"}}>
+              <select onChange={this.handleChangeStage} value={this.state.selectedStage} style={{fontSize: "16px",backgroundColor: "rgba(10, 22, 40, 0)", border: "0px",color: "white", width: "195px", height: "40px", display: "block", borderRadius: "0px"}}>
+                <option value="Draft">Draft Bounties</option>
+                <option value="Active">Active Bounties</option>
+                <option value="Dead">Dead Bounties</option>
+                <option value="ANY">Any Stage</option>
+              </select>
+            </div>
+            <div style={{display: "block", width: "100%", backgroundColor: "rgba(10, 22, 40, 0.5)", overflow: "hidden", marginTop: "15px"}}>
+              <select onChange={this.handleMineChange} value={this.state.selectedMine} style={{fontSize: "16px",backgroundColor: "rgba(10, 22, 40, 0)" , border: "0px", color: "white", width: "195px", height: "40px", display: "block", borderRadius: "0px"}}>
+                <option value="ANY" selected="selected">{"Anyone's Bounties"}</option>
+                <option value="MINE">My Bounties</option>
+                <option value="NOT MINE">Not My Bounties</option>
+              </select>
+            </div>
+
+
+
           </div>
         </div>
         <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100vw", display: "block", bottom: "0", position: "absolute"}}>&copy; Bounties Network, a ConsenSys Formation <br/>

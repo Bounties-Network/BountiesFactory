@@ -32,21 +32,21 @@ class ContractList extends Component {
                       tokenDetails={contract.tokenDetails}
                       bountyId={contract.bountyId}
                       symbol={contract.symbol}
+                      deadline={contract.deadline}
                       />
         );
       });
     }
     var error;
     if (this.props.list.length === 0){
-      error = (<p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46", width: "100%"}}>There are no bounties yet! Create one now</p>)
+      error = (<p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46", width: "100%"}}>There are no bounties here!</p>)
     }
-    console.log("this is the list", this.props.loading);
     return (
       <div className='ContractList'>
       <h3 style={{fontFamily: "Open Sans", marginTop: "31px", marginBottom: "31px", textAlign: "center", color: "white", width: "100%"}}> {this.props.title}</h3>
-      {this.props.loading && 
+      {this.props.loading &&
         <div style={{width: "100%"}}>
-          <div style={{marginLeft: "348px", marginTop: "60px", overflow: "hidden", }}>
+          <div style={{marginLeft: "296px", marginTop: "60px", overflow: "hidden", }}>
           <Halogen.ScaleLoader color={"#65C5AA"} />
           </div>
           <p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46"}}> Loading from the blockchain... </p>

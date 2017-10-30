@@ -30,6 +30,7 @@ import TransferOwnershipForm from 'components/TransferOwnershipForm/TransferOwne
 import ExtendDeadlineForm from 'components/ExtendDeadlineForm/ExtendDeadlineForm';
 import KillBountyForm from 'components/KillBountyForm/KillBountyForm';
 import IncreasePayoutForm from 'components/IncreasePayoutForm/IncreasePayoutForm';
+import SvgArrow from 'material-ui/svg-icons/hardware/keyboard-arrow-right';
 
 import FlatButton from 'material-ui/FlatButton';
 import Chip from 'material-ui/Chip';
@@ -515,7 +516,7 @@ onlyUnique(value, index, self) {
   var myIssued = 0;
   var mySubs = 0;
   var myContactInfo = [];
-
+  var myCategories = [];
   for (i = 0; i  < this.state.bounties.length; i++){
     if (this.state.bounties[i].mine){
       mine = true;
@@ -536,6 +537,11 @@ onlyUnique(value, index, self) {
         }
       }
       if (this.state.bounties[i].fulfillments[j].fulfiller.toLowerCase() === this.state.userAddress.toLowerCase()){
+        for (var k = 0; k < this.state.bounties[i].bountyData.categories.length; k++){
+          if (myCategories.indexOf(this.state.bounties[i].bountyData.categories[k]) < 0){
+            myCategories.push(this.state.bounties[i].bountyData.categories[k]);
+          }
+        }
         if (this.state.bounties[i].fulfillments[j].accepted){
           numAccepted ++;
         }
@@ -549,6 +555,38 @@ onlyUnique(value, index, self) {
       }
     }
     mine = false;
+  }
+  console.log("my categories", myCategories);
+  var categories = [];
+  if (myCategories.length > 0){
+    for (i = 0; i < myCategories.length; i++){
+      var icon;
+      if (myCategories[i] === "Bugs"){
+        icon=(<SvgBug />);
+      } else if (myCategories[i] === "Code"){
+        icon=(<SvgCode />);
+      } else if (myCategories[i] === "Graphic Design"){
+        icon=(<SvgGraphic />);
+      } else if (myCategories[i] === "Questions"){
+        icon=(<SvgQuestion />);
+      } else if (myCategories[i] === "Surveys"){
+        icon=(<SvgSurvey />);
+      } else if (myCategories[i] === "Social Media"){
+        icon=(<SvgSocial />);
+      } else if (myCategories[i] === "Content Creation"){
+        icon=(<SvgContent />);
+      } else if (myCategories[i] === "Translations"){
+        icon=(<SvgTranslations />);
+      }
+      categories.push(
+        <Chip style={{margin: "5px 5px 5px 0px", float: "left", border: "1px solid rgba(0, 126, 255, 0.24)", backgroundColor: "rgba(0, 126, 255, 0.08)", height: "30px"}}
+              labelStyle={{color: "white", lineHeight: "28px"}}
+              key={myCategories[i]}>
+          <Avatar color="rgb(255, 222, 70)" icon={icon} style={{backgroundColor: "rgba(0, 126, 255, 0.24)", height: "28px", width: "28px"}}/>
+          {myCategories[i]}
+        </Chip>
+      );
+    }
   }
   var uniqueContactInfo = myContactInfo.filter(this.onlyUnique);
   var acceptanceRate = 0;
@@ -564,11 +602,32 @@ onlyUnique(value, index, self) {
   console.log("my bounties & ful", myBounties, myFul);
   var bountiesList = [];
   for (i = 0; i < myBounties.length && i < 5; i++){
+    var url = ("/bounty/" + myBounties[i].bountyId);
     bountiesList.push(
-      <a href={"/bounty/"+ myBounties[i].bountyId} style={{textDecoration: "none"}}>
-      <div key={"bountiesList"+i} style={{backgroundColor: "rgba(256, 256, 256, 0.1)", padding: "10px", marginBottom: "15px", marginTop: "0px", color: "white"}} >
-        <h4 style={{margin: "0px", fontSize: "14px", fontWeight: "200"}}>{myBounties[i].bountyData.title}</h4>
+      <a key={"bountiesList"+i} style={{}} href={url}>
+      <div  style={{backgroundColor: "rgba(10, 22, 40, 0.75)", borderLeft: "1px solid rgb(101, 197, 170)", padding: "10px", marginBottom: (i === (myBounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "white", overflow: "hidden"}} >
+        <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
+        <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "700"}}>{myBounties[i].bountyData.title}</h4>
+        <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}>{myBounties[i].fulfillments.length}<b style={{color: "#FFDE46", fontWeight: "200"}}> total submissions</b></p>
+        </div>
+        <SvgArrow style={{color: "#65C5AA", fontSize: "44px", marginTop: "10px", color: "#65C5AA", textAlign: "right", display: "block"}}/>
+      </div>
+      </a>
+    );
+  }
+  var fulfillmentsList = [];
+  for (i = 0; i < myFul.length && i < 5; i++){
+    var url = ("/bounty/" + myFul[i].bountyId);
 
+    fulfillmentsList.push(
+      <a key={"fulList"+i} style={{}} href={url}>
+      <div style={{backgroundColor: "rgba(10, 22, 40, 0.75)", borderLeft: "1px solid rgb(101, 197, 170)", padding: "10px", marginBottom: (i === (myBounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "white", overflow: "hidden"}} >
+        <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
+        <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "700"}}>{myBounties[i].bountyData.title}</h4>
+        <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Reward: </b>{myFul[i].value + " " + myFul[i].symbol} | <b style={{color: "#FFDE46", fontWeight: "200"}}>{myFul[i].accepted? "Accepted" : "Not Accepted"}</b></p>
+
+        </div>
+        <SvgArrow style={{color: "#65C5AA", fontSize: "44px", marginTop: "10px", color: "#65C5AA", textAlign: "right", display: "block"}}/>
 
       </div>
       </a>
@@ -599,7 +658,7 @@ onlyUnique(value, index, self) {
   var fulUI = (
     <div>
       <h3 style={{margin: "0px", width: "100%", fontSize: "18px", textAlign: "center"}}>Bounty Submissions</h3>
-      <div style={{paddingBottom: "15px", borderBottom: "1px solid rgb(101, 197, 170)", display: "inline-block", width: "442px"}}>
+      <div style={{paddingBottom: "15px", borderBottom: "1px solid rgb(101, 197, 170)", display: "inline-block", width: "442px",  marginBottom: "12px"}}>
         <div style={{width: "33%", display: "inline-block", float: "left"}}>
           <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid rgb(101, 197, 170)", margin: "15px 0px"}}>{myFul.length}</h3>
           <p style={{fontSize: "10px", textAlign: "center", color: "rgb(255, 222, 70)"}}>Submissions</p>
@@ -610,10 +669,11 @@ onlyUnique(value, index, self) {
           <p style={{fontSize: "10px", textAlign: "center", color: "rgb(255, 222, 70)"}}>Accepted</p>
         </div>
         <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid rgb(101, 197, 170)", margin: "15px 0px"}}>{acceptanceRate}<b style={{fontSize: "18px"}}>%</b></h3>
+          <h3 style={{textAlign: "center", fontSize: "48px", margin: "15px 0px"}}>{acceptanceRate}<b style={{fontSize: "18px"}}>%</b></h3>
           <p style={{fontSize: "10px", textAlign: "center", color: "rgb(255, 222, 70)"}}>Acceptance Rate</p>
         </div>
       </div>
+      {fulfillmentsList}
     </div>
   );
 
@@ -629,7 +689,7 @@ onlyUnique(value, index, self) {
        >
          {this.state.modalError}
        </Dialog>
-        <div id="colourBody" style={{minHeight: "100vh"}}>
+        <div id="colourBody" style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
           <div style={{overflow: "hidden"}}>
             <a href="/" style={{width: "276px", overflow: "hidden", display: "inline-block", float: "left", padding: "1.25em 0em"}}>
               <div style={{backgroundImage: `url(${logo})`, width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat",  height: "3em", float: "left", marginLeft: "60px", display: "block"}}>
@@ -650,12 +710,15 @@ onlyUnique(value, index, self) {
                   <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>ETH</h5>
                 </div>
               </div>
-              <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "730px", paddingTop: "15px"}}>
+              <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "730px"}}>
+              <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>User Address:</b></p>
                 <h3 style={{margin: "0px", width: "100%", display: "inline", fontWeight: "200", marginTop: "30px"}}>
                   <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.userAddress}>{this.state.userAddress}</a>
                 </h3>
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Contact user:</b> { contactString}</p>
+                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Contact user:</b> { contactString}</p>
+                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Skills:</b></p>
 
+                {categories}
               </div>
           </div>
             <div style={{float: "left", margin: "0 15px 15px 15px", width: "442px", display: "inline-block", backgroundColor: "rgba(10, 22, 40, 0.5)", padding: "30px"}}>

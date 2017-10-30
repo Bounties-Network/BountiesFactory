@@ -50,22 +50,21 @@ class ContractCard extends Component {
       }
     }
 
-    var reward = this.props.value;
+    var reward = "" + this.props.value;
     var url = ("/bounty/" + this.props.bountyId);
+//
     return (
-        <div style={{width: "100%", marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgba(10, 22, 40, 0.5)", color: "white", border: "0"}} className="ContractCard">
-          <div style={{float: "left", display: "inline-block", width: "150px", marginLeft: "-7.5px", marginRight: "7.5px"}}>
-            <h1 style={{textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px", color: "#65C5AA"}}>{reward}</h1>
-            <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>{this.props.symbol? this.props.symbol : 'ETH'}</h5>
-            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Balance:</b> {this.props.balance}</p>
+        <div style={{width: "100%", marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgba(10, 22, 40, 0.5)", color: "white", border: "1px solid #65C5AA", borderWidth: "0 0 0 1px",}} className="ContractCard">
+          <div style={{float: "left", display: "inline-block", width: "100px", marginLeft: "-7.5px", marginRight: "7.5px"}}>
+            <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#ffFFFF", fontSize: reward.length > 6? "24px":"28px"}}>{reward}</h1>
+            <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#ffba14"}}>{this.props.symbol? this.props.symbol : 'ETH'}</h5>
           </div>
-          <div style={{float: "left", display: "inline-block", width: "510px", border: "1px solid #65C5AA", borderWidth: "0 0 0 1px", paddingLeft: "15px", marginTop: "15px"}}>
+          <div style={{float: "left", display: "inline-block", width: "460px"}}>
             <h4 style={{margin: "0px", width: "100%"}}> {this.props.data.title}</h4>
-            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty Stage: </b>{this.props.stage}</p>
-            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Bounty deployed by:  </b><a target={"_blank"} style={{color: "#65C5AA"}} href={"https://etherscan.io/address/"+ this.props.issuer}>{ this.props.issuer}</a></p>
-            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Contact the bounty issuer: </b>{this.props.data.contact}</p>
+            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Issuer:  </b><a style={{color: "#65C5AA"}} href={"/user/"+ this.props.issuer}>{ this.props.issuer}</a></p>
+            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Balance:</b> {this.props.balance + " " + this.props.symbol} | <b style={{color: "#FFDE46", fontWeight: "200"}}>Deadline: </b>{this.props.deadline}</p>
           </div>
-          <a style={{marginTop: "59px", color: "#65C5AA", textAlign: "right"}} href={url}> <SvgArrow style={{color: "#65C5AA", fontSize: "44px"}}/></a>
+          <a style={{marginTop: this.props.data.categories.length === 0? "20px" : "35px", color: "#65C5AA", textAlign: "right"}} href={url}> <SvgArrow style={{color: "#65C5AA", fontSize: "44px"}}/></a>
           <div style={{display: "block", margin: "0 auto"}}>
             {categories}
           </div>
