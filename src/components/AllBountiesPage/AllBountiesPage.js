@@ -50,7 +50,7 @@ class AllBountiesPage extends Component {
   }
   componentDidMount() {
 
-  this.getInitialData();
+    window.addEventListener('load',this.getInitialData);
 
   }
 

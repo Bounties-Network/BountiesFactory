@@ -27,7 +27,7 @@ class ContractCard extends Component {
         } else if (this.props.data.categories[i] === "Code"){
           icon=(<SvgCode  style={{width: "10px", height: "10px"}}/>);
         } else if (this.props.data.categories[i] === "Surveys"){
-          icon=(<SvgSurvey />);
+          icon=(<SvgSurvey style={{width: "10px", height: "10px"}}/>);
         } else if (this.props.data.categories[i] === "Graphic Design"){
           icon=(<SvgGraphic  style={{width: "10px", height: "10px"}}/>);
         } else if (this.props.data.categories[i] === "Questions"){
@@ -55,14 +55,14 @@ class ContractCard extends Component {
 //
     return (
         <div style={{width: "100%", marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgba(10, 22, 40, 0.5)", color: "white", border: "1px solid #65C5AA", borderWidth: "0 0 0 1px",}} className="ContractCard">
-          <div style={{float: "left", display: "inline-block", width: "100px", marginLeft: "-7.5px", marginRight: "7.5px"}}>
+          <div style={{float: "left", display: "inline-block", width: "100px", marginLeft: "-7.5px", marginRight: "7.5px", marginTop: this.props.data.categories.length > 0? "9px" : "0px"}}>
             <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#ffFFFF", fontSize: reward.length > 6? "24px":"28px"}}>{reward}</h1>
             <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#ffba14"}}>{this.props.symbol? this.props.symbol : 'ETH'}</h5>
           </div>
           <div style={{float: "left", display: "inline-block", width: "460px"}}>
             <h4 style={{margin: "0px", width: "100%"}}> {this.props.data.title}</h4>
-            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Issuer:  </b><a style={{color: "#65C5AA"}} href={"/user/"+ this.props.issuer}>{ this.props.issuer}</a></p>
-            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Balance:</b> {this.props.balance + " " + this.props.symbol} | <b style={{color: "#FFDE46", fontWeight: "200"}}>Deadline: </b>{this.props.deadline}</p>
+            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Issuer:  </b><a style={{color: "#65C5AA"}} href={"/user/"+ this.props.issuer}>{ this.props.issuer}</a></p>
+            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Balance:</b> {this.props.balance + " " + this.props.symbol} | <b style={{color: "#FFDE46", fontWeight: "500"}}>Deadline: </b>{this.props.deadline}</p>
           </div>
           <a style={{marginTop: this.props.data.categories.length === 0? "20px" : "35px", color: "#65C5AA", textAlign: "right"}} href={url}> <SvgArrow style={{color: "#65C5AA", fontSize: "44px"}}/></a>
           <div style={{display: "block", margin: "0 auto"}}>

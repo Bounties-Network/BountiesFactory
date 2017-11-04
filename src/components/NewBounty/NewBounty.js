@@ -104,7 +104,7 @@ class NewBounty extends Component {
   }
   componentDidMount() {
     //  this.getContractData();
-    this.getInitialData();
+    window.addEventListener('load',this.getInitialData);
 
 
   }
@@ -219,7 +219,7 @@ class NewBounty extends Component {
       foundError = true;
       this.setState({contactError: "You must enter valid contact information"});
     } else {
-      this.setState({deadlineError: ""});
+      this.setState({contactError: ""});
     }
 
     var deadline = new Date(oldDeadline + "z");
@@ -227,8 +227,9 @@ class NewBounty extends Component {
     date +=  "";
 
     if (this.state.activateNow === "now"){
-      console.log("activating now");
+      console.log("activating now", evt.target.deposit_amount.value);
       var value = 0;
+
       if (evt.target.deposit_amount){
         value = evt.target.deposit_amount.value;
       }
@@ -243,6 +244,7 @@ class NewBounty extends Component {
         this.setState({valueError: ""});
       }
     }
+    console.log("foundError", foundError,"+", this.state.valueError, "+", this.state.contactError, "+", this.state.fileUploadError, "+", this.state.deadlineError, "+",  this.state.fulfillmentError,"+", this.state.descriptionError, "+", this.state.titleError);
     if (!foundError){
       this.setState({submitting: true, loadingAmount: 10});
       var stringAmount = 0;
@@ -572,7 +574,7 @@ class NewBounty extends Component {
                   </div>
                   <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='bounty_deadline'>Bounty Deadline (UTC)</label>
-                    <input id='bounty_deadline' style={{border: "none", width: "470px"}} type='datetime-local' />
+                    <input id='bounty_deadline' style={{border: "none", width: "470px"}} type='datetime-local' max="2222-12-22T22:22"/>
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the deadline for submitting any bugs</p>
                     {this.state.deadlineError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.deadlineError}</p>}

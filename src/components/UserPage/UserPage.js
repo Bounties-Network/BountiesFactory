@@ -7,7 +7,7 @@ const json = require('../../../contracts.json');
 const networkId = json.networkId;
 
 import Web3 from 'web3';
-const web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io"));
+const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
 
 const UserCommentsContract = web3.eth.contract(json.interfaces.UserComments).at(json.UserCommentsAddress);
 const StandardBounties = web3.eth.contract(json.interfaces.StandardBounties).at(json.standardBountiesAddress);
@@ -62,7 +62,7 @@ class UserPage extends Component {
       modalError: "",
       balance: 0,
       loadingInitial: true,
-      accounts: [""],
+      accounts: [],
       contracts: [],
       fulfillments: [],
       bounties: [],
@@ -72,7 +72,8 @@ class UserPage extends Component {
       modalOpen: false,
       commentsAbout: [],
       userAddress: this.props.params.address,
-      commentError: ""
+      commentError: "",
+      noWeb3Error: false,
 
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
@@ -80,12 +81,13 @@ class UserPage extends Component {
     this.getInitialData = this.getInitialData.bind(this);
 
     this.handleComment = this.handleComment.bind(this);
+    this.handleCloseNoWeb3 = this.handleCloseNoWeb3.bind(this);
 
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
   }
   componentDidMount() {
-  this.getInitialData();
+    window.addEventListener('load',this.getInitialData);
   }
 
   toUTF8(hex) {
@@ -430,6 +432,22 @@ class UserPage extends Component {
         }.bind(this));
       }
     } else {
+
+      var bounties = [];
+
+      StandardBounties.getNumBounties((err, succ)=> {
+        var total = parseInt(succ, 10);
+        this.setState({total: total});
+        for (var i = 0; i < total; i++){
+          this.getBounty(i, bounties, total);
+
+        }
+        if (total === 0){
+          this.setState({loading: false});
+        }
+
+      });
+      /*
       this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
       setInterval(function() {
         if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
@@ -438,12 +456,15 @@ class UserPage extends Component {
           console.log("window", window.web3);
         }
       }, 100);
+      */
     }
 
   }
   handleComment(evt){
     evt.preventDefault();
-
+    if (this.state.accounts.length === 0){
+      this.setState({noWeb3Error: true});
+    } else {
     var title = evt.target.comment_title.value;
     var description = evt.target.comment_description.value;
 
@@ -459,7 +480,7 @@ class UserPage extends Component {
         });
       })
     }
-
+}
   }
 
 
@@ -474,6 +495,10 @@ handleClose(){
 
 onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
+}
+handleCloseNoWeb3(){
+  this.setState({noWeb3Error: false});
+
 }
 
   render() {
@@ -550,7 +575,8 @@ onlyUnique(value, index, self) {
           data:this.state.bounties[i].fulfillments[j].data,
           bountyId:this.state.bounties[i].bountyId,
           value: this.state.bounties[i].value,
-          symbol: this.state.bounties[i].symbol
+          symbol: this.state.bounties[i].symbol,
+          bountyData: this.state.bounties[i].bountyData
         });
       }
     }
@@ -608,7 +634,7 @@ onlyUnique(value, index, self) {
       <div  style={{backgroundColor: "rgba(10, 22, 40, 0.75)", borderLeft: "1px solid rgb(101, 197, 170)", padding: "10px", marginBottom: (i === (myBounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "white", overflow: "hidden"}} >
         <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
         <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "700"}}>{myBounties[i].bountyData.title}</h4>
-        <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}>{myBounties[i].fulfillments.length}<b style={{color: "#FFDE46", fontWeight: "200"}}> total submissions</b></p>
+        <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}> <b style={{color: "#FFDE46"}}>{myBounties[i].stage}</b>| {myBounties[i].fulfillments.length}<b style={{color: "#FFDE46", fontWeight: "500"}}> total submissions</b></p>
         </div>
         <SvgArrow style={{color: "#65C5AA", fontSize: "44px", marginTop: "10px", color: "#65C5AA", textAlign: "right", display: "block"}}/>
       </div>
@@ -621,10 +647,10 @@ onlyUnique(value, index, self) {
 
     fulfillmentsList.push(
       <a key={"fulList"+i} style={{}} href={url}>
-      <div style={{backgroundColor: "rgba(10, 22, 40, 0.75)", borderLeft: "1px solid rgb(101, 197, 170)", padding: "10px", marginBottom: (i === (myBounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "white", overflow: "hidden"}} >
+      <div style={{backgroundColor: "rgba(10, 22, 40, 0.75)", borderLeft: "1px solid rgb(101, 197, 170)", padding: "10px", marginBottom: (i === (myFul.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "white", overflow: "hidden"}} >
         <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
-        <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "700"}}>{myBounties[i].bountyData.title}</h4>
-        <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Reward: </b>{myFul[i].value + " " + myFul[i].symbol} | <b style={{color: "#FFDE46", fontWeight: "200"}}>{myFul[i].accepted? "Accepted" : "Not Accepted"}</b></p>
+        <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "700"}}>{myFul[i].bountyData.title}</h4>
+        <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Reward: </b>{myFul[i].value + " " + myFul[i].symbol} | <b style={{color: "#FFDE46", fontWeight: "500"}}>{myFul[i].accepted? "Accepted" : "Not Accepted"}</b></p>
 
         </div>
         <SvgArrow style={{color: "#65C5AA", fontSize: "44px", marginTop: "10px", color: "#65C5AA", textAlign: "right", display: "block"}}/>
@@ -678,7 +704,13 @@ onlyUnique(value, index, self) {
   );
 
   console.log("this", this.state.bounties);
-
+  const modalActions3 = [
+  <FlatButton
+    label="Close"
+    primary={true}
+    onClick={this.handleCloseNoWeb3}
+  />
+  ];
     return (
       <div>
       <Dialog
@@ -689,6 +721,16 @@ onlyUnique(value, index, self) {
        >
          {this.state.modalError}
        </Dialog>
+       <Dialog
+          title=""
+          actions={modalActions3}
+          modal={true}
+          open={this.state.noWeb3Error}
+        >
+          <div style={{width: "75%", display: "block", margin: "0 auto", marginTop: "30px"}}>
+          <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}> Metamask </a> browser extension.</p>
+            </div>
+        </Dialog>
         <div id="colourBody" style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
           <div style={{overflow: "hidden"}}>
             <a href="/" style={{width: "276px", overflow: "hidden", display: "inline-block", float: "left", padding: "1.25em 0em"}}>
@@ -711,12 +753,12 @@ onlyUnique(value, index, self) {
                 </div>
               </div>
               <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "730px"}}>
-              <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>User Address:</b></p>
-                <h3 style={{margin: "0px", width: "100%", display: "inline", fontWeight: "200", marginTop: "30px"}}>
+              <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>User Address:</b></p>
+                <h3 style={{margin: "0px", width: "100%", display: "inline", fontWeight: "500", marginTop: "30px"}}>
                   <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.userAddress}>{this.state.userAddress}</a>
                 </h3>
-                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Contact user:</b> { contactString}</p>
-                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "200"}}>Skills:</b></p>
+                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Contact user:</b> { contactString}</p>
+                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Skills:</b></p>
 
                 {categories}
               </div>
@@ -730,8 +772,8 @@ onlyUnique(value, index, self) {
 
             </div>
               <div style={{float: "left", display: "block", margin: "0 15px", width: "1000px"}}>
-              {
-                this.state.userAddress.toLowerCase() !== this.state.accounts[0].toLowerCase() && !this.state.loading
+              {this.state.accounts.length === 0 ||
+                (this.state.userAddress.toLowerCase() !== this.state.accounts[0].toLowerCase() && !this.state.loading)
                 &&
                 <form className='Contribute' onSubmit={this.handleComment} style={{width: "960px", display: "inline-block", backgroundColor: "rgba(10, 22, 40, 0.5)", padding: "30px"}}>
                   <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Comment on User</h4>
