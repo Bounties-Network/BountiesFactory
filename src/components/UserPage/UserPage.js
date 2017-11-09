@@ -502,6 +502,8 @@ handleCloseNoWeb3(){
 }
 
   render() {
+    document.title = "Bounties Explorer | User " + this.state.userAddress;
+
     const modalActions = [
     <FlatButton
       label="Retry"
@@ -758,7 +760,7 @@ handleCloseNoWeb3(){
                   <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.userAddress}>{this.state.userAddress}</a>
                 </h3>
                 <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Contact user:</b> { contactString}</p>
-                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Skills:</b></p>
+                {myCategories.length > 0 && <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Skills:</b></p>}
 
                 {categories}
               </div>
@@ -789,7 +791,7 @@ handleCloseNoWeb3(){
               {comments}
             </div>
           </div>
-          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", bottom: "0", position: "absolute", width: "100vw"}}>&copy; Bounties Network, a ConsenSys Formation <br/>
+          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", bottom: "0", position: "absolute", width: "100vw"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}>ConsenSys</a> Formation <br/>
           This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
         </div>
       </div>

@@ -33,6 +33,7 @@ class ContractList extends Component {
                       bountyId={contract.bountyId}
                       symbol={contract.symbol}
                       deadline={contract.deadline}
+                      numFul={contract.numFul}
                       />
         );
       });

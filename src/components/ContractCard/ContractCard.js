@@ -62,7 +62,10 @@ class ContractCard extends Component {
           <div style={{float: "left", display: "inline-block", width: "460px"}}>
             <h4 style={{margin: "0px", width: "100%"}}> {this.props.data.title}</h4>
             <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Issuer:  </b><a style={{color: "#65C5AA"}} href={"/user/"+ this.props.issuer}>{ this.props.issuer}</a></p>
-            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Balance:</b> {this.props.balance + " " + this.props.symbol} | <b style={{color: "#FFDE46", fontWeight: "500"}}>Deadline: </b>{this.props.deadline}</p>
+            <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Balance:</b> {this.props.balance + " " + this.props.symbol + " "}
+                                                                            | <b style={{color: "#FFDE46", fontWeight: "500"}}>{this.props.numFul}</b> {this.props.numFul===1? "Submission ":"Submissions "}
+                                                                            | <b style={{color: "#FFDE46", fontWeight: "500"}}>Deadline: </b>{this.props.deadline}
+                                                                            </p>
           </div>
           <a style={{marginTop: this.props.data.categories.length === 0? "20px" : "35px", color: "#65C5AA", textAlign: "right"}} href={url}> <SvgArrow style={{color: "#65C5AA", fontSize: "44px"}}/></a>
           <div style={{display: "block", margin: "0 auto"}}>

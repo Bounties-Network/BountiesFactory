@@ -227,24 +227,22 @@ class NewBounty extends Component {
     date +=  "";
 
     if (this.state.activateNow === "now"){
-      console.log("activating now", evt.target.deposit_amount.value);
       var value = 0;
 
-      if (evt.target.deposit_amount){
+      if (evt.target.deposit_amount.value){
         value = evt.target.deposit_amount.value;
       }
 
       if (value === "" || value === 0){
         foundError = true;
         this.setState({valueError: "You must activate your bounty with a non-zero amount"});
-      } else if (value < fulfillmentAmount){
+      } else if (parseInt(value, 10) < parseInt(fulfillmentAmount, 10)){
         foundError = true;
         this.setState({valueError: "You must activate your bounty with at least enough funds to pay out once"});
       }else {
         this.setState({valueError: ""});
       }
     }
-    console.log("foundError", foundError,"+", this.state.valueError, "+", this.state.contactError, "+", this.state.fileUploadError, "+", this.state.deadlineError, "+",  this.state.fulfillmentError,"+", this.state.descriptionError, "+", this.state.titleError);
     if (!foundError){
       this.setState({submitting: true, loadingAmount: 10});
       var stringAmount = 0;
@@ -495,6 +493,8 @@ class NewBounty extends Component {
     } else {
       fileName = this.state.sourceFileName;
     }
+    document.title = "Bounties Explorer | New Bounty";
+
     return (
       <div>
         <Dialog
@@ -536,7 +536,7 @@ class NewBounty extends Component {
 
                   </div>
                   <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
-                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount</label>
+                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (ETH or whole tokens)</label>
                     <input id="fulfillmentAmount" style={{width: "470px", border: "0px"}} type="number" step="any"></input>
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&
@@ -590,7 +590,7 @@ class NewBounty extends Component {
                     <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                       <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Deposit Amount</label>
                       <input id='deposit_amount' style={{border: "none", width: "470px"}} className='SendAmount' type='number' step="any"/>
-                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the amount of ETH or tokens you wish to deposit</p>
+                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>To activate, you must deposit enough to pay the bounty at least once</p>
                       {this.state.valueError &&
                         <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.valueError}</p>}
                     </div>
@@ -626,7 +626,7 @@ class NewBounty extends Component {
               </form>
             </div>
 
-          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a ConsenSys Formation <br/>
+          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}>ConsenSys</a> Formation <br/>
           This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
         </div>
       </div>

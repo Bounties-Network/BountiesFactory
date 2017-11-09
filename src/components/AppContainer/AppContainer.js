@@ -157,77 +157,82 @@ class AppContainer extends Component {
   }
   getBounty(bountyId, bounties, total){
     StandardBounties.getBounty(bountyId, (err, succ)=> {
-      StandardBounties.getBountyData(bountyId, (err, data)=> {
-        ipfs.catJSON(data, (err, result)=> {
-          var stage;
-          if (parseInt(succ[4], 10) === 0){
-            stage = "Draft";
-          } else if (parseInt(succ[4], 10) === 1){
-            stage = "Active";
-          } else {
-            stage = "Dead";
-          }
-          var newDate = new Date(parseInt(succ[1], 10)*1000);
-
-          if (!succ[3]){
-            var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
-            var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
-            bounties.push({
-              bountyId: bountyId,
-              issuer: succ[0],
-              deadline: newDate.toUTCString(),
-              value: value,
-              paysTokens: succ[3],
-              stage: stage,
-              balance: balance,
-              bountyData: result,
-              symbol: "ETH"
-            });
-            if (bounties.length === total){
-              this.setState({bounties: bounties, loading: false});
+      StandardBounties.getNumFulfillments(bountyId, (err, numFul)=>{
+        StandardBounties.getBountyData(bountyId, (err, data)=> {
+          ipfs.catJSON(data, (err, result)=> {
+            var stage;
+            if (parseInt(succ[4], 10) === 0){
+              stage = "Draft";
+            } else if (parseInt(succ[4], 10) === 1){
+              stage = "Active";
+            } else {
+              stage = "Dead";
             }
-          } else {
-            StandardBounties.getBountyToken(bountyId, (err, address)=> {
-              var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
-              HumanStandardToken.symbol((err, symbol)=> {
-                HumanStandardToken.decimals((err, dec)=> {
+            var newDate = new Date(parseInt(succ[1], 10)*1000);
 
-                  var decimals = parseInt(dec, 10);
-                  var newAmount = succ[2];
-                  var decimalToMult = new BN(10, 10);
-                  var decimalUnits = new BN(decimals, 10);
-                  decimalToMult = decimalToMult.pow(decimalUnits);
-                  newAmount = newAmount.div(decimalToMult);
+            if (!succ[3]){
+              var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
+              var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
+              bounties.push({
+                bountyId: bountyId,
+                issuer: succ[0],
+                deadline: newDate.toUTCString(),
+                value: value,
+                paysTokens: succ[3],
+                stage: stage,
+                balance: balance,
+                bountyData: result,
+                symbol: "ETH",
+                numFul: parseInt(numFul, 10)
+              });
+              if (bounties.length === total){
+                this.setState({bounties: bounties, loading: false});
+              }
+            } else {
+              StandardBounties.getBountyToken(bountyId, (err, address)=> {
+                var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
+                HumanStandardToken.symbol((err, symbol)=> {
+                  HumanStandardToken.decimals((err, dec)=> {
 
-                  var balance = succ[5];
-                  balance = balance.div(decimalToMult);
+                    var decimals = parseInt(dec, 10);
+                    var newAmount = succ[2];
+                    var decimalToMult = new BN(10, 10);
+                    var decimalUnits = new BN(decimals, 10);
+                    decimalToMult = decimalToMult.pow(decimalUnits);
+                    newAmount = newAmount.div(decimalToMult);
 
-                  bounties.push({
-                    bountyId: bountyId,
-                    issuer: succ[0],
-                    deadline: newDate.toUTCString(),
-                    value: parseInt(newAmount, 10),
-                    paysTokens: succ[3],
-                    stage: stage,
-                    owedAmount: parseInt(succ[5], 10),
-                    balance: parseInt(balance, 10),
-                    bountyData: result,
-                    symbol: symbol
+                    var balance = succ[5];
+                    balance = balance.div(decimalToMult);
+
+                    bounties.push({
+                      bountyId: bountyId,
+                      issuer: succ[0],
+                      deadline: newDate.toUTCString(),
+                      value: parseInt(newAmount, 10),
+                      paysTokens: succ[3],
+                      stage: stage,
+                      owedAmount: parseInt(succ[5], 10),
+                      balance: parseInt(balance, 10),
+                      bountyData: result,
+                      symbol: symbol,
+                      numFul: parseInt(numFul, 10)
+                    });
+                    console.log("bounties", bounties);
+                    if (bounties.length === total){
+                      this.setState({bounties: bounties, loading: false});
+                    }
                   });
-                  console.log("bounties", bounties);
-                  if (bounties.length === total){
-                    this.setState({bounties: bounties, loading: false});
-                  }
                 });
+
               });
 
-            });
+            }
 
-          }
+          });
 
         });
-
       });
+
 
     });
 
@@ -292,6 +297,7 @@ class AppContainer extends Component {
       style={{color: "#65C5AA"}}
     />
   ];
+  document.title = "Bounties Explorer | Dashboard";
 
   activeList.sort(function(b1, b2){
     return (b1.bountyId - b2.bountyId);
@@ -401,7 +407,7 @@ class AppContainer extends Component {
 
           </div>
         </div>
-        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100vw", display: "block", bottom: "0", position: "absolute"}}>&copy; Bounties Network, a ConsenSys Formation <br/>
+        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100vw", display: "block", bottom: "0", position: "absolute"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}>ConsenSys</a> Formation <br/>
         This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
 
       </div>

@@ -97,6 +97,7 @@ class BountyPage extends Component {
                 balance: 0,
                 bountyBroken: "false"},
         bountyId: this.props.params.id,
+        myComments: [],
         commentError: "",
         contributionError: "",
         fulfillmentError: "",
@@ -119,6 +120,7 @@ class BountyPage extends Component {
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
 
     this.getInitialData = this.getInitialData.bind(this);
+    this.getComments = this.getComments.bind(this);
 
     this.handleFulfill = this.handleFulfill.bind(this);
     this.handleActivate = this.handleActivate.bind(this);
@@ -129,6 +131,8 @@ class BountyPage extends Component {
     this.handleMilestoneChange = this.handleMilestoneChange.bind(this);
     this.handleTransfer = this.handleTransfer.bind(this);
     this.handleComment = this.handleComment.bind(this);
+    this.handleCommentOnFulfillment = this.handleCommentOnFulfillment.bind(this);
+
     this.handleIncreasePayout = this.handleIncreasePayout.bind(this);
     this.handlecaptureFile = this.handlecaptureFile.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
@@ -258,6 +262,7 @@ class BountyPage extends Component {
                     editSourceFileName: result.sourceFileName,
                     editSourceFileHash: result.sourceFileHash,
                     optionsList: result.categories});
+                    this.getComments();
                   } else {
                     StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
                       var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
@@ -293,6 +298,7 @@ class BountyPage extends Component {
                           editSourceFileName: result.sourceFileName,
                           editSourceFileHash: result.sourceFileHash,
                           optionsList: result.categories});
+                          this.getComments();
 
                         });
                       });
@@ -303,9 +309,6 @@ class BountyPage extends Component {
 
                 });
               }
-
-
-
             });
 
           });
@@ -316,10 +319,13 @@ class BountyPage extends Component {
             for (var j = 0; j < total; j++){
               StandardBounties.getFulfillment(this.state.bountyId, j, (err, succ)=> {
                 ipfs.catJSON(succ[2], (err, result)=> {
+                  console.log("returned value", result);
                   fulfillments.push({
                     accepted: succ[0],
                     fulfiller: succ[1],
                     data: result,
+                    commentsOpen: true,
+                    comments: []
                   });
                   console.log("got fulfillment", fulfillments);
 
@@ -347,7 +353,15 @@ class BountyPage extends Component {
                 var bountyId = succ[4];
                 var date = new Date(parseInt(succ[5], 10)*1000);
                 ipfs.catJSON(succ[0], (err, result)=> {
-                  comments.push({title: result.title, from: from, to: to, aboutBounty: aboutBounty, bountyId: bountyId, description: result.description, date: date.toUTCString()});
+                  comments.push({title: result.title,
+                                aboutFulfillment: result.aboutFulfillment,
+                                fulfillmentId: result.fulfillmentId,
+                                from: from,
+                                to: to,
+                                aboutBounty: aboutBounty,
+                                bountyId: bountyId,
+                                description: result.description,
+                                date: date.toUTCString()});
                   if (comments.length === total){
                     this.setState({comments: comments});
                   }
@@ -361,15 +375,6 @@ class BountyPage extends Component {
         }.bind(this));
       }
     } else {
-      /*
-      this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
-      setInterval(function() {
-        if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
-          this.getInitialData();
-        } else {
-          console.log("window", window.web3);
-        }
-      }, 100);*/
       StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
         StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
           if (data){
@@ -467,6 +472,8 @@ class BountyPage extends Component {
                 accepted: succ[0],
                 fulfiller: succ[1],
                 data: result,
+                commentsOpen: true,
+                comments: []
               });
               console.log("got fulfillment", fulfillments);
 
@@ -481,29 +488,51 @@ class BountyPage extends Component {
         var total = parseInt(succ,10);
         this.setState({total: total});
       });
-      UserCommentsContract.numComments((err, succ)=> {
-        var total = parseInt(succ, 10);
-        var comments = [];
 
-        console.log("total comments: ", total);
-        for (var i = 0; i < total; i++){
-          UserCommentsContract.getComment( i, (err, succ)=> {
-            var from = succ[1];
-            var to = succ[2];
-            var aboutBounty = succ[3];
-            var bountyId = succ[4];
-            var date = new Date(parseInt(succ[5], 10)*1000);
-            ipfs.catJSON(succ[0], (err, result)=> {
-              comments.push({title: result.title, from: from, to: to, aboutBounty: aboutBounty, bountyId: bountyId, description: result.description, date: date.toUTCString()});
-              if (comments.length === total){
-                this.setState({comments: comments});
-              }
-            });
-          });
-        }
-      });
     }
 
+  }
+  getComments(){
+    UserCommentsContract.numComments((err, succ)=> {
+      var total = parseInt(succ, 10);
+      var comments = [];
+
+      console.log("total comments: ", total);
+      for (var i = 0; i < total; i++){
+        UserCommentsContract.getComment( i, (err, succ)=> {
+          var from = succ[1];
+          var to = succ[2];
+          var aboutBounty = succ[3];
+          var bountyId = succ[4];
+          var date = new Date(parseInt(succ[5], 10)*1000);
+          ipfs.catJSON(succ[0], (err, result)=> {
+            comments.push({title: result.title,
+                          from: from,
+                          to: to,
+                          aboutBounty: aboutBounty,
+                          bountyId: parseInt(bountyId, 10),
+                          description: result.description,
+                          date: date.toUTCString(),
+                          aboutFulfillment: result.aboutFulfillment,
+                          fulfillmentId: result.fulfillmentId});
+            if (comments.length === total){
+              var myComments = [];
+              this.setState({comments: comments});
+              for (i = 0; i < this.state.comments.length; i++){
+                if (this.state.comments[i].aboutBounty && this.state.comments[i].bountyId == this.state.bountyId && this.state.comments[i].aboutFulfillment !== true){
+                  myComments.push(this.state.comments[i]);
+                }
+                if (this.state.comments[i].aboutBounty && this.state.comments[i].bountyId == this.state.bountyId && this.state.comments[i].aboutFulfillment === true){
+                  var fulfillments = this.state.fulfillments;
+                  fulfillments[this.state.comments[i].fulfillmentId].comments.push(this.state.comments[i]);
+                }
+              }
+              this.setState({myComments: myComments});
+            }
+          });
+        });
+      }
+    });
   }
 
   handleFulfill(evt){
@@ -512,6 +541,7 @@ class BountyPage extends Component {
       this.setState({noWeb3Error: true});
     } else {
       var data = evt.target.bug_description.value;
+      var contact = evt.target.contact.value;
       if (data === "" && this.state.sourceFileName === ""){
         this.setState({fulfillmentError: "Empty submissions are not allowed!"});
       } else {
@@ -519,7 +549,7 @@ class BountyPage extends Component {
         this.setState({txModalOpen: true, txLoadingAmount: 10});
         this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to fulfill the bounty"});
 
-        ipfs.addJSON({description: data, sourceFileName: this.state.sourceFileName, sourceFileHash: this.state.sourceFileHash}, (err, succ)=> {
+        ipfs.addJSON({description: data, sourceFileName: this.state.sourceFileName, sourceFileHash: this.state.sourceFileHash, contact: contact}, (err, succ)=> {
           this.setState({txLoadingAmount: 40});
 
           console.log("about to fulfill", this.state.bountyId, succ);
@@ -840,6 +870,53 @@ isChecksumAddress(address) {
 }
   handleComment(evt){
     evt.preventDefault();
+
+    if (this.state.accounts.length === 0){
+      this.setState({noWeb3Error: true});
+    } else {
+    var title = evt.target.comment_title.value;
+    var description = evt.target.comment_description.value;
+
+    if (title === "" || description === ""){
+      this.setState({commentError: "All comment fields are required!"});
+    } else {
+      this.setState({commentError: ""});
+      this.setState({txModalOpen: true, txLoadingAmount: 10});
+      this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to comment on the bounty"});
+      ipfs.addJSON({title: title, description: description}, (err, succ)=> {
+        this.setState({txLoadingAmount: 40});
+        UserCommentsContract.addComment(succ, 0x0, true, this.state.bountyId, {from: this.state.accounts[0]}, (err, succ)=> {
+          if (err){
+            console.log("err", err);
+            this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
+
+          } else {
+            console.log("tx success", succ);
+            this.setState({txLoadingAmount: 80, txLoadingMessage: "Waiting for your transaction to be confirmed on the blockchain..."});
+            var hasSucceeded = false;
+            setInterval(function() {
+              if (!hasSucceeded){
+                web3.eth.getTransaction(succ, (err, succ)=> {
+                  if (succ.blockNumber){
+                    this.setState({txLoadingMessage: "Transaction confirmed!", txLoadingAmount: 100});
+                    hasSucceeded = true;
+                    setTimeout(function(){
+                        window.location.reload();
+
+                    }, 3000);
+                  }
+                });
+              }
+            }.bind(this), 100);
+          }
+        });
+      })
+    }
+  }
+  }
+  handleCommentOnFulfillment(evt){
+    evt.preventDefault();
+    console.log("comment on evt", evt.target.comment_description.value, evt.target.index.value);
 
     if (this.state.accounts.length === 0){
       this.setState({noWeb3Error: true});
@@ -1368,6 +1445,10 @@ handleCloseNoWeb3(){
 
 
   render() {
+    document.title = "Bounties Explorer | " + this.state.contract.bountyData.title;
+
+
+
     var actions;
     var fulBody;
     console.log("requirements", this.state.contract);
@@ -1454,7 +1535,7 @@ handleCloseNoWeb3(){
 
           actions = (
             <div style={{width: "940px", marginTop: "15px", marginLeft: "15px", marginRight: "15px"}}>
-              <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px"}}>Fulfill the Bounty</h3>
+              <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Fulfill the Bounty</h3>
               <div style={{paddingBottom: "15px"}}>
                 <form className='Fulfill' onSubmit={this.handleFulfill} style={{marginBottom: "15px"}}>
                   <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
@@ -1465,6 +1546,8 @@ handleCloseNoWeb3(){
                   </div>
                   <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any file associated with your submission</p>
                   <input id='bounty_deadline' type='text' defaultValue={0} style={{width: "0.01px", display: "none"}}/>
+                  <label htmlFor='contact' style={{fontSize: "12px"}}>{"Contact"}</label>
+                  <input id='contact' className='SendAmount' style={{width: "450px", border: "0px", display: "block"}}/>
                   <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Submission Description and Comments</label>
                   <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px"}}></textarea>
                   {this.state.fulfillmentError &&
@@ -1479,43 +1562,6 @@ handleCloseNoWeb3(){
 
     }
 
-    if (this.state.fulfillments.length){
-      var numPushed = 0;
-      var fulfillments = [];
-      for (var i = 0; i < this.state.fulfillments.length; i++){
-        console.log("fulfillment", this.state.fulfillments[i]);
-
-        fulfillments.push(
-          <div style={{display: "block", borderBottom: "0px solid #65C5AA", marginBottom: "15px", overflow: "hidden"}} key={this.state.fulfillments[i].fulfiller+i}>
-
-            <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
-              <div style={{width: "68%", display: "inline-block", float: "left"}}>
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Bounty Hunter: </b>
-                <a style={{color: "#65C5AA"}} target={"_blank"} href={"/user/"+ this.state.fulfillments[i].fulfiller}>{this.state.fulfillments[i].fulfiller}</a></p>
-                {this.state.fulfillments[i].data.sourceFileHash &&
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46"}}>Associated File: </b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.fulfillments[i].data.sourceFileHash}> {this.state.fulfillments[i].data.sourceFileName} </a> </p>}
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", color: "#FFDE46"}}><b>Submission</b>:</p>
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}>{this.state.fulfillments[i].data.description}</p>
-
-              </div>
-              <div style={{width: "30%", display: "inline-block", float: "left", borderRight: "1px solid #65C5AA", paddingRight: "15px"}}>
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "right"}}>{this.state.fulfillments[i].accepted? "Accepted" : "Not Accepted"}</p>
-                {this.state.contract.stage === "Active" && !this.state.fulfillments[i].accepted && this.state.accounts && this.state.accounts[0] === this.state.contract.issuer && <FlatButton style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", float: "right"}} onClick={this.handleAccept.bind(this,i)}> Accept </FlatButton>}
-
-              </div>
-            </div>
-          </div>
-        );
-        numPushed++;
-
-      }
-      fulBody = (
-        <div style={{width: "100%", marginTop: "30px", display: "block", marginBottom: "60px", borderBottom: "1px solid #65C5AA", paddingBottom: "30px"}}>
-          <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>{numPushed} Submission{numPushed !== 1? "s" : ""}</h3>
-          {fulfillments}
-        </div>
-      );
-    }
 
 
 
@@ -1572,34 +1618,85 @@ handleCloseNoWeb3(){
     onClick={this.handleCloseNoWeb3}
   />
 ];
-    var myComments = [];
-    for (i = 0; i < this.state.comments.length; i++){
-      if (this.state.comments[i].aboutBounty && this.state.comments[i].bountyId == this.state.bountyId){
-        myComments.push(this.state.comments[i]);
-      }
-    }
+    console.log("comments", this.state.comments);
     var commentsArray = [];
     var comments;
 
-    for (i = 0; i < myComments.length; i++){
+    for (i = 0; i < this.state.myComments.length; i++){
       commentsArray.push(
-        <div style={{display: "block", borderBottom: "0px solid #65C5AA", marginBottom: "30px", overflow: "hidden"}} key={"comment: "+i}>
+        <div style={{display: "block", borderBottom: "0px solid #65C5AA", marginBottom: "15px", overflow: "hidden"}} key={"comment: "+i}>
           <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
-              <h5 style={{margin: "15px 0px"}}><b style={{fontSize: "16px"}}>{myComments[i].title}</b></h5>
+              <h5 style={{margin: "5px 0px"}}><b style={{fontSize: "16px"}}>{this.state.myComments[i].title}</b></h5>
               <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>By: </b>
-              <a style={{color: "#65C5AA"}} target={"_blank"} href={"/user/"+ myComments[i].from}>{myComments[i].from}</a></p>
-              <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>On: </b>{myComments[i].date}</p>
-              <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Comment: </b>{myComments[i].description}</p>
+              <a style={{color: "#65C5AA"}} target={"_blank"} href={"/user/"+ this.state.myComments[i].from}>{this.state.myComments[i].from}</a></p>
+              <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>On: </b>{this.state.myComments[i].date}</p>
+              <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Comment: </b>{this.state.myComments[i].description}</p>
           </div>
         </div>
       );
     }
     comments = (
       <div style={{paddingTop: "30px", display: "block"}}>
-        <h3 style={{fontFamily: "Open Sans", marginTop: "30px", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>{myComments.length} Comment{myComments.length !== 1? "s" : ""}</h3>
+        <h3 style={{fontFamily: "Open Sans", marginTop: "30px", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>{this.state.myComments.length} Comment{this.state.myComments.length !== 1? "s" : ""}</h3>
         {commentsArray}
       </div>
     );
+
+    if (this.state.fulfillments.length){
+      var numPushed = 0;
+      var fulfillments = [];
+      for (var i = 0; i < this.state.fulfillments.length; i++){
+        console.log("fulfillment", this.state.fulfillments[i]);
+
+        fulfillments.push(
+          <div style={{display: "block", borderLeft: "1px solid #65C5AA", marginBottom: "15px", overflow: "hidden"}} key={this.state.fulfillments[i].fulfiller+i}>
+
+            <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
+              <div style={{width: "85%", display: "inline-block", float: "left"}}>
+                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Bounty Hunter: </b>
+                <a style={{color: "#65C5AA"}} target={"_blank"} href={"/user/"+ this.state.fulfillments[i].fulfiller}>{this.state.fulfillments[i].fulfiller}</a></p>
+                {this.state.fulfillments[i].data.sourceFileHash &&
+                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46"}}>Associated File: </b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.fulfillments[i].data.sourceFileHash}> {this.state.fulfillments[i].data.sourceFileName} </a> </p>}
+                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", color: "#FFDE46"}}><b>Submission</b>:</p>
+                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}>{this.state.fulfillments[i].data.description}</p>
+
+              </div>
+              <div style={{width: "15%", display: "inline-block", float: "left"}}>
+              <Chip style={{float: "right", border: "1px solid rgba(0, 126, 255, 0.24)", backgroundColor: "rgba(0, 126, 255, 0.08)", height: "30px", margin: "5px auto"}}
+                    labelStyle={{color: this.state.fulfillments[i].accepted? "#65C5AA" : "#FFDE46", fontSize: "14px", marginTop: "-2px"}}
+                    key={this.state.fulfillments[i].accepted? "Accepted" : "Not Accepted"}>
+                    {this.state.fulfillments[i].accepted? "Accepted" : "Not Accepted"}
+              </Chip>
+                {this.state.contract.stage === "Active" && !this.state.fulfillments[i].accepted && this.state.accounts && this.state.accounts[0] === this.state.contract.issuer &&
+                <FlatButton style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", float: "right",  margin: "10px"}} onClick={this.handleAccept.bind(this,i)}> Accept </FlatButton>}
+
+              </div>
+              {this.state.fulfillments[i].commentsOpen &&
+                <form className='Contribute' onSubmit={this.handleCommentOnFulfillment} style={{width: "967px", display: "inline-block", marginTop: "15px", paddingTop: "15px", borderTop: "1px solid #65C5AA"}}>
+                  <input id="index" style={{display: "none"}} value={i}> </input>
+                  <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "5px", textAlign: "center", fontSize: "16px"}}>Comment on Submission</h4>
+                  <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Comment</label>
+
+                  <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "952px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
+                  {this.state.commentOnFulfillmentError &&
+                    <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.fulfillments[i].commentOnFulfillmentError}</p>}
+                  <button type='submit'  className='AddBtn' style={{backgroundColor: "#65C5AA", border:"0px", color: "rgb(21, 38, 57)",  display: "block", padding: "10px 16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
+                </form>
+
+              }
+            </div>
+          </div>
+        );
+        numPushed++;
+
+      }
+      fulBody = (
+        <div style={{width: "100%", marginTop: "30px", display: "block", marginBottom: "60px", borderBottom: "1px solid #65C5AA", paddingBottom: "30px"}}>
+          <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>{numPushed} Submission{numPushed !== 1? "s" : ""}</h3>
+          {fulfillments}
+        </div>
+      );
+    }
     return (
       <div>
       <Dialog
@@ -1694,13 +1791,20 @@ handleCloseNoWeb3(){
                   </form>
                 </div>
 
-                {actions}
 
 
 
 
 
             </div>
+            {actions &&
+              <div style={{ marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", marginTop: "15px", border: "0", backgroundColor: "rgba(10, 22, 40, 0.5)", borderBottom: "0px solid #65C5AA", color :"white", paddingTop: "15px"}} className="ContractCard">
+              {actions}
+
+              </div>
+            }
+
+
             {fulBody}
             <form className='Contribute' onSubmit={this.handleComment} style={{width: "940px", display: "inline-block", backgroundColor: "rgba(10, 22, 40, 0.5)", padding: "30px"}}>
               <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Add Comment</h4>
@@ -1715,7 +1819,7 @@ handleCloseNoWeb3(){
             {comments}
           </div>
         </div>
-        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)"}}>&copy; Bounties Network, a ConsenSys Formation <br/>
+        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}>ConsenSys</a> Formation <br/>
         This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
       </div>
     </div>
