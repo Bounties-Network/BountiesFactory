@@ -4,7 +4,7 @@ import './BountyPage.css'
 
 const json = require('../../../contracts.json');
 
-import injectTapEventPlugin from 'react-tap-event-plugin';
+
 
 const networkId = json.networkId;
 
@@ -46,6 +46,8 @@ import SvgSocial from 'material-ui/svg-icons/social/share';
 import SvgQuestion from 'material-ui/svg-icons/action/question-answer';
 import SvgSurvey from 'material-ui/svg-icons/editor/drag-handle';
 import SvgEdit from 'material-ui/svg-icons/editor/mode-edit';
+import SvgDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down';
+import SvgUp from 'material-ui/svg-icons/hardware/keyboard-arrow-up';
 
 import Dialog from 'material-ui/Dialog';
 
@@ -54,6 +56,10 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 import Avatar from 'material-ui/Avatar';
 
 import Halogen from 'halogen';
+
+import Blockies from 'react-blockies';
+
+import Text from 'react-format-text';
 
 const ipfsAPI = require('ipfs-api');
 
@@ -114,13 +120,16 @@ class BountyPage extends Component {
         txLoadingMessage: "",
         editSourceFileName: "",
         editSourceFileHash: "",
-        noWeb3Error: false
+        noWeb3Error: false,
+        fulfillmentOpen: false,
+        commentOnBountyOpen: false,
 
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
 
     this.getInitialData = this.getInitialData.bind(this);
     this.getComments = this.getComments.bind(this);
+    this.getFulfillment = this.getFulfillment.bind(this);
 
     this.handleFulfill = this.handleFulfill.bind(this);
     this.handleActivate = this.handleActivate.bind(this);
@@ -132,6 +141,9 @@ class BountyPage extends Component {
     this.handleTransfer = this.handleTransfer.bind(this);
     this.handleComment = this.handleComment.bind(this);
     this.handleCommentOnFulfillment = this.handleCommentOnFulfillment.bind(this);
+    this.handleToggleFulfillment = this.handleToggleFulfillment.bind(this);
+    this.handleToggleComment = this.handleToggleComment.bind(this);
+
 
     this.handleIncreasePayout = this.handleIncreasePayout.bind(this);
     this.handlecaptureFile = this.handlecaptureFile.bind(this);
@@ -142,12 +154,136 @@ class BountyPage extends Component {
     this.handleCaptureEditFile = this.handleCaptureEditFile.bind(this);
     this.saveToIpfsEdit = this.saveToIpfsEdit.bind(this);
     this.handleCloseNoWeb3 = this.handleCloseNoWeb3.bind(this);
+    this.handleExpandComment = this.handleExpandComment.bind(this);
 
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
   }
+  dateToString(date){
+    var givenDate = date;
+
+    var oneMillenium = 31556952000000;
+    var oneCentury = 3155695200000;
+    var oneDecade = 315569520000;
+    var oneYear = 31556952000;
+    var oneMonth = 2592000000;
+    var oneWeek = 604800000;
+    var oneDay = 86400000;
+    var oneHour = 3600000;
+    var oneMinute = 60000;
+    var oneSecond = 1000;
+    var difference = givenDate - Date.now();
+    if (difference > 0){
+      if (parseInt(difference/oneMillenium) >= 1){
+        var num = parseInt(difference/oneMillenium);
+        var time = (num === 1? "millennium" : "millennia");
+        return ("ends in " + num + " "+time);
+      }
+      if (parseInt(difference/oneCentury) >= 1){
+        var num = parseInt(difference/oneCentury);
+        var time = (num === 1? "century" : "centuries");
+        return ("ends in " + num + " "+time);
+      }
+      if (parseInt(difference/oneDecade) >= 1){
+        var num = parseInt(difference/oneDecade);
+        var time = (num === 1? "decade" : "decades");
+        return ("ends in " + num + " "+time);
+      }
+      if (parseInt(difference/oneYear) >= 1){
+        var num = parseInt(difference/oneYear);
+        var time = (num === 1? "year" : "years");
+        return ("ends in " + num + " "+time);
+      }
+      if (parseInt(difference/oneMonth) >= 1){
+        var num = parseInt(difference/oneMonth);
+        var time = (num === 1? "month" : "months");
+        return ("ends in " + num + " "+time);
+      }
+      if (parseInt(difference/oneWeek) >= 1){
+        var num = parseInt(difference/oneWeek);
+        var time = (num === 1? "week" : "weeks");
+        return ("ends in " + num + " "+time);
+      }
+      if (parseInt(difference/oneDay) >= 1){
+        var num = parseInt(difference/oneDay);
+        var time = (num === 1? "day" : "days");
+        return ("ends in " + num + " "+time);
+      }
+      if (parseInt(difference/oneHour) >= 1){
+        var num = parseInt(difference/oneHour);
+        var time = (num === 1? "hour" : "hours");
+        return ("ends in " + num + " "+time);
+      }
+      if (parseInt(difference/oneMinute) >= 1){
+        var num = parseInt(difference/oneMinute);
+        var time = (num === 1? "minute" : "minutes");
+        return ("ends in " + num + " "+time);
+      }
+      if (parseInt(difference/oneSecond) >= 1){
+        var num = parseInt(difference/oneSecond);
+        var time = (num === 1? "second" : "seconds");
+        return ("ends in " + num + " "+time);
+      }
+
+    } else if (difference < 0){
+      difference = difference * -1;
+      if (parseInt(difference/oneMillenium) >= 1){
+        var num = parseInt(difference/oneMillenium);
+        var time = (num === 1? "millennium" : "millennia");
+        return (num + " "+time+" ago");
+      }
+      if (parseInt(difference/oneCentury) >= 1){
+        var num = parseInt(difference/oneCentury);
+        var time = (num === 1? "century" : "centuries");
+        return (num + " "+time+" ago");
+      }
+      if (parseInt(difference/oneDecade) >= 1){
+        var num = parseInt(difference/oneDecade);
+        var time = (num === 1? "decade" : "decades");
+        return (num + " "+time+" ago");
+      }
+      if (parseInt(difference/oneYear) >= 1){
+        var num = parseInt(difference/oneYear);
+        var time = (num === 1? "year" : "years");
+        return (num + " "+time+" ago");
+      }
+      if (parseInt(difference/oneMonth) >= 1){
+        var num = parseInt(difference/oneMonth);
+        var time = (num === 1? "month" : "months");
+        return (num + " "+time+" ago");
+      }
+      if (parseInt(difference/oneWeek) >= 1){
+        var num = parseInt(difference/oneWeek);
+        var time = (num === 1? "week" : "weeks");
+        return (num + " "+time+" ago");
+      }
+      if (parseInt(difference/oneDay) >= 1){
+        var num = parseInt(difference/oneDay);
+        var time = (num === 1? "day" : "days");
+        return (num + " "+time+" ago");
+      }
+      if (parseInt(difference/oneHour) >= 1){
+        var num = parseInt(difference/oneHour);
+        var time = (num === 1? "hour" : "hours");
+        return (num + " "+time+" ago");
+      }
+      if (parseInt(difference/oneMinute) >= 1){
+        var num = parseInt(difference/oneMinute);
+        var time = (num === 1? "minute" : "minutes");
+        return (num + " "+time+" ago");
+      }
+      if (parseInt(difference/oneSecond) >= 1){
+        var num = parseInt(difference/oneSecond);
+        var time = (num === 1? "second" : "seconds");
+        return (num + " "+time+" ago");
+      }
+
+    } else {
+      return "now";
+    }
+  }
   componentDidMount() {
-    injectTapEventPlugin();
+
     window.addEventListener('load',this.getInitialData);
 
   }
@@ -203,177 +339,180 @@ class BountyPage extends Component {
     if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
       // Use Mist/MetaMask's provider
       web3.setProvider(window.web3.currentProvider);
-      if (networkId !== web3.version.network){
-        console.log("network", networkId, web3.version.network);
-          this.setState({modalError: ("Please change your Ethereum network to the " + json.networkName), modalOpen: true});
-      } else {
-
-      web3.eth.getAccounts(function(err, accs){
-        if (err){
-          console.log ('error fetching accounts', err);
+      web3.version.getNetwork((err, netId) => {
+        if (networkId !== web3.version.network){
+          console.log("network", networkId, web3.version.network);
+            this.setState({modalError: ("Please change your Ethereum network to the " + json.networkName), modalOpen: true});
         } else {
-          if (accs.length === 0){
-            this.setState({modalError: "Please unlock your MetaMask Accounts", modalOpen: true});
 
+        web3.eth.getAccounts(function(err, accs){
+          if (err){
+            console.log ('error fetching accounts', err);
           } else {
+            if (accs.length === 0){
+              this.setState({modalError: "Please unlock your MetaMask Accounts", modalOpen: true});
+
+            } else {
 
 
-          var account = web3.eth.accounts[0];
-          setInterval(function() {
-            if (web3.eth.accounts[0] !== account) {
-              account = web3.eth.accounts[0];
-              window.location.reload();
-            }
-          }, 100);
+            var account = web3.eth.accounts[0];
+            setInterval(function() {
+              if (web3.eth.accounts[0] !== account) {
+                account = web3.eth.accounts[0];
+                window.location.reload();
+              }
+            }, 100);
 
-          this.setState({accounts: accs});
-          StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
-            StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
-              if (data){
-                console.log("data", data);
+            this.setState({accounts: accs});
+            StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
+              StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
+                if (data){
+                  console.log("data", data);
 
-                ipfs.catJSON(data, (err, result)=> {
-                  var stage;
-                  if (parseInt(succ[4], 10) === 0){
-                    stage = "Draft";
-                  } else if (parseInt(succ[4], 10) === 1){
-                    stage = "Active";
-                  } else {
-                    stage = "Dead";
-                  }
-                  var newDate = new Date(parseInt(succ[1], 10)*1000);
-                  if (!succ[3]){
-                    var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
-                    var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
-                    console.log("balance: ", value, balance);
-                    this.setState({contract: {
-                      issuer: succ[0],
-                      deadline: newDate.toUTCString(),
-                      value: value,
-                      paysTokens: succ[3],
-                      stage: stage,
-                      balance: balance,
-                      bountyData: result,
-                      symbol: "ETH",
-                      mine: (succ[0] === this.state.accounts[0])
-                    },
-                    loading: false,
-                    selectedValue: result.categories.join(","),
-                    editSourceFileName: result.sourceFileName,
-                    editSourceFileHash: result.sourceFileHash,
-                    optionsList: result.categories});
-                    this.getComments();
-                  } else {
-                    StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
-                      var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
-                      HumanStandardToken.symbol((err, symbol)=> {
-                        HumanStandardToken.decimals((err, dec)=> {
+                  ipfs.catJSON(data, (err, result)=> {
+                    var stage;
+                    if (parseInt(succ[4], 10) === 0){
+                      stage = "Draft";
+                    } else if (parseInt(succ[4], 10) === 1){
+                      stage = "Active";
+                    } else {
+                      stage = "Dead";
+                    }
+                    var intDate = parseInt(succ[1], 10);
+                    var newDate;
+                    var dateString;
+                    var max = new BN(8640000000000000);
+                    if ((succ[1].times(1000)).greaterThan(max)){
+                      newDate = new Date(parseInt(max, 10));
+                      console.log("new date bigger", newDate)
+                      dateString = this.dateToString(8640000000000000);
+                    } else {
+                      newDate = new Date(parseInt(succ[1], 10)*1000);
+                      dateString = this.dateToString(parseInt(succ[1], 10)*1000);
+                    }
+                    if (!succ[3]){
+                      var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
+                      var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
+                      console.log("balance: ", value, balance);
+                      this.setState({contract: {
+                        issuer: succ[0],
+                        deadline: newDate.toUTCString(),
+                        deadlineString: dateString,
+                        value: value,
+                        paysTokens: succ[3],
+                        stage: stage,
+                        balance: balance,
+                        bountyData: result,
+                        dateString: newDate.toISOString().slice(0,19),
+                        dateNum: parseInt(succ[1], 10)*1000,
+                        symbol: "ETH",
+                        mine: (succ[0] === this.state.accounts[0])
+                      },
+                      loading: false,
+                      selectedValue: result.categories.join(","),
+                      editSourceFileName: result.sourceFileName,
+                      editSourceFileHash: result.sourceFileHash,
+                      optionsList: result.categories});
+                      this.getComments();
+                    } else {
+                      StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
+                        var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
+                        HumanStandardToken.symbol((err, symbol)=> {
+                          HumanStandardToken.decimals((err, dec)=> {
 
-                          var decimals = parseInt(dec, 10);
-                          var newAmount = succ[2];
-                          var decimalToMult = new BN(10, 10);
-                          var decimalUnits = new BN(decimals, 10);
-                          decimalToMult = decimalToMult.pow(decimalUnits);
-                          newAmount = newAmount.div(decimalToMult);
+                            var decimals = parseInt(dec, 10);
+                            var newAmount = succ[2];
+                            var decimalToMult = new BN(10, 10);
+                            var decimalUnits = new BN(decimals, 10);
+                            decimalToMult = decimalToMult.pow(decimalUnits);
+                            newAmount = newAmount.div(decimalToMult);
 
-                          var balance = succ[5];
-                          balance = balance.div(decimalToMult);
+                            var balance = succ[5];
+                            balance = balance.div(decimalToMult);
 
 
-                          this.setState({contract: {
-                            issuer: succ[0],
-                            deadline: newDate.toUTCString(),
-                            value: parseInt(newAmount, 10),
-                            paysTokens: succ[3],
-                            stage: stage,
-                            balance: parseInt(balance, 10),
-                            bountyData: result,
-                            symbol: symbol,
-                            mine: (succ[0] === this.state.accounts[0]),
-                            decimals: decimals,
-                            tokenContract: HumanStandardToken,
-                          },
-                          loading: false,
-                          selectedValue: result.categories.join(","),
-                          editSourceFileName: result.sourceFileName,
-                          editSourceFileHash: result.sourceFileHash,
-                          optionsList: result.categories});
-                          this.getComments();
+                            this.setState({contract: {
+                              issuer: succ[0],
+                              deadline: newDate.toUTCString(),
+                              value: parseInt(newAmount, 10),
+                              paysTokens: succ[3],
+                              stage: stage,
+                              balance: parseInt(balance, 10),
+                              bountyData: result,
+                              dateString: newDate.toISOString().slice(0,19),
+                              pdateNum: parseInt(succ[1], 10)*1000,
+                              symbol: symbol,
+                              mine: (succ[0] === this.state.accounts[0]),
+                              decimals: decimals,
+                              tokenContract: HumanStandardToken,
+                            },
+                            loading: false,
+                            selectedValue: result.categories.join(","),
+                            editSourceFileName: result.sourceFileName,
+                            editSourceFileHash: result.sourceFileHash,
+                            optionsList: result.categories});
+                            this.getComments();
 
+                          });
                         });
+
                       });
 
-                    });
+                    }
 
-                  }
+                  });
+                }
+              });
 
+            });
+            StandardBounties.getNumFulfillments(this.state.bountyId, (err, succ)=> {
+              var total = parseInt(succ, 10);
+              console.log("total", total);
+              var fulfillments = [];
+              for (var j = 0; j < total; j++){
+                this.getFulfillment(j, fulfillments, total);
+              }
+            });
+            StandardBounties.getNumBounties((err, succ) => {
+              var total = parseInt(succ,10);
+              this.setState({total: total});
+            });
+            UserCommentsContract.numComments((err, succ)=> {
+              var total = parseInt(succ, 10);
+              var comments = [];
+
+              console.log("total comments: ", total);
+              for (var i = 0; i < total; i++){
+                UserCommentsContract.getComment( i, (err, succ)=> {
+                  var from = succ[1];
+                  var to = succ[2];
+                  var aboutBounty = succ[3];
+                  var bountyId = succ[4];
+                  var date = new Date(parseInt(succ[5], 10)*1000);
+                  ipfs.catJSON(succ[0], (err, result)=> {
+                    comments.push({title: result.title,
+                                  aboutFulfillment: result.aboutFulfillment,
+                                  fulfillmentId: result.fulfillmentId,
+                                  from: from,
+                                  to: to,
+                                  aboutBounty: aboutBounty,
+                                  bountyId: bountyId,
+                                  description: result.description,
+                                  date: date.toUTCString()});
+                    if (comments.length === total){
+                      this.setState({comments: comments});
+                    }
+                  });
                 });
               }
             });
 
-          });
-          StandardBounties.getNumFulfillments(this.state.bountyId, (err, succ)=> {
-            var total = parseInt(succ, 10);
-            console.log("total", total);
-            var fulfillments = [];
-            for (var j = 0; j < total; j++){
-              StandardBounties.getFulfillment(this.state.bountyId, j, (err, succ)=> {
-                ipfs.catJSON(succ[2], (err, result)=> {
-                  console.log("returned value", result);
-                  fulfillments.push({
-                    accepted: succ[0],
-                    fulfiller: succ[1],
-                    data: result,
-                    commentsOpen: true,
-                    comments: []
-                  });
-                  console.log("got fulfillment", fulfillments);
-
-                  if (fulfillments.length === total){
-                    this.setState({fulfillments: fulfillments});
-                  }
-                });
-              });
-            }
-          });
-          StandardBounties.getNumBounties((err, succ) => {
-            var total = parseInt(succ,10);
-            this.setState({total: total});
-          });
-          UserCommentsContract.numComments((err, succ)=> {
-            var total = parseInt(succ, 10);
-            var comments = [];
-
-            console.log("total comments: ", total);
-            for (var i = 0; i < total; i++){
-              UserCommentsContract.getComment( i, (err, succ)=> {
-                var from = succ[1];
-                var to = succ[2];
-                var aboutBounty = succ[3];
-                var bountyId = succ[4];
-                var date = new Date(parseInt(succ[5], 10)*1000);
-                ipfs.catJSON(succ[0], (err, result)=> {
-                  comments.push({title: result.title,
-                                aboutFulfillment: result.aboutFulfillment,
-                                fulfillmentId: result.fulfillmentId,
-                                from: from,
-                                to: to,
-                                aboutBounty: aboutBounty,
-                                bountyId: bountyId,
-                                description: result.description,
-                                date: date.toUTCString()});
-                  if (comments.length === total){
-                    this.setState({comments: comments});
-                  }
-                });
-              });
-            }
-          });
-
+          }
         }
-      }
-        }.bind(this));
-      }
+          }.bind(this));
+        }
+      });
+
     } else {
       StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
         StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
@@ -390,6 +529,9 @@ class BountyPage extends Component {
                 stage = "Dead";
               }
               var newDate = new Date(parseInt(succ[1], 10)*1000);
+              var dateString = this.dateToString(parseInt(succ[1], 10)*1000);
+
+
               if (!succ[3]){
                 var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
                 var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
@@ -401,6 +543,7 @@ class BountyPage extends Component {
                   paysTokens: succ[3],
                   stage: stage,
                   balance: balance,
+                  dateString: dateString,
                   bountyData: result,
                   symbol: "ETH",
                   mine: (succ[0] === this.state.accounts[0])
@@ -435,6 +578,7 @@ class BountyPage extends Component {
                         stage: stage,
                         balance: parseInt(balance, 10),
                         bountyData: result,
+                        dateString: dateString,
                         symbol: symbol,
                         mine: (succ[0] === this.state.accounts[0]),
                         decimals: decimals,
@@ -466,22 +610,7 @@ class BountyPage extends Component {
         console.log("total", total);
         var fulfillments = [];
         for (var j = 0; j < total; j++){
-          StandardBounties.getFulfillment(this.state.bountyId, j, (err, succ)=> {
-            ipfs.catJSON(succ[2], (err, result)=> {
-              fulfillments.push({
-                accepted: succ[0],
-                fulfiller: succ[1],
-                data: result,
-                commentsOpen: true,
-                comments: []
-              });
-              console.log("got fulfillment", fulfillments);
-
-              if (fulfillments.length === total){
-                this.setState({fulfillments: fulfillments});
-              }
-            });
-          });
+          this.getFulfillment(j, fulfillments, total);
         }
       });
       StandardBounties.getNumBounties((err, succ) => {
@@ -491,6 +620,30 @@ class BountyPage extends Component {
 
     }
 
+  }
+  getFulfillment(fulId, fulfillments, total){
+    StandardBounties.getFulfillment(this.state.bountyId, fulId, (err, succ)=> {
+      console.log("Jth fulfillmnet", fulId);
+      ipfs.catJSON(succ[2], (err, result)=> {
+        console.log("err, succ", err, result);
+        fulfillments.push({
+          fulfillmentId: fulId,
+          accepted: succ[0],
+          fulfiller: succ[1],
+          data: result,
+          commentsOpen: false,
+          comments: [],
+        });
+        console.log("got fulfillment", fulfillments);
+
+        if (fulfillments.length === total){
+
+          fulfillments.sort(function(f1, f2){return f1.fulfillmentId-f2.fulfillmentId});
+
+          this.setState({fulfillments: fulfillments});
+        }
+      });
+    });
   }
   getComments(){
     UserCommentsContract.numComments((err, succ)=> {
@@ -505,6 +658,19 @@ class BountyPage extends Component {
           var aboutBounty = succ[3];
           var bountyId = succ[4];
           var date = new Date(parseInt(succ[5], 10)*1000);
+          var intDate = parseInt(succ[5], 10);
+          var newDate;
+          var dateString;
+          var max = new BN(8640000000000000);
+          if ((succ[5].times(1000)).greaterThan(max)){
+            newDate = new Date(parseInt(max, 10));
+            console.log("new date bigger", newDate)
+            dateString = this.dateToString(8640000000000000);
+          } else {
+            newDate = new Date(parseInt(succ[5], 10)*1000);
+            dateString = this.dateToString(parseInt(succ[5], 10)*1000);
+          }
+
           ipfs.catJSON(succ[0], (err, result)=> {
             comments.push({title: result.title,
                           from: from,
@@ -512,9 +678,11 @@ class BountyPage extends Component {
                           aboutBounty: aboutBounty,
                           bountyId: parseInt(bountyId, 10),
                           description: result.description,
-                          date: date.toUTCString(),
+                          date: newDate.toUTCString(),
+                          dateString: dateString,
                           aboutFulfillment: result.aboutFulfillment,
                           fulfillmentId: result.fulfillmentId});
+
             if (comments.length === total){
               var myComments = [];
               this.setState({comments: comments});
@@ -853,6 +1021,19 @@ isAddress(address) {
 handleCloseTxLoading(){
   this.setState({txModalOpen: false});
 }
+handleExpandComment(i){
+  var fulfillments = this.state.fulfillments;
+  fulfillments[i].commentsOpen = !fulfillments[i].commentsOpen;
+  this.setState({fulfillments: fulfillments});
+}
+handleToggleFulfillment(){
+  var newOpen = !this.state.fulfillmentOpen;
+  this.setState({fulfillmentOpen: newOpen});
+}
+handleToggleComment(){
+  var newOpen = !this.state.commentOnBountyOpen;
+  this.setState({commentOnBountyOpen: newOpen});
+}
 
 
 isChecksumAddress(address) {
@@ -916,21 +1097,26 @@ isChecksumAddress(address) {
   }
   handleCommentOnFulfillment(evt){
     evt.preventDefault();
-    console.log("comment on evt", evt.target.comment_description.value, evt.target.index.value);
+    console.log("comment on evt", evt.target.comment_index.value);
 
     if (this.state.accounts.length === 0){
       this.setState({noWeb3Error: true});
     } else {
-    var title = evt.target.comment_title.value;
+    var index = evt.target.comment_index.value;
     var description = evt.target.comment_description.value;
 
-    if (title === "" || description === ""){
-      this.setState({commentError: "All comment fields are required!"});
+    if (description === ""){
+      var fulfillments = this.state.fulfillments;
+      fulfillments[index].commentError = "Please add a valid comment";
+      this.setState({fulfillments: fulfillments});
     } else {
-      this.setState({commentError: ""});
+      var fulfillments = this.state.fulfillments;
+      fulfillments[index].commentError = "";
+      this.setState({fulfillments: fulfillments});
+
       this.setState({txModalOpen: true, txLoadingAmount: 10});
       this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to comment on the bounty"});
-      ipfs.addJSON({title: title, description: description}, (err, succ)=> {
+      ipfs.addJSON({description: description, aboutFulfillment: true, fulfillmentId: index}, (err, succ)=> {
         this.setState({txLoadingAmount: 40});
         UserCommentsContract.addComment(succ, 0x0, true, this.state.bountyId, {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
@@ -1439,6 +1625,7 @@ handleSelectChange(value) {
 
 }
 handleCloseNoWeb3(){
+  console.log("noWeb3");
   this.setState({noWeb3Error: false});
 
 }
@@ -1461,12 +1648,12 @@ handleCloseNoWeb3(){
     if (this.state.contract.mine){
       if (this.state.contract.stage === "Draft"){
         actions=(
-          <div style={{marginTop: "15px", width: "100%"}}>
-          <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "rgb(101, 197, 170)"}} inkBarStyle={{backgroundColor: "rgb(255, 222, 70)", color: "rgb(101, 197, 170)"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
-            <Tab label="Activate Bounty" value={0} style={{color: this.state.tabValue === 0? "#fff" : "rgb(101, 197, 170)"}}>
+          <div style={{width: "100%"}}>
+          <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "#16e5cd"}} inkBarStyle={{backgroundColor: "rgb(255, 222, 70)", color: "#16e5cd"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
+            <Tab label="Activate Bounty" value={0} style={{color: this.state.tabValue === 0? "#fff" : "#16e5cd"}}>
               <ActivateForm onhandleActivate={this.handleActivate} tokenDetails={this.state.tokenDetails} amount={this.state.contract.value}/>
             </Tab>
-            <Tab label="Edit Bounty" value={1} style={{color: this.state.tabValue === 1? "#fff" : "rgb(101, 197, 170)"}}>
+            <Tab label="Edit Bounty" value={1} style={{color: this.state.tabValue === 1? "#fff" : "#16e5cd"}}>
               <EditForm
               onHandleEdit={this.handleEdit}
               bountyData={this.state.contract.bountyData}
@@ -1475,13 +1662,13 @@ handleCloseNoWeb3(){
               onHandleCaptureEditFile={this.handleCaptureEditFile}
               sourceFileName={this.state.editSourceFileName}/>
             </Tab>
-            <Tab label="Change Deadline" value={2} style={{color: this.state.tabValue === 2? "#fff" : "rgb(101, 197, 170)"}}>
-              <ChangeDeadlineForm onhandleChangeDeadline={this.handleChangeDeadline} deadlineError={this.state.deadlineError}/>
+            <Tab label="Change Deadline" value={2} style={{color: this.state.tabValue === 2? "#fff" : "#16e5cd"}}>
+              <ChangeDeadlineForm onhandleChangeDeadline={this.handleChangeDeadline} deadlineError={this.state.deadlineError} dateNum={this.state.contract.dateString}/>
             </Tab>
-            <Tab label="Transfer Ownership" value={3} style={{color: this.state.tabValue === 3? "#fff" : "rgb(101, 197, 170)"}}>
+            <Tab label="Transfer Ownership" value={3} style={{color: this.state.tabValue === 3? "#fff" : "#16e5cd"}}>
               <TransferOwnershipForm onhandleTransfer={this.handleTransfer} transferError={this.state.transferError} />
             </Tab>
-            <Tab label="Increase Reward" value={4} style={{color: this.state.tabValue === 4? "#fff" : "rgb(101, 197, 170)"}}>
+            <Tab label="Increase Reward" value={4} style={{color: this.state.tabValue === 4? "#fff" : "#16e5cd"}}>
               <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.contract.symbol}/>
             </Tab>
           </Tabs>
@@ -1490,37 +1677,37 @@ handleCloseNoWeb3(){
       }  else if (this.state.contract.stage === "Active"){
 
         actions = (
-          <div style={{marginTop: "15px", width: "100%"}}>
-          <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "rgb(101, 197, 170)"}} inkBarStyle={{backgroundColor: "rgb(255, 222, 70)", color: "rgb(101, 197, 170)"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
-            <Tab label="Extend Bounty Deadline" value={0} style={{color: this.state.tabValue === 0? "#fff" : "rgb(101, 197, 170)"}}>
-              <ExtendDeadlineForm onhandleDeadline={this.handleDeadline} deadlineError={this.state.deadlineError}/>
+          <div style={{width: "100%"}}>
+          <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "#16e5cd"}} inkBarStyle={{backgroundColor: "rgb(255, 222, 70)", color: "#16e5cd"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
+            <Tab label="Extend Bounty Deadline" value={0} style={{color: this.state.tabValue === 0? "#fff" : "#16e5cd"}}>
+              <ExtendDeadlineForm onhandleDeadline={this.handleDeadline} deadlineError={this.state.deadlineError} dateNum={this.state.contract.dateString}/>
             </Tab>
-            <Tab label="Kill Bounty" value={1} style={{color: this.state.tabValue === 1? "#fff" : "rgb(101, 197, 170)"}}>
+            <Tab label="Increase Reward" value={3} style={{color: this.state.tabValue === 3? "#fff" : "#16e5cd"}}>
+              <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.contract.symbol}/>
+            </Tab>
+            <Tab label="Kill Bounty" value={1} style={{color: this.state.tabValue === 1? "#fff" : "#16e5cd"}}>
               <KillBountyForm onhandleKill={this.handleKill} />
             </Tab>
-            <Tab label="Transfer Ownership" value={2} style={{color: this.state.tabValue === 2? "#fff" : "rgb(101, 197, 170)"}}>
+            <Tab label="Transfer Ownership" value={2} style={{color: this.state.tabValue === 2? "#fff" : "#16e5cd"}}>
               <TransferOwnershipForm onhandleTransfer={this.handleTransfer} transferError={this.state.transferError} />
-            </Tab>
-            <Tab label="Increase Reward" value={3} style={{color: this.state.tabValue === 3? "#fff" : "rgb(101, 197, 170)"}}>
-              <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.contract.symbol}/>
             </Tab>
           </Tabs>
           </div>
         );
       } else if (this.state.contract.stage === "Dead"){
          actions=(
-           <div style={{marginTop: "15px", width: "100%"}}>
-           <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "rgb(101, 197, 170)"}} inkBarStyle={{backgroundColor: "rgb(255, 222, 70)", color: "rgb(101, 197, 170)"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
-             <Tab label="Re-activate Bounty" value={0} style={{color: this.state.tabValue === 0? "#fff" : "rgb(101, 197, 170)"}}>
+           <div style={{width: "100%"}}>
+           <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "#16e5cd"}} inkBarStyle={{backgroundColor: "rgb(255, 222, 70)", color: "#16e5cd"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
+             <Tab label="Re-activate Bounty" value={0} style={{color: this.state.tabValue === 0? "#fff" : "#16e5cd"}}>
                <ActivateForm onhandleActivate={this.handleActivate} tokenDetails={this.state.tokenDetails} amount={this.state.contract.value}/>
              </Tab>
-             <Tab label="Extend Bounty Deadline" value={1} style={{color: this.state.tabValue === 1? "#fff" : "rgb(101, 197, 170)"}}>
-               <ExtendDeadlineForm onhandleDeadline={this.handleDeadline} deadlineError={this.state.deadlineError}/>
+             <Tab label="Extend Bounty Deadline" value={1} style={{color: this.state.tabValue === 1? "#fff" : "#16e5cd"}}>
+               <ExtendDeadlineForm onhandleDeadline={this.handleDeadline} deadlineError={this.state.deadlineError} dateNum={this.state.contract.dateString}/>
              </Tab>
-             <Tab label="Transfer Ownership" value={2} style={{color: this.state.tabValue === 2? "#fff" : "rgb(101, 197, 170)"}}>
+             <Tab label="Transfer Ownership" value={2} style={{color: this.state.tabValue === 2? "#fff" : "#16e5cd"}}>
                <TransferOwnershipForm onhandleTransfer={this.handleTransfer} transferError={this.state.transferError} />
              </Tab>
-             <Tab label="Increase Reward" value={3} style={{color: this.state.tabValue === 3? "#fff" : "rgb(101, 197, 170)"}}>
+             <Tab label="Increase Reward" value={3} style={{color: this.state.tabValue === 3? "#fff" : "#16e5cd"}}>
                <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.contract.symbol}/>
              </Tab>
            </Tabs>
@@ -1534,27 +1721,41 @@ handleCloseNoWeb3(){
         if (this.state.contract.stage === "Active"){
 
           actions = (
-            <div style={{width: "940px", marginTop: "15px", marginLeft: "15px", marginRight: "15px"}}>
+            <div style={{width: "940px", marginTop: "15px", marginLeft: "15px", marginRight: "15px", position: "relative"}}>
+              {!this.state.fulfillmentOpen? <SvgDown onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "0px", top: "0px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>
+            : <SvgUp onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "0px", top: "0px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
               <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Fulfill the Bounty</h3>
-              <div style={{paddingBottom: "15px"}}>
-                <form className='Fulfill' onSubmit={this.handleFulfill} style={{marginBottom: "15px"}}>
-                  <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
-                  <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
-                  <div style={{width: "440px", display: "block", border: "0px", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "0px", borderRadius: "4px"}}>
-                    <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "0px", marginTop: "-1px"}}> Upload </label>
-                    <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
-                  </div>
-                  <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any file associated with your submission</p>
-                  <input id='bounty_deadline' type='text' defaultValue={0} style={{width: "0.01px", display: "none"}}/>
+              {this.state.fulfillmentOpen &&
+
+                <div style={{paddingBottom: "0px"}}>
+                  <form className='Fulfill' onSubmit={this.handleFulfill} style={{marginBottom: "15px"}}>
+                  <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginRight: "15px"}}>
                   <label htmlFor='contact' style={{fontSize: "12px"}}>{"Contact"}</label>
                   <input id='contact' className='SendAmount' style={{width: "450px", border: "0px", display: "block"}}/>
-                  <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Submission Description and Comments</label>
-                  <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px"}}></textarea>
-                  {this.state.fulfillmentError &&
-                    <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
-                    <button type='submit' className='AddBtn' style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", width: "200px", margin: "0 auto", display: "block"}}>Submit</button>
-                </form>
-              </div>
+                  </div>
+                  <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginLeft: "15px"}}>
+                    <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
+                    <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
+                    <div style={{width: "440px", display: "block", border: "0px", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "0px", borderRadius: "4px"}}>
+                      <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "0px", marginTop: "-1px"}}> Upload </label>
+                      <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
+                    </div>
+                    <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any file associated with your submission</p>
+                  </div>
+
+
+                    <input id='bounty_deadline' type='text' defaultValue={0} style={{width: "0.01px", display: "none"}}/>
+
+                    <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Submission Description and Comments</label>
+                    <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px"}}></textarea>
+                    {this.state.fulfillmentError &&
+                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
+                      <button type='submit' className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", width: "200px", margin: "0 auto", display: "block"}}>Submit</button>
+                  </form>
+                </div>
+
+              }
+
             </div>
           );
         }
@@ -1587,7 +1788,7 @@ handleCloseNoWeb3(){
             icon=(<SvgTranslations />);
           }
           categories.push(
-            <Chip style={{margin: "0px 5px 5px 0px", float: "left", border: "1px solid rgba(0, 126, 255, 0.24)", backgroundColor: "rgba(0, 126, 255, 0.08)", height: "30px"}}
+            <Chip style={{margin: "0px 15px 5px 0px", float: "left", border: "1px solid rgba(0, 126, 255, 0.24)", backgroundColor: "rgba(0, 126, 255, 0.08)", height: "30px"}}
                   labelStyle={{color: "white", lineHeight: "28px"}}
                   key={this.state.contract.bountyData.categories[i]}>
               <Avatar color="rgb(255, 222, 70)" icon={icon} style={{backgroundColor: "rgba(0, 126, 255, 0.24)", height: "28px", width: "28px"}}/>
@@ -1596,48 +1797,32 @@ handleCloseNoWeb3(){
           );
         }
       }
-
-      const modalActions = [
-      <FlatButton
-        label="Retry"
-        primary={true}
-        onClick={this.handleClose}
-      />
-    ];
-    const modalActions2 = [
-    <FlatButton
-      label="Close"
-      primary={true}
-      onClick={this.handleCloseTxLoading}
-    />
-  ];
-  const modalActions3 = [
-  <FlatButton
-    label="Close"
-    primary={true}
-    onClick={this.handleCloseNoWeb3}
-  />
-];
-    console.log("comments", this.state.comments);
     var commentsArray = [];
     var comments;
 
     for (i = 0; i < this.state.myComments.length; i++){
       commentsArray.push(
-        <div style={{display: "block", borderBottom: "0px solid #65C5AA", marginBottom: "15px", overflow: "hidden"}} key={"comment: "+i}>
+        <div style={{display: "block", borderBottom: "0px solid #16e5cd", marginBottom: "15px", overflow: "hidden"}} key={"comment: "+i}>
           <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
               <h5 style={{margin: "5px 0px"}}><b style={{fontSize: "16px"}}>{this.state.myComments[i].title}</b></h5>
-              <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>By: </b>
-              <a style={{color: "#65C5AA"}} target={"_blank"} href={"/user/"+ this.state.myComments[i].from}>{this.state.myComments[i].from}</a></p>
-              <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>On: </b>{this.state.myComments[i].date}</p>
-              <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Comment: </b>{this.state.myComments[i].description}</p>
+              <p style={{ fontSize: "15px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}></b>{this.state.myComments[i].description}</p>
+
+              <p style={{ fontSize: "12px", margin: "4px  10px 2.5px 0px", display: "inline-block", float: "left"}}><b style={{color: "#FFDE46"}}>By: </b></p>
+              <Blockies
+              seed={this.state.myComments[i].from}
+              size={9}
+              scale={2.5}
+              style={{borderRadius: "10px", display: "inline-block", float: "left"}}
+              />
+              <p style={{ fontSize: "12px", margin: "4px  0px 4px 10px", display: "inline-block", float: "left"}}><a style={{color: "#16e5cd"}} target={"_blank"} href={"/user/"+ this.state.myComments[i].from}>{this.state.myComments[i].from}</a></p>
+              <p style={{ fontSize: "12px", margin: "4px  0px 4px 10px", display: "inline-block", float: "left", color: "rgb(208, 208, 208)"}}>{this.state.myComments[i].dateString}</p>
           </div>
         </div>
       );
     }
     comments = (
       <div style={{paddingTop: "30px", display: "block"}}>
-        <h3 style={{fontFamily: "Open Sans", marginTop: "30px", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>{this.state.myComments.length} Comment{this.state.myComments.length !== 1? "s" : ""}</h3>
+        <h3 style={{fontFamily: "Open Sans", marginTop: "30px", margin: "0 auto", marginBottom: "30px", textAlign: "center", fontWeight: "200",}}>{this.state.myComments.length} Comment{this.state.myComments.length !== 1? "s" : ""}</h3>
         {commentsArray}
       </div>
     );
@@ -1646,41 +1831,82 @@ handleCloseNoWeb3(){
       var numPushed = 0;
       var fulfillments = [];
       for (var i = 0; i < this.state.fulfillments.length; i++){
-        console.log("fulfillment", this.state.fulfillments[i]);
+        var fulfillmentComments = [];
+        for (var j = 0; j < this.state.fulfillments[i].comments.length; j++){
+          fulfillmentComments.push(
+            <div style={{display: "block", width: "793px", marginBottom: "5px", borderBottom: j === (this.state.fulfillments[i].comments.length-1)? "0px" : "1px solid rgba(0,0,0,0.3)", paddingBottom: "10px", overflow: "hidden"}}>
+
+              <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#FFDE46", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.fulfillments[i].comments[j].description}</Text>
+
+              <p style={{ fontSize: "10px", margin: "4px  10px 2.5px 0px", display: "inline-block", float: "left"}}><b style={{color: "#FFDE46"}}>By: </b></p>
+              <Blockies
+              seed={this.state.fulfillments[i].comments[j].from}
+              size={9}
+              scale={2.5}
+              style={{borderRadius: "10px", display: "inline-block", float: "left"}}
+              />
+              <p style={{ fontSize: "10px", margin: "4px  0px 4px 10px", display: "inline-block", float: "left"}}><a style={{color: "#16e5cd"}} href={"/user/"+ this.state.fulfillments[i].comments[j].from}>{this.state.fulfillments[i].comments[j].from}</a></p>
+              <p style={{ fontSize: "10px", margin: "4px  0px 4px 10px", display: "inline-block", float: "left", color: "rgb(208, 208, 208)"}}>{this.state.fulfillments[i].comments[j].dateString}</p>
+
+            </div>
+          );
+        }
 
         fulfillments.push(
-          <div style={{display: "block", borderLeft: "1px solid #65C5AA", marginBottom: "15px", overflow: "hidden"}} key={this.state.fulfillments[i].fulfiller+i}>
+          <div style={{display: "block", borderLeft: "1px solid #16e5cd", marginBottom: "15px", overflow: "hidden"}} key={this.state.fulfillments[i].fulfiller+i}>
 
-            <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
-              <div style={{width: "85%", display: "inline-block", float: "left"}}>
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Bounty Hunter: </b>
-                <a style={{color: "#65C5AA"}} target={"_blank"} href={"/user/"+ this.state.fulfillments[i].fulfiller}>{this.state.fulfillments[i].fulfiller}</a></p>
+            <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)"}}>
+            <div style={{display: "block", overflow: "hidden", padding: "15px", position: "relative"}}>
+              <div style={{width: "88%", display: "inline-block", float: "left"}}>
+                <p style={{ fontSize: "14px", margin: "4px  10px 2.5px 0px", display: "inline-block", float: "left"}}><b style={{color: "#FFDE46"}}>Bounty Hunter: </b></p>
+                <Blockies
+                seed={this.state.fulfillments[i].fulfiller}
+                size={9}
+                scale={2.5}
+                style={{borderRadius: "10px", display: "inline-block", float: "left"}}
+                />
+                <p style={{ fontSize: "14px", margin: "4px  10px 2.5px 10px", display: "inline-block", float: "left"}}><a style={{color: "#16e5cd"}} target={"_blank"} href={"/user/"+ this.state.fulfillments[i].fulfiller}>{this.state.fulfillments[i].fulfiller}</a></p>
+                {this.state.fulfillments[i].data.contact &&
+                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#FFDE46"}}>Contact: </b> {this.state.fulfillments[i].data.contact} </p>}
                 {this.state.fulfillments[i].data.sourceFileHash &&
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46"}}>Associated File: </b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.fulfillments[i].data.sourceFileHash}> {this.state.fulfillments[i].data.sourceFileName} </a> </p>}
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", color: "#FFDE46"}}><b>Submission</b>:</p>
-                <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}>{this.state.fulfillments[i].data.description}</p>
+                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#FFDE46"}}>Associated File: </b> <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.fulfillments[i].data.sourceFileHash} download={this.state.fulfillments[i].data.sourceFileName}> {this.state.fulfillments[i].data.sourceFileName} </a> </p>}
+                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", color: "#FFDE46", display: "block", overflow: "hidden"}}><b>Submission</b>:</p>
+                <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#FFDE46", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.fulfillments[i].data.description}</Text>
+                <FlatButton style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white", float: "left",  marginTop: "15px", display: "block", width: "200px"}} onClick={this.handleExpandComment.bind(this,i)}>Add Comment </FlatButton>
+
+                {this.state.fulfillments[i].comments.length > 0 &&
+                  <div style={{borderTop: "1px solid rgba(256,256,256, 0.18)", padding: "30px 0px 0px 30px", marginTop: "70px"}}>
+                    <h5 style={{margin: "5px 0px", textAlign: "left", fontWeight: "200"}}><b style={{fontSize: "16px", fontWeight: "200", color: "#FFDE46"}}>{this.state.fulfillments[i].comments.length} Comment{ this.state.fulfillments[i].comments.length === 1? "" : "s"}</b></h5>
+
+                    {fulfillmentComments}
+
+                  </div>
+                }
+
 
               </div>
-              <div style={{width: "15%", display: "inline-block", float: "left"}}>
+              <div style={{width: "12%", display: "inline-block", float: "left"}}>
               <Chip style={{float: "right", border: "1px solid rgba(0, 126, 255, 0.24)", backgroundColor: "rgba(0, 126, 255, 0.08)", height: "30px", margin: "5px auto"}}
-                    labelStyle={{color: this.state.fulfillments[i].accepted? "#65C5AA" : "#FFDE46", fontSize: "14px", marginTop: "-2px"}}
+                    labelStyle={{color: this.state.fulfillments[i].accepted? "#16e5cd" : "#FFDE46", fontSize: "14px", marginTop: "-2px"}}
                     key={this.state.fulfillments[i].accepted? "Accepted" : "Not Accepted"}>
                     {this.state.fulfillments[i].accepted? "Accepted" : "Not Accepted"}
               </Chip>
                 {this.state.contract.stage === "Active" && !this.state.fulfillments[i].accepted && this.state.accounts && this.state.accounts[0] === this.state.contract.issuer &&
-                <FlatButton style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", float: "right",  margin: "10px"}} onClick={this.handleAccept.bind(this,i)}> Accept </FlatButton>}
+                <FlatButton style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", float: "right",  margin: "10px", display: "block"}} onClick={this.handleAccept.bind(this,i)}> Accept </FlatButton>}
 
               </div>
+</div>
               {this.state.fulfillments[i].commentsOpen &&
-                <form className='Contribute' onSubmit={this.handleCommentOnFulfillment} style={{width: "967px", display: "inline-block", marginTop: "15px", paddingTop: "15px", borderTop: "1px solid #65C5AA"}}>
-                  <input id="index" style={{display: "none"}} value={i}> </input>
-                  <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "5px", textAlign: "center", fontSize: "16px"}}>Comment on Submission</h4>
-                  <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Comment</label>
+                <form className='Contribute' onSubmit={this.handleCommentOnFulfillment} style={{width: "967px", display: "inline-block", paddingTop: "15px", padding: "15px", backgroundColor: "rgba(10, 22, 40, 0.5)"}}>
 
+                  <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "5px", textAlign: "center", fontSize: "16px"}}>Comment on Submission</h4>
+                  <input id="comment_index" value={i} style={{display: "none"}}></input>
+
+                  <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Comment</label>
                   <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "952px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
-                  {this.state.commentOnFulfillmentError &&
-                    <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.fulfillments[i].commentOnFulfillmentError}</p>}
-                  <button type='submit'  className='AddBtn' style={{backgroundColor: "#65C5AA", border:"0px", color: "rgb(21, 38, 57)",  display: "block", padding: "10px 16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
+                  {this.state.fulfillments[i].commentError &&
+                    <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.fulfillments[i].commentError}</p>}
+                  <button type='submit'  className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "rgb(21, 38, 57)",  display: "block", padding: "10px 16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
                 </form>
 
               }
@@ -1691,27 +1917,52 @@ handleCloseNoWeb3(){
 
       }
       fulBody = (
-        <div style={{width: "100%", marginTop: "30px", display: "block", marginBottom: "60px", borderBottom: "1px solid #65C5AA", paddingBottom: "30px"}}>
-          <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>{numPushed} Submission{numPushed !== 1? "s" : ""}</h3>
+        <div style={{width: "100%", marginTop: "30px", display: "block", marginBottom: "50px", borderBottom: "1px solid rgba(255, 255, 255, 0.18)", paddingBottom: "30px"}}>
+          <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "30px", textAlign: "center", fontWeight: "200"}}>{numPushed} Submission{numPushed !== 1? "s" : ""}</h3>
           {fulfillments}
         </div>
       );
+
+
     }
+    const modalActions = [
+      <FlatButton
+        label="Retry"
+        primary={true}
+        onClick={this.handleClose}
+      />
+    ];
+    const modalActions2 = [
+      <FlatButton
+        label="Close"
+        primary={true}
+        onClick={this.handleCloseTxLoading}
+      />
+    ];
+    const modalActions3 = [
+      <FlatButton
+        label="Close"
+        primary={true}
+        onClick={this.handleCloseNoWeb3}
+      />
+    ];
     return (
       <div>
       <Dialog
          title=""
          actions={modalActions}
-         modal={true}
+         modal={false}
          open={this.state.modalOpen}
+         onRequestClose={this.handleClose}
        >
          {this.state.modalError}
        </Dialog>
        <Dialog
           title=""
           actions={modalActions2}
-          modal={true}
+          modal={false}
           open={this.state.txModalOpen}
+          onRequestClose={this.handleCloseTxLoading}
         >
           <div style={{width: "50%", display: "block", margin: "0 auto", marginTop: "30px"}}>
           <p style={{fontSize: "14px", textAlign: "center"}}> {this.state.txLoadingMessage}</p>
@@ -1722,11 +1973,12 @@ handleCloseNoWeb3(){
         <Dialog
            title=""
            actions={modalActions3}
-           modal={true}
+           modal={false}
            open={this.state.noWeb3Error}
+           onRequestClose={this.handleCloseNoWeb3}
          >
            <div style={{width: "75%", display: "block", margin: "0 auto", marginTop: "30px"}}>
-           <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}> Metamask </a> browser extension.</p>
+           <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}> Metamask </a> browser extension.</p>
              </div>
          </Dialog>
         <div id="colourBody">
@@ -1738,57 +1990,67 @@ handleCloseNoWeb3(){
           <BountiesFacts total={this.state.total}/>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
 
-          <FlatButton href="/newBounty/" style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
+          <FlatButton href="/newBounty/" style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
 
           </div>
 
-          <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px"}}>
+          <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px", display: "block"}}>
 
             <div style={{float: "left", display: "block", margin: "0 15px", width: "1000px"}}>
             { this.state.loading &&
 
               <div style={{marginLeft: "480px", marginTop: "60px", overflow: "hidden", marginBottom: "60px"}}>
-              <Halogen.ScaleLoader color={"#65C5AA"} />
+              <Halogen.ScaleLoader color={"#16e5cd"} />
               </div>
             }
-              <div style={{ marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", marginTop: "15px", border: "0", backgroundColor: "rgba(10, 22, 40, 0.5)", borderBottom: "0px solid #65C5AA", color :"white", paddingTop: "30px"}} className="ContractCard">
+              <div style={{ marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "30px", marginTop: "15px", border: "0", backgroundColor: "rgba(10, 22, 40, 0.5)", borderBottom: "0px solid #16e5cd", color :"white", paddingTop: "30px"}} className="ContractCard">
               <h3 style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "28px", textAlign: "center"}}> {this.state.contract.bountyData.title}</h3>
 
-                <div style={{float: "left", display: "inline-block", width: "200px", marginLeft: "7.5px", marginRight: "7.5px"}}>
-                  <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px", marginLeft: "7.5px", marginRight: "7.5px"}}>
-                  <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>Payout</h5>
+                <div style={{float: "left", display: "inline-block", width: "200px",}}>
+                  <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
+
                     <h1 style={{textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>{this.state.contract.value}</h1>
-                    <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>{this.state.contract.symbol? this.state.contract.symbol: 'ΞTH'}</h5>
-                    <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center", marginBottom: "7.5px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Total Balance:</b> {this.state.contract.balance + " " + this.state.contract.symbol}</p>
+                    <h5 style={{ fontSize: "17px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#FFDE46"}}>{this.props.symbol? this.props.symbol : 'ETH'}</h5>
+                    <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
+                    <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center", marginBottom: "7.5px"}}><b style={{color: "#FFDE46", fontWeight: "500", marginRight: "5px"}}>BALANCE</b> {this.state.contract.balance + " " + this.state.contract.symbol}</p>
                   </div>
-                </div>
-                <div style={{float: "left", display: "inline-block", paddingLeft: "15px", width: "485px"}}>
-
-
-                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Bounty Stage:</b> {this.state.contract.stage}</p>
-                  <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Deadline:</b> {this.state.contract.deadline}</p>
-
-                  <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Contact the bounty issuer:</b> { this.state.contract.bountyData.contact}</p>
-                  <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Bounty Issuer:</b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"/user/"+ this.state.contract.issuer}>{ this.state.contract.issuer}</a></p>
-                  {this.state.contract.bountyData.sourceFileHash &&
-                  <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Associated File: </b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.contract.bountyData.sourceFileHash}> {this.state.contract.bountyData.sourceFileName} </a> </p>}
-                  {this.state.contract.paysTokens &&
-                  <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Token Contract:</b> <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.contract.tokenContract.address}>{this.state.contract.tokenContract.address}</a></p>}
-                  <p style={{ fontSize: "14px", width: "100%", margin: "5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Description: </b> {this.state.contract.bountyData.description}  </p>
-                  <div style={{margin: "0 auto", display: "block", overflow: "hidden"}}>
-                    {categories}
-                  </div>
-                </div>
-                <div style={{float: "left", display: "inline-block", paddingLeft: "15px", width: "210px", marginRight: "15px"}}>
-                  <form className='Contribute' onSubmit={this.handleContribute} style={{width: "100%", display: "inline-block"}}>
-                    <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px"}}> Contribute to the Bounty</h4>
+                  <form className='Contribute' onSubmit={this.handleContribute} style={{width: "100%", display: "inline-block", marginTop: "30px"}}>
+                    <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}> Contribute to Bounty</h4>
                     <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Deposit Amount ({this.state.contract.symbol? this.state.contract.symbol: 'ΞTH'})</label>
-                    <input id='deposit_amount' className='SendAmount' type='number'  step="any" style={{width: "192px", border: "0px"}}/>
+                    <input id='deposit_amount' className='SendAmount' type='number'  step="any" style={{width: "182px", border: "0px"}}/>
                     {this.state.contributionError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.contributionError}</p>}
-                    <button type='submit' className='AddBtn' style={{backgroundColor: "rgba(255, 255, 255, 0.18)", border:"0px", color: "white"}}>Contribute</button>
+                    <button type='submit' className='AddBtn' style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white", width: "200px"}}>Contribute</button>
 
                   </form>
+                </div>
+                <div style={{float: "left", display: "inline-block", width: "600px", paddingRight: "110px"}}>
+
+
+                  <p style={{ fontSize: "14px", margin: "4px  0px 10px 0px", display: "inline-block", float: "left"}}><b style={{color: "#FFDE46"}}>Bounty Issuer: </b></p>
+                  <Blockies
+                  seed={this.state.contract.issuer}
+                  size={9}
+                  scale={2.5}
+                  style={{borderRadius: "10px", display: "inline-block", float: "left"}}
+                  />
+                  <p style={{ fontSize: "14px", margin: "4px  0px 10px 0px", display: "inline-block", float: "left"}}><a style={{color: "#16e5cd"}} target={"_blank"} href={"/user/"+ this.state.contract.issuer}>{ this.state.contract.issuer}</a></p>
+
+
+
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Bounty Stage:</b> {this.state.contract.stage}</p>
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Deadline:</b> {this.state.contract.deadlineString}</p>
+
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Contact the bounty issuer:</b> { this.state.contract.bountyData.contact}</p>
+                  {this.state.contract.bountyData.sourceFileHash &&
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Associated File: </b> <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.contract.bountyData.sourceFileHash}> {this.state.contract.bountyData.sourceFileName} </a> </p>}
+                  {this.state.contract.paysTokens &&
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Token Contract:</b> <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.contract.tokenContract.address}>{this.state.contract.tokenContract.address}</a></p>}
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Description: </b> </p>
+                  <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#FFDE46", textDecoration: "none"}}>{this.state.contract.bountyData.description}</Text>
+                  <div style={{margin: "0 auto", display: "block", overflow: "hidden", marginTop: "15px"}}>
+                    {categories}
+                  </div>
                 </div>
 
 
@@ -1798,7 +2060,7 @@ handleCloseNoWeb3(){
 
             </div>
             {actions &&
-              <div style={{ marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", marginTop: "15px", border: "0", backgroundColor: "rgba(10, 22, 40, 0.5)", borderBottom: "0px solid #65C5AA", color :"white", paddingTop: "15px"}} className="ContractCard">
+              <div style={{ marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", marginTop: "15px", border: "0", backgroundColor: "rgba(10, 22, 40, 0.5)", borderBottom: "0px solid #16e5cd", color :"white", paddingTop: "15px"}} className="ContractCard">
               {actions}
 
               </div>
@@ -1806,20 +2068,31 @@ handleCloseNoWeb3(){
 
 
             {fulBody}
-            <form className='Contribute' onSubmit={this.handleComment} style={{width: "940px", display: "inline-block", backgroundColor: "rgba(10, 22, 40, 0.5)", padding: "30px"}}>
-              <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Add Comment</h4>
-              <label htmlFor='comment_title' style={{fontSize: "12px", display: "block"}}>Title</label>
-              <input id='comment_title' className='SendAmount' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}/>
-              <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Description</label>
-              <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
-              {this.state.commentError &&
-                <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.commentError}</p>}
-              <button type='submit'  className='AddBtn' style={{backgroundColor: "rgba(255, 255, 255, 0.18)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
-            </form>
+            <div style={{overflow: "hidden", display: "block", width: "940px", backgroundColor: "rgba(10, 22, 40, 0.5)", position: "relative", padding: "30px"}}>
+              <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "0px", textAlign: "center", fontSize: "1.17em"}}>Comment on Bounty</h4>
+
+              {!this.state.commentOnBountyOpen? <SvgDown onClick={this.handleToggleComment} style={{position: "absolute", right: "30px", top: "30px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>
+            : <SvgUp onClick={this.handleToggleComment} style={{position: "absolute", right: "30px", top: "30px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
+
+              {this.state.commentOnBountyOpen &&
+                <form className='Contribute' onSubmit={this.handleComment} style={{width: "940px", display: "inline-block"}}>
+
+                  <label htmlFor='comment_title' style={{fontSize: "12px", display: "block"}}>Title</label>
+                  <input id='comment_title' className='SendAmount' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}/>
+                  <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Description</label>
+                  <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
+                  {this.state.commentError &&
+                    <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.commentError}</p>}
+                  <button type='submit'  className='AddBtn' style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "30px", fontSize: "1em", width: "200px"}}>Comment</button>
+                </form>
+              }
+            </div>
+
+
             {comments}
           </div>
         </div>
-        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}>ConsenSys</a> Formation <br/>
+        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>
         This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
       </div>
     </div>

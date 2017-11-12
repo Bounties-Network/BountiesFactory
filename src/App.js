@@ -4,6 +4,9 @@ import './App.css'
 import AppContainer from 'components/AppContainer/AppContainer'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+
+injectTapEventPlugin();
 
 const muiTheme = getMuiTheme({
   tabs: {

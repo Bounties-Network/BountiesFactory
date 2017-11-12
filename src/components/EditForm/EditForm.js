@@ -21,7 +21,7 @@ class EditForm extends Component {
       fileName = this.props.sourceFileName;
     }
     return (
-      <div style={{width: "467px", display: "block", paddingRight: "15px", paddingLeft: "15px", margin: "0 auto", marginTop: "30px", marginBottom: "15px"}}>
+      <div style={{width: "467px", display: "block", paddingRight: "15px", paddingLeft: "15px", margin: "0 auto", marginTop: "15px", marginBottom: "15px"}}>
       <form className='Activate' onSubmit={this.props.onHandleEdit} style={{width: "100%", display: "inline-block"}}>
         <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}> Edit your Bounty</h3>
         <label style={{fontSize: "12px"}} htmlFor='contract_title'>Title</label>
@@ -42,7 +42,7 @@ class EditForm extends Component {
           </div>
           <label style={{fontSize: "12px"}} >Bounty Category</label>
           <Select multi simpleValue disabled={this.props.disabled} value={this.props.selectedValue} placeholder="Select task categories" options={CATEGORIES} onChange={this.props.onHandleChangeSelected} style={{width: "470px", marginBottom: "15px"}}/>
-        <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#65C5AA", border:"0px", color: "#152639"}}>Submit Edits</button>
+        <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#16e5cd", border:"0px", color: "#152639"}}>Submit Edits</button>
       </form>
       </div>
     )

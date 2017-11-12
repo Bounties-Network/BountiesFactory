@@ -51,3 +51,11 @@
 .iconHover:hover{
   color: rgb(255, 222, 70) !important;
 }
+span {
+  font-size: 14px;
+  display: block;
+   overflow: hidden;
+}
+a {
+  color: rgb(22, 229, 205);
+}

@@ -34,6 +34,7 @@ class ContractList extends Component {
                       symbol={contract.symbol}
                       deadline={contract.deadline}
                       numFul={contract.numFul}
+                      dateString={contract.dateString}
                       />
         );
       });
@@ -48,7 +49,7 @@ class ContractList extends Component {
       {this.props.loading &&
         <div style={{width: "100%"}}>
           <div style={{marginLeft: "296px", marginTop: "60px", overflow: "hidden", }}>
-          <Halogen.ScaleLoader color={"#65C5AA"} />
+          <Halogen.ScaleLoader color={"#16e5cd"} />
           </div>
           <p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46"}}> Loading from the blockchain... </p>
         </div>

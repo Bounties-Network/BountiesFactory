@@ -18,7 +18,17 @@
   .RecipientAddress {
     flex: 1;
   }
+Canvas.identicon{
+  border-radius: 100px;
+  float: left;
+  margin-right: 15px;
+  margin-left: 15px;
+  margin-top: 3px;
+  height: 20px;
+  width: 20px;
+  box-shadow: 0px 0px 5px 1px rgba(22, 229, 205, 0.4);
 
+}
 
 
   input {
@@ -52,4 +62,12 @@
     background-color: black;
     width: 100%;
   }
+
+}
+.SideArrow{
+  background-color: #183653;
+}
+
+.SideArrow:hover{
+  background-color: #275d7a;
 }

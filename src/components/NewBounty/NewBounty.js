@@ -5,6 +5,7 @@ import Web3 from 'web3';
 const web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io"));
 
 
+
 const json = require('../../../contracts.json');
 const networkId = json.networkId;
 
@@ -157,13 +158,6 @@ class NewBounty extends Component {
       }
     } else {
       this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
-      setInterval(function() {
-        if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
-          this.getInitialData();
-        } else {
-          console.log("window", window.web3);
-        }
-      }, 100);
     }
 
   }
@@ -500,8 +494,9 @@ class NewBounty extends Component {
         <Dialog
         title=""
         actions={modalActions}
-        modal={true}
+        modal={false}
         open={this.state.modalOpen}
+        onRequestClose={this.handleClose}
         >
           {this.state.modalError}
         </Dialog>
@@ -514,7 +509,7 @@ class NewBounty extends Component {
             <BountiesFacts total={this.state.total}/>
             <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
           </div>
-            <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", paddingBottom: "60px", marginBottom: "15px", marginTop: "30px", backgroundColor: "rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #65C5AA", color :"white"}} className="ContractCard">
+            <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", paddingBottom: "60px", marginBottom: "15px", marginTop: "30px", backgroundColor: "rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #16e5cd", color :"white"}} className="ContractCard">
               <h3 style={{fontFamily: "Open Sans", margin: "24px", textAlign: "Center", fontWeight: "500", width: "1000px"}}>Create a New Bounty</h3>
               <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "white"}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
@@ -621,12 +616,12 @@ class NewBounty extends Component {
                     <LinearProgress mode="determinate" value={this.state.loadingAmount} color="rgb(255, 222, 70)"/>
                     </div>
                 }
-                <button type='submit' className='AddBtn' style={{backgroundColor: "rgb(101, 197, 170)", border:"0px", width: "200px", margin: "0 auto", color: "rgb(21, 38, 57)", display: "block", marginTop: "30px"}}>Create</button>
+                <button type='submit' className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", width: "200px", margin: "0 auto", color: "rgb(21, 38, 57)", display: "block", marginTop: "30px"}}>Create</button>
 
               </form>
             </div>
 
-          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}>ConsenSys</a> Formation <br/>
+          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>
           This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
         </div>
       </div>

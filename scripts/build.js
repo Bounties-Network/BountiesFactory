@@ -4,6 +4,7 @@ var path = require('path');
 var rimrafSync = require('rimraf').sync;
 var webpack = require('webpack');
 var config = require('../config/webpack.config.prod');
+var fs = require('fs');
 
 var isInNodeModules = 'node_modules' ===
   path.basename(path.resolve(path.join(__dirname, '..', '..')));
@@ -16,6 +17,7 @@ webpack(config).run(function(err, stats) {
     console.error(err.message || err);
     process.exit(1);
   }
+  fs.createReadStream('./build/index.html').pipe(fs.createWriteStream('./build/200.html'));
 
   var openCommand = process.platform === 'win32' ? 'start' : 'open';
   console.log('Successfully generated a bundle in the build folder!');

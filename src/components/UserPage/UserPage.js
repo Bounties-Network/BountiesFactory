@@ -50,6 +50,8 @@ import Avatar from 'material-ui/Avatar';
 
 import Halogen from 'halogen';
 
+import Blockies from 'react-blockies';
+
 const ipfsAPI = require('ipfs-api');
 
 
@@ -516,11 +518,11 @@ handleCloseNoWeb3(){
 
   for (var i = 0; i < this.state.commentsAbout.length; i++){
     commentsArray.push(
-      <div style={{display: "block", borderBottom: "0px solid #65C5AA", marginBottom: "30px", overflow: "hidden"}} key={"comment: "+i}>
+      <div style={{display: "block", borderBottom: "0px solid #16e5cd", marginBottom: "30px", overflow: "hidden"}} key={"comment: "+i}>
         <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
             <h5 style={{margin: "15px 0px"}}><b style={{color: "#FFDE46", fontSize: "16px"}}>{this.state.commentsAbout[i].title}</b></h5>
             <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>By: </b>
-            <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.commentsAbout[i].from}>{this.state.commentsAbout[i].from}</a></p>
+            <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.commentsAbout[i].from}>{this.state.commentsAbout[i].from}</a></p>
             <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>On: </b>{this.state.commentsAbout[i].date}</p>
             <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}>Comment: </b>{this.state.commentsAbout[i].description}</p>
         </div>
@@ -550,6 +552,7 @@ handleCloseNoWeb3(){
       myIssued++;
       myBounties.push(this.state.bounties[i]);
       mySubs+= this.state.bounties[i].fulfillments.length;
+
       myContactInfo.push(this.state.bounties[i].bountyData.contact);
 
     }
@@ -620,9 +623,12 @@ handleCloseNoWeb3(){
   var acceptanceRate = 0;
   if (myFul.length !== 0){
     acceptanceRate = (numAccepted*100 / myFul.length).toFixed(0);
+    console.log("myFul", numAccepted, myFul.length);
   }
   var myAcceptanceRate = 0;
   if (mySubs !== 0){
+    console.log("mysubs", myNumAccepted, mySubs);
+
     myAcceptanceRate = (myNumAccepted*100 / mySubs).toFixed(0);
   }
   console.log("contacts", uniqueContactInfo);
@@ -633,12 +639,12 @@ handleCloseNoWeb3(){
     var url = ("/bounty/" + myBounties[i].bountyId);
     bountiesList.push(
       <a key={"bountiesList"+i} style={{}} href={url}>
-      <div  style={{backgroundColor: "rgba(10, 22, 40, 0.75)", borderLeft: "1px solid rgb(101, 197, 170)", padding: "10px", marginBottom: (i === (myBounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "white", overflow: "hidden"}} >
+      <div  style={{backgroundColor: "rgba(10, 22, 40, 0.75)", borderLeft: "1px solid #16e5cd", padding: "10px", marginBottom: (i === (myBounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "white", overflow: "hidden"}} >
         <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
         <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "700"}}>{myBounties[i].bountyData.title}</h4>
         <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}> <b style={{color: "#FFDE46"}}>{myBounties[i].stage}</b>| {myBounties[i].fulfillments.length}<b style={{color: "#FFDE46", fontWeight: "500"}}> total submissions</b></p>
         </div>
-        <SvgArrow style={{color: "#65C5AA", fontSize: "44px", marginTop: "10px", color: "#65C5AA", textAlign: "right", display: "block"}}/>
+        <SvgArrow style={{color: "#16e5cd", fontSize: "44px", marginTop: "10px", color: "#16e5cd", textAlign: "right", display: "block"}}/>
       </div>
       </a>
     );
@@ -649,13 +655,13 @@ handleCloseNoWeb3(){
 
     fulfillmentsList.push(
       <a key={"fulList"+i} style={{}} href={url}>
-      <div style={{backgroundColor: "rgba(10, 22, 40, 0.75)", borderLeft: "1px solid rgb(101, 197, 170)", padding: "10px", marginBottom: (i === (myFul.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "white", overflow: "hidden"}} >
+      <div style={{backgroundColor: "rgba(10, 22, 40, 0.75)", borderLeft: "1px solid #16e5cd", padding: "10px", marginBottom: (i === (myFul.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "white", overflow: "hidden"}} >
         <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
         <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "700"}}>{myFul[i].bountyData.title}</h4>
         <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Reward: </b>{myFul[i].value + " " + myFul[i].symbol} | <b style={{color: "#FFDE46", fontWeight: "500"}}>{myFul[i].accepted? "Accepted" : "Not Accepted"}</b></p>
 
         </div>
-        <SvgArrow style={{color: "#65C5AA", fontSize: "44px", marginTop: "10px", color: "#65C5AA", textAlign: "right", display: "block"}}/>
+        <SvgArrow style={{color: "#16e5cd", fontSize: "44px", marginTop: "10px", color: "#16e5cd", textAlign: "right", display: "block"}}/>
 
       </div>
       </a>
@@ -665,13 +671,13 @@ handleCloseNoWeb3(){
     <div>
 
       <h3 style={{margin: "0px", width: "100%", fontSize: "18px", textAlign: "center"}}>Bounties Posted</h3>
-      <div style={{paddingBottom: "15px", borderBottom: "1px solid rgb(101, 197, 170)", display: "inline-block", width: "442px", marginBottom: "12px"}}>
+      <div style={{paddingBottom: "15px", borderBottom: "1px solid #16e5cd", display: "inline-block", width: "442px", marginBottom: "12px"}}>
         <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid rgb(101, 197, 170)", margin: "15px 0px"}}> {myBounties.length} </h3>
+          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}> {myBounties.length} </h3>
           <p style={{fontSize: "10px", textAlign: "center", color: "rgb(255, 222, 70)"}}>Bounties</p>
         </div>
         <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid rgb(101, 197, 170)", margin: "15px 0px"}}>{myNumAccepted}</h3>
+          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}>{myNumAccepted}</h3>
           <p style={{fontSize: "10px", textAlign: "center", color: "rgb(255, 222, 70)"}}>Accepted</p>
         </div>
         <div style={{width: "33%", display: "inline-block", float: "left"}}>
@@ -686,14 +692,14 @@ handleCloseNoWeb3(){
   var fulUI = (
     <div>
       <h3 style={{margin: "0px", width: "100%", fontSize: "18px", textAlign: "center"}}>Bounty Submissions</h3>
-      <div style={{paddingBottom: "15px", borderBottom: "1px solid rgb(101, 197, 170)", display: "inline-block", width: "442px",  marginBottom: "12px"}}>
+      <div style={{paddingBottom: "15px", borderBottom: "1px solid #16e5cd", display: "inline-block", width: "442px",  marginBottom: "12px"}}>
         <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid rgb(101, 197, 170)", margin: "15px 0px"}}>{myFul.length}</h3>
+          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}>{myFul.length}</h3>
           <p style={{fontSize: "10px", textAlign: "center", color: "rgb(255, 222, 70)"}}>Submissions</p>
         </div>
 
         <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid rgb(101, 197, 170)", margin: "15px 0px"}}>{numAccepted}</h3>
+          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}>{numAccepted}</h3>
           <p style={{fontSize: "10px", textAlign: "center", color: "rgb(255, 222, 70)"}}>Accepted</p>
         </div>
         <div style={{width: "33%", display: "inline-block", float: "left"}}>
@@ -718,19 +724,21 @@ handleCloseNoWeb3(){
       <Dialog
          title=""
          actions={modalActions}
-         modal={true}
+         modal={false}
          open={this.state.modalOpen}
+         onRequestClose={this.handleClose}
        >
          {this.state.modalError}
        </Dialog>
        <Dialog
           title=""
           actions={modalActions3}
-          modal={true}
+          modal={false}
           open={this.state.noWeb3Error}
+          onRequestClose={this.handleCloseNoWeb3}
         >
           <div style={{width: "75%", display: "block", margin: "0 auto", marginTop: "30px"}}>
-          <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}> Metamask </a> browser extension.</p>
+          <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}> Metamask </a> browser extension.</p>
             </div>
         </Dialog>
         <div id="colourBody" style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
@@ -742,27 +750,37 @@ handleCloseNoWeb3(){
           <BountiesFacts total={this.state.total}/>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
 
-          <FlatButton href="/newBounty/" style={{backgroundColor: "#65C5AA", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
+          <FlatButton href="/newBounty/" style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
 
           </div>
           <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px"}}>
           <div style={{float: "left", margin: "0 15px 15px 15px", width: "960px", display: "inline-block", backgroundColor: "rgba(10, 22, 40, 0.5)", padding: "30px"}}>
-              <div style={{float: "left", display: "inline-block", width: "200px"}}>
-                <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
-                  <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>Balance:</h5>
-                  <h1 style={{textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>{this.state.balance}</h1>
-                  <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>ETH</h5>
-                </div>
+
+              <div style={{float: "left", display: "inline-block", width: "72px"}}>
+                <Blockies
+                  seed={this.state.userAddress}
+                  size={9}
+                  scale={8}
+                  style={{borderRadius: "100px", display: "inline-block", float: "left"}}
+                  className={"identicon"}
+                />
               </div>
-              <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "730px"}}>
+              <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "600px"}}>
               <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>User Address:</b></p>
                 <h3 style={{margin: "0px", width: "100%", display: "inline", fontWeight: "500", marginTop: "30px"}}>
-                  <a style={{color: "#65C5AA"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.userAddress}>{this.state.userAddress}</a>
+                  <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.userAddress}>{this.state.userAddress}</a>
                 </h3>
                 <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Contact user:</b> { contactString}</p>
                 {myCategories.length > 0 && <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Skills:</b></p>}
 
                 {categories}
+              </div>
+              <div style={{float: "right", display: "inline-block", width: "200px"}}>
+                <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
+                  <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>Balance:</h5>
+                  <h1 style={{textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>{this.state.balance}</h1>
+                  <h5 style={{ fontSize: "12px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>ETH</h5>
+                </div>
               </div>
           </div>
             <div style={{float: "left", margin: "0 15px 15px 15px", width: "442px", display: "inline-block", backgroundColor: "rgba(10, 22, 40, 0.5)", padding: "30px"}}>
@@ -785,13 +803,13 @@ handleCloseNoWeb3(){
                   <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "940px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
                   {this.state.commentError &&
                     <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.commentError}</p>}
-                  <button type='submit'  className='AddBtn' style={{backgroundColor: "rgba(255, 255, 255, 0.18)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
+                  <button type='submit'  className='AddBtn' style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
                 </form>
               }
               {comments}
             </div>
           </div>
-          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", bottom: "0", position: "absolute", width: "100vw"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#65C5AA"}}>ConsenSys</a> Formation <br/>
+          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", bottom: "0", position: "absolute", width: "100vw"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>
           This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
         </div>
       </div>
