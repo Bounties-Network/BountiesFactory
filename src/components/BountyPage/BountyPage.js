@@ -9,10 +9,6 @@ const json = require('../../../contracts.json');
 const networkId = json.networkId;
 
 import Web3 from 'web3';
-const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
-
-const UserCommentsContract = web3.eth.contract(json.interfaces.UserComments).at(json.UserCommentsAddress);
-const StandardBounties = web3.eth.contract(json.interfaces.StandardBounties).at(json.standardBountiesAddress);
 
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
@@ -64,11 +60,53 @@ import Text from 'react-format-text';
 const ipfsAPI = require('ipfs-api');
 
 
+class TabTemplate extends Component {
+    render() {
+        if (!this.props.selected) {
+            return null;
+        }
+
+        return this.props.children;
+    }
+}
 
 
 class BountyPage extends Component {
   constructor(props) {
     super(props)
+    var requiredNetwork = 0;
+    var standardBountiesAddress = "";
+    var userCommentsAddress = "";
+    var networkName = "";
+    var providerLink = "";
+    var stored = localStorage.getItem('ethereumNetwork');
+    if (!stored){
+      providerLink = "https://mainnet.infura.io";
+      requiredNetwork = 1;
+      standardBountiesAddress = json.mainNet.standardBountiesAddress;
+      userCommentsAddress = json.mainNet.userCommentsAddress;
+      networkName = "Main Network";
+      localStorage.setItem('ethereumNetwork', "MainNet");
+    } else {
+      if (stored === "MainNet"){
+        providerLink = "https://mainnet.infura.io";
+        requiredNetwork = 1;
+        standardBountiesAddress = json.mainNet.standardBountiesAddress;
+        userCommentsAddress = json.mainNet.userCommentsAddress;
+        networkName = "Main Network";
+
+
+      } else if (stored === "Rinkeby"){
+        providerLink = "https://rinkeby.infura.io";
+        requiredNetwork = 4;
+        standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+        userCommentsAddress = json.rinkeby.userCommentsAddress;
+        networkName = "Rinkeby Network";
+      }
+
+    }
+    web3.setProvider(new Web3.providers.HttpProvider(providerLink));
+
     this.state = {
       modalError: "",
       loadingInitial: true,
@@ -115,6 +153,7 @@ class BountyPage extends Component {
         titleError: "",
         editTitle: false,
         tabValue: 0,
+        mainTabValue: 0,
         txModalOpen: false,
         txLoadingAmount: 0,
         txLoadingMessage: "",
@@ -123,6 +162,13 @@ class BountyPage extends Component {
         noWeb3Error: false,
         fulfillmentOpen: false,
         commentOnBountyOpen: false,
+        containsCode: false,
+        requiredNetwork: requiredNetwork,
+        networkName: networkName,
+        standardBountiesAddress: standardBountiesAddress,
+        userCommentsAddress: userCommentsAddress,
+        StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
+        UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
 
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
@@ -149,12 +195,15 @@ class BountyPage extends Component {
     this.handlecaptureFile = this.handlecaptureFile.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
     this.handleTabsChange = this.handleTabsChange.bind(this);
+    this.handleMainTabsChange = this.handleMainTabsChange.bind(this);
     this.handleCloseTxLoading = this.handleCloseTxLoading.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleCaptureEditFile = this.handleCaptureEditFile.bind(this);
     this.saveToIpfsEdit = this.saveToIpfsEdit.bind(this);
     this.handleCloseNoWeb3 = this.handleCloseNoWeb3.bind(this);
     this.handleExpandComment = this.handleExpandComment.bind(this);
+
+    this.handleChangeNetwork = this.handleChangeNetwork.bind(this);
 
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
@@ -294,6 +343,12 @@ class BountyPage extends Component {
     });
     console.log("changed tab");
   }
+  handleMainTabsChange(value){
+    this.setState({
+      mainTabValue: value,
+    });
+    console.log("changed tab");
+  }
   handleCaptureEditFile (event) {
     event.stopPropagation()
     event.preventDefault()
@@ -340,9 +395,9 @@ class BountyPage extends Component {
       // Use Mist/MetaMask's provider
       web3.setProvider(window.web3.currentProvider);
       web3.version.getNetwork((err, netId) => {
-        if (networkId !== web3.version.network){
-          console.log("network", networkId, web3.version.network);
-            this.setState({modalError: ("Please change your Ethereum network to the " + json.networkName), modalOpen: true});
+        if (parseInt(this.state.requiredNetwork) !== parseInt(netId)){
+          console.log("network, ", netId, this.state.requiredNetwork);
+            this.setState({modalError: ("Please change your Ethereum network to the " + this.state.networkName), modalOpen: true});
         } else {
 
         web3.eth.getAccounts(function(err, accs){
@@ -364,8 +419,8 @@ class BountyPage extends Component {
             }, 100);
 
             this.setState({accounts: accs});
-            StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
-              StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
+            this.state.StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
+              this.state.StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
                 if (data){
                   console.log("data", data);
 
@@ -412,10 +467,12 @@ class BountyPage extends Component {
                       selectedValue: result.categories.join(","),
                       editSourceFileName: result.sourceFileName,
                       editSourceFileHash: result.sourceFileHash,
-                      optionsList: result.categories});
+                      optionsList: result.categories,
+                      containsCode: (result.categories.includes("Code") || result.categories.includes("Bugs"))
+                    });
                       this.getComments();
                     } else {
-                      StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
+                      this.state.StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
                         var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
                         HumanStandardToken.symbol((err, symbol)=> {
                           HumanStandardToken.decimals((err, dec)=> {
@@ -450,7 +507,8 @@ class BountyPage extends Component {
                             selectedValue: result.categories.join(","),
                             editSourceFileName: result.sourceFileName,
                             editSourceFileHash: result.sourceFileHash,
-                            optionsList: result.categories});
+                            optionsList: result.categories,
+                            containsCode: (result.categories.includes("Code") || result.categories.includes("Bugs"))});
                             this.getComments();
 
                           });
@@ -465,7 +523,7 @@ class BountyPage extends Component {
               });
 
             });
-            StandardBounties.getNumFulfillments(this.state.bountyId, (err, succ)=> {
+            this.state.StandardBounties.getNumFulfillments(this.state.bountyId, (err, succ)=> {
               var total = parseInt(succ, 10);
               console.log("total", total);
               var fulfillments = [];
@@ -473,17 +531,17 @@ class BountyPage extends Component {
                 this.getFulfillment(j, fulfillments, total);
               }
             });
-            StandardBounties.getNumBounties((err, succ) => {
+            this.state.StandardBounties.getNumBounties((err, succ) => {
               var total = parseInt(succ,10);
               this.setState({total: total});
             });
-            UserCommentsContract.numComments((err, succ)=> {
+            this.state.UserCommentsContract.numComments((err, succ)=> {
               var total = parseInt(succ, 10);
               var comments = [];
 
               console.log("total comments: ", total);
               for (var i = 0; i < total; i++){
-                UserCommentsContract.getComment( i, (err, succ)=> {
+                this.state.UserCommentsContract.getComment( i, (err, succ)=> {
                   var from = succ[1];
                   var to = succ[2];
                   var aboutBounty = succ[3];
@@ -514,8 +572,8 @@ class BountyPage extends Component {
       });
 
     } else {
-      StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
-        StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
+      this.state.StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
+        this.state.StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
           if (data){
             console.log("data", data);
 
@@ -554,7 +612,7 @@ class BountyPage extends Component {
                 editSourceFileHash: result.sourceFileHash,
                 optionsList: result.categories});
               } else {
-                StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
+                this.state.StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
                   var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
                   HumanStandardToken.symbol((err, symbol)=> {
                     HumanStandardToken.decimals((err, dec)=> {
@@ -605,7 +663,7 @@ class BountyPage extends Component {
         });
 
       });
-      StandardBounties.getNumFulfillments(this.state.bountyId, (err, succ)=> {
+      this.state.StandardBounties.getNumFulfillments(this.state.bountyId, (err, succ)=> {
         var total = parseInt(succ, 10);
         console.log("total", total);
         var fulfillments = [];
@@ -613,7 +671,7 @@ class BountyPage extends Component {
           this.getFulfillment(j, fulfillments, total);
         }
       });
-      StandardBounties.getNumBounties((err, succ) => {
+      this.state.StandardBounties.getNumBounties((err, succ) => {
         var total = parseInt(succ,10);
         this.setState({total: total});
       });
@@ -622,7 +680,7 @@ class BountyPage extends Component {
 
   }
   getFulfillment(fulId, fulfillments, total){
-    StandardBounties.getFulfillment(this.state.bountyId, fulId, (err, succ)=> {
+    this.state.StandardBounties.getFulfillment(this.state.bountyId, fulId, (err, succ)=> {
       console.log("Jth fulfillmnet", fulId);
       ipfs.catJSON(succ[2], (err, result)=> {
         console.log("err, succ", err, result);
@@ -646,13 +704,13 @@ class BountyPage extends Component {
     });
   }
   getComments(){
-    UserCommentsContract.numComments((err, succ)=> {
+    this.state.UserCommentsContract.numComments((err, succ)=> {
       var total = parseInt(succ, 10);
       var comments = [];
 
       console.log("total comments: ", total);
       for (var i = 0; i < total; i++){
-        UserCommentsContract.getComment( i, (err, succ)=> {
+        this.state.UserCommentsContract.getComment( i, (err, succ)=> {
           var from = succ[1];
           var to = succ[2];
           var aboutBounty = succ[3];
@@ -721,7 +779,7 @@ class BountyPage extends Component {
           this.setState({txLoadingAmount: 40});
 
           console.log("about to fulfill", this.state.bountyId, succ);
-          StandardBounties.fulfillBounty(this.state.bountyId, succ, {from: this.state.accounts[0]}, (err, succ)=> {
+          this.state.StandardBounties.fulfillBounty(this.state.bountyId, succ, {from: this.state.accounts[0]}, (err, succ)=> {
             if (err){
               console.log("err", err);
               this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -766,7 +824,7 @@ class BountyPage extends Component {
         if (!this.state.contract.paysTokens){
           var num = web3.toWei(amount ,'ether');
           this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to contribute to this bounty"});
-          StandardBounties.contribute(this.state.bountyId, num, {from: this.state.accounts[0], value: num}, (err, succ)=> {
+          this.state.StandardBounties.contribute(this.state.bountyId, num, {from: this.state.accounts[0], value: num}, (err, succ)=> {
             if (err){
               console.log("err", err);
               this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -800,9 +858,9 @@ class BountyPage extends Component {
           decimalToMult = decimalToMult.pow(decimalUnits);
           newAmount = newAmount.mul(decimalToMult);
 
-          console.log("newAmount", StandardBounties.address);
+          console.log("newAmount", this.state.StandardBounties.address);
 
-          this.state.contract.tokenContract.approve(StandardBounties.address, parseInt(newAmount, 10), {from: this.state.accounts[0]}, (err, succ)=> {
+          this.state.contract.tokenContract.approve(this.state.StandardBounties.address, parseInt(newAmount, 10), {from: this.state.accounts[0]}, (err, succ)=> {
             if (err){
               console.log("err", err);
               this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -817,7 +875,7 @@ class BountyPage extends Component {
                       this.setState({txLoadingMessage: "Please confirm your transaction to complete your contribution to the bounty", txLoadingAmount: 60});
                       hasSucceeded = true;
                       setTimeout(function(){
-                        StandardBounties.contribute(this.state.bountyId, parseInt(newAmount, 10), {from: this.state.accounts[0]}, (err, succ)=> {
+                        this.state.StandardBounties.contribute(this.state.bountyId, parseInt(newAmount, 10), {from: this.state.accounts[0]}, (err, succ)=> {
                           if (err){
                             console.log("err", err);
                             this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -888,7 +946,7 @@ class BountyPage extends Component {
       this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to edit the bounty"});
       ipfs.addJSON(newData, (err, result)=>{
         this.setState({txLoadingAmount: 40});
-        StandardBounties.changeBountyData(this.state.bountyId, result, {from: this.state.accounts[0]}, (err, succ)=> {
+        this.state.StandardBounties.changeBountyData(this.state.bountyId, result, {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
             console.log("err", err);
             this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -946,7 +1004,7 @@ class BountyPage extends Component {
       ipfs.addJSON(newData, (err, result)=>{
         this.setState({txLoadingAmount: 40});
 
-        StandardBounties.changeBountyData(this.state.bountyId, result, {from: this.state.accounts[0]}, (err, succ)=> {
+        this.state.StandardBounties.changeBountyData(this.state.bountyId, result, {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
             console.log("err", err);
             this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1066,7 +1124,7 @@ isChecksumAddress(address) {
       this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to comment on the bounty"});
       ipfs.addJSON({title: title, description: description}, (err, succ)=> {
         this.setState({txLoadingAmount: 40});
-        UserCommentsContract.addComment(succ, 0x0, true, this.state.bountyId, {from: this.state.accounts[0]}, (err, succ)=> {
+        this.state.UserCommentsContract.addComment(succ, 0x0, true, this.state.bountyId, {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
             console.log("err", err);
             this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1118,7 +1176,7 @@ isChecksumAddress(address) {
       this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to comment on the bounty"});
       ipfs.addJSON({description: description, aboutFulfillment: true, fulfillmentId: index}, (err, succ)=> {
         this.setState({txLoadingAmount: 40});
-        UserCommentsContract.addComment(succ, 0x0, true, this.state.bountyId, {from: this.state.accounts[0]}, (err, succ)=> {
+        this.state.UserCommentsContract.addComment(succ, 0x0, true, this.state.bountyId, {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
             console.log("err", err);
             this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1157,7 +1215,7 @@ isChecksumAddress(address) {
       var num = web3.toWei(amount ,'ether');
       this.setState({txModalOpen: true, txLoadingAmount: 10});
       this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to activate the bounty"});
-      StandardBounties.activateBounty(this.state.bountyId, num, {from: this.state.accounts[0], value: num}, (err, succ)=> {
+      this.state.StandardBounties.activateBounty(this.state.bountyId, num, {from: this.state.accounts[0], value: num}, (err, succ)=> {
         if (err){
           this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
 
@@ -1191,7 +1249,7 @@ isChecksumAddress(address) {
         this.setState({txModalOpen: true, txLoadingAmount: 10});
         this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to send tokens to this bounty"});
 
-        this.state.contract.tokenContract.approve(StandardBounties.address, parseInt(newAmount, 10), {from: this.state.accounts[0]}, (err, succ)=> {
+        this.state.contract.tokenContract.approve(this.state.StandardBounties.address, parseInt(newAmount, 10), {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
             console.log("err", err);
             this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1206,7 +1264,7 @@ isChecksumAddress(address) {
                     this.setState({txLoadingMessage: "Please confirm your transaction to complete bounty activation", txLoadingAmount: 60});
                     hasSucceeded = true;
                     setTimeout(function(){
-                      StandardBounties.activateBounty(this.state.bountyId, parseInt(newAmount, 10), {from: this.state.accounts[0]},  (err, succ)=> {
+                      this.state.StandardBounties.activateBounty(this.state.bountyId, parseInt(newAmount, 10), {from: this.state.accounts[0]},  (err, succ)=> {
                         if (err){
                           console.log("err", err);
                           this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1242,7 +1300,7 @@ isChecksumAddress(address) {
       } else {
         this.setState({txModalOpen: true, txLoadingAmount: 10});
         this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to activate the bounty"});
-        StandardBounties.activateBounty(this.state.bountyId, 0, {from: this.state.accounts[0]}, (err, succ)=> {
+        this.state.StandardBounties.activateBounty(this.state.bountyId, 0, {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
             console.log("err", err);
             this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1281,7 +1339,7 @@ handleTransfer(evt){
     this.setState({transferError: ""});
     this.setState({txModalOpen: true, txLoadingAmount: 10});
     this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to transfer the bounty"});
-    StandardBounties.transferIssuer(this.state.bountyId, address, {from: this.state.accounts[0]}, (err, succ)=> {
+    this.state.StandardBounties.transferIssuer(this.state.bountyId, address, {from: this.state.accounts[0]}, (err, succ)=> {
       if (err){
         console.log("err", err);
         this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1342,7 +1400,7 @@ handleIncreasePayout(evt){
       if (finalDeposit > 0){
         this.setState({txModalOpen: true, txLoadingAmount: 10});
         this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to deposit your new tokens into the bounty"});
-        this.state.contract.tokenContract.approve(StandardBounties.address, parseInt(finalDeposit, 10), {from: this.state.accounts[0]}, (err, succ)=> {
+        this.state.contract.tokenContract.approve(this.state.StandardBounties.address, parseInt(finalDeposit, 10), {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
             console.log("err", err);
             this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1357,7 +1415,7 @@ handleIncreasePayout(evt){
                     this.setState({txLoadingMessage: "Please confirm your transaction to complete the increasing of the bounty reward", txLoadingAmount: 60});
                     hasSucceeded = true;
                     setTimeout(function(){
-                      StandardBounties.increasePayout(this.state.bountyId, finalPayout, finalDeposit, {from: this.state.accounts[0], value: finalDeposit}, (err, succ)=> {
+                      this.state.StandardBounties.increasePayout(this.state.bountyId, finalPayout, finalDeposit, {from: this.state.accounts[0], value: finalDeposit}, (err, succ)=> {
                         if (err){
                           console.log("err", err);
                           this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1394,7 +1452,7 @@ handleIncreasePayout(evt){
       } else {
         this.setState({txModalOpen: true, txLoadingAmount: 10});
         this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to increase the reward of the bounty"});
-        StandardBounties.increasePayout(this.state.bountyId, finalPayout, 0, {from: this.state.accounts[0]}, (err, succ)=> {
+        this.state.StandardBounties.increasePayout(this.state.bountyId, finalPayout, 0, {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
             console.log("err", err);
             this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1429,7 +1487,7 @@ handleIncreasePayout(evt){
 
       this.setState({txModalOpen: true, txLoadingAmount: 10});
       this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to increase the reward of the bounty"});
-      StandardBounties.increasePayout(this.state.bountyId, finalPayout, finalDeposit, {from: this.state.accounts[0], value: finalDeposit}, (err, succ)=> {
+      this.state.StandardBounties.increasePayout(this.state.bountyId, finalPayout, finalDeposit, {from: this.state.accounts[0], value: finalDeposit}, (err, succ)=> {
         if (err){
           console.log("err", err);
           this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1474,7 +1532,7 @@ handleDeadline(evt){
     var date = deadline2.getTime()/1000|0;
     this.setState({txModalOpen: true, txLoadingAmount: 10});
     this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to extend the deadline of the bounty"});
-    StandardBounties.extendDeadline(this.state.bountyId, date, {from: this.state.accounts[0]}, (err, succ)=> {
+    this.state.StandardBounties.extendDeadline(this.state.bountyId, date, {from: this.state.accounts[0]}, (err, succ)=> {
       if (err){
         console.log("err", err);
         this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1515,7 +1573,7 @@ handleDeadlineChange(evt){
     this.setState({txModalOpen: true, txLoadingAmount: 10});
     this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to extend the deadline of the bounty"});
 
-    StandardBounties.changeDeadline(this.state.bountyId, date, {from: this.state.accounts[0]}, (err, succ)=> {
+    this.state.StandardBounties.changeDeadline(this.state.bountyId, date, {from: this.state.accounts[0]}, (err, succ)=> {
       if (err){
         console.log("err", err);
         this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1548,7 +1606,7 @@ handleKill(evt){
   evt.preventDefault();
   this.setState({txModalOpen: true, txLoadingAmount: 10});
   this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to kill the bounty"});
-  StandardBounties.killBounty(this.state.bountyId, {from: this.state.accounts[0]}, (err, succ)=> {
+  this.state.StandardBounties.killBounty(this.state.bountyId, {from: this.state.accounts[0]}, (err, succ)=> {
     if (err){
       console.log("err", err);
       this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1580,7 +1638,7 @@ handleKill(evt){
 handleAccept(i){
   this.setState({txModalOpen: true, txLoadingAmount: 10});
   this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to accept the bounty submission"});
-  StandardBounties.acceptFulfillment(this.state.bountyId, i, {from: this.state.accounts[0]}, (err, succ)=> {
+  this.state.StandardBounties.acceptFulfillment(this.state.bountyId, i, {from: this.state.accounts[0]}, (err, succ)=> {
     if (err){
       console.log("err", err);
       this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1620,7 +1678,11 @@ handleClose(){
 }
 handleSelectChange(value) {
   var optionsList = value.split(",");
-  this.setState({ optionsList: optionsList, selectedValue: value});
+  var containsCode = false;
+  if (optionsList.includes("Code")|| optionsList.includes("Bugs")){
+    containsCode = true;
+  }
+  this.setState({ optionsList: optionsList, value: value, containsCode: containsCode});
   this.forceUpdate();
 
 }
@@ -1629,7 +1691,45 @@ handleCloseNoWeb3(){
   this.setState({noWeb3Error: false});
 
 }
+handleChangeNetwork(evt){
+  evt.preventDefault();
 
+  var requiredNetwork = evt.target.value;
+  var standardBountiesAddress = "";
+  var userCommentsAddress = "";
+  var networkName = "";
+  var providerLink = "";
+
+  if (parseInt(requiredNetwork) === parseInt(1)){
+    providerLink = "https://mainnet.infura.io";
+    standardBountiesAddress = json.mainNet.standardBountiesAddress;
+    userCommentsAddress = json.mainNet.userCommentsAddress;
+    networkName = "Main Network";
+    localStorage.setItem('ethereumNetwork', "MainNet");
+
+
+
+  } else if (parseInt(requiredNetwork) === parseInt(4)){
+    providerLink = "https://rinkeby.infura.io";
+    standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+    userCommentsAddress = json.rinkeby.userCommentsAddress;
+    networkName = "Rinkeby Network";
+    localStorage.setItem('ethereumNetwork', "Rinkeby");
+
+  }
+
+  this.setState({requiredNetwork: requiredNetwork,
+                providerLink: providerLink,
+                standardBountiesAddress: standardBountiesAddress,
+                userCommentsAddress: userCommentsAddress,
+                networkName: networkName,
+                web3: new Web3(new Web3.providers.HttpProvider(providerLink)),
+                StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
+                UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
+                });
+
+  this.getInitialData();
+}
 
   render() {
     document.title = "Bounties Explorer | " + this.state.contract.bountyData.title;
@@ -1638,7 +1738,6 @@ handleCloseNoWeb3(){
 
     var actions;
     var fulBody;
-    console.log("requirements", this.state.contract);
     var fileName;
     if (this.state.sourceFileName.length > 38){
       fileName = this.state.sourceFileName.substring(0,38) + "...";
@@ -1660,7 +1759,9 @@ handleCloseNoWeb3(){
               selectedValue={this.state.selectedValue}
               onHandleChangeSelected={this.handleSelectChange}
               onHandleCaptureEditFile={this.handleCaptureEditFile}
-              sourceFileName={this.state.editSourceFileName}/>
+              sourceFileName={this.state.editSourceFileName}
+              containsCode={this.state.containsCode}
+              />
             </Tab>
             <Tab label="Change Deadline" value={2} style={{color: this.state.tabValue === 2? "#fff" : "#16e5cd"}}>
               <ChangeDeadlineForm onhandleChangeDeadline={this.handleChangeDeadline} deadlineError={this.state.deadlineError} dateNum={this.state.contract.dateString}/>
@@ -1716,53 +1817,7 @@ handleCloseNoWeb3(){
         );
       }
 
-    } else {
-
-        if (this.state.contract.stage === "Active"){
-
-          actions = (
-            <div style={{width: "940px", marginTop: "15px", marginLeft: "15px", marginRight: "15px", position: "relative"}}>
-              {!this.state.fulfillmentOpen? <SvgDown onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "0px", top: "0px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>
-            : <SvgUp onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "0px", top: "0px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
-              <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Fulfill the Bounty</h3>
-              {this.state.fulfillmentOpen &&
-
-                <div style={{paddingBottom: "0px"}}>
-                  <form className='Fulfill' onSubmit={this.handleFulfill} style={{marginBottom: "15px"}}>
-                  <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginRight: "15px"}}>
-                  <label htmlFor='contact' style={{fontSize: "12px"}}>{"Contact"}</label>
-                  <input id='contact' className='SendAmount' style={{width: "450px", border: "0px", display: "block"}}/>
-                  </div>
-                  <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginLeft: "15px"}}>
-                    <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
-                    <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
-                    <div style={{width: "440px", display: "block", border: "0px", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "0px", borderRadius: "4px"}}>
-                      <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "0px", marginTop: "-1px"}}> Upload </label>
-                      <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
-                    </div>
-                    <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any file associated with your submission</p>
-                  </div>
-
-
-                    <input id='bounty_deadline' type='text' defaultValue={0} style={{width: "0.01px", display: "none"}}/>
-
-                    <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Submission Description and Comments</label>
-                    <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px"}}></textarea>
-                    {this.state.fulfillmentError &&
-                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
-                      <button type='submit' className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", width: "200px", margin: "0 auto", display: "block"}}>Submit</button>
-                  </form>
-                </div>
-
-              }
-
-            </div>
-          );
-        }
-
-
     }
-
 
 
 
@@ -1821,14 +1876,32 @@ handleCloseNoWeb3(){
       );
     }
     comments = (
-      <div style={{paddingTop: "30px", display: "block"}}>
-        <h3 style={{fontFamily: "Open Sans", marginTop: "30px", margin: "0 auto", marginBottom: "30px", textAlign: "center", fontWeight: "200",}}>{this.state.myComments.length} Comment{this.state.myComments.length !== 1? "s" : ""}</h3>
+      <div style={{paddingTop: "30px", display: "block",  minHeight: "66vh"}}>
+        <div style={{overflow: "hidden", display: "block", width: "940px", backgroundColor: "rgba(10, 22, 40, 0.5)", position: "relative", padding: "30px", marginBottom: "30px"}}>
+          <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "0px", textAlign: "center", fontSize: "1.17em"}}>Comment on Bounty</h4>
+
+          {!this.state.commentOnBountyOpen? <SvgDown onClick={this.handleToggleComment} style={{position: "absolute", right: "30px", top: "30px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>
+        : <SvgUp onClick={this.handleToggleComment} style={{position: "absolute", right: "30px", top: "30px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
+
+          {this.state.commentOnBountyOpen &&
+            <form className='Contribute' onSubmit={this.handleComment} style={{width: "940px", display: "inline-block"}}>
+
+              <label htmlFor='comment_title' style={{fontSize: "12px", display: "block"}}>Title</label>
+              <input id='comment_title' className='SendAmount' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}/>
+              <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Description</label>
+              <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
+              {this.state.commentError &&
+                <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.commentError}</p>}
+              <button type='submit'  className='AddBtn' style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "30px", fontSize: "1em", width: "200px"}}>Comment</button>
+            </form>
+          }
+        </div>
         {commentsArray}
       </div>
     );
+    var numPushed = 0;
 
     if (this.state.fulfillments.length){
-      var numPushed = 0;
       var fulfillments = [];
       for (var i = 0; i < this.state.fulfillments.length; i++){
         var fulfillmentComments = [];
@@ -1873,9 +1946,22 @@ handleCloseNoWeb3(){
                 <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", color: "#FFDE46", display: "block", overflow: "hidden"}}><b>Submission</b>:</p>
                 <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#FFDE46", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.fulfillments[i].data.description}</Text>
                 <FlatButton style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white", float: "left",  marginTop: "15px", display: "block", width: "200px"}} onClick={this.handleExpandComment.bind(this,i)}>Add Comment </FlatButton>
+                {this.state.fulfillments[i].commentsOpen &&
+                  <form className='Contribute' onSubmit={this.handleCommentOnFulfillment} style={{width: "967px", display: "inline-block", paddingTop: "15px"}}>
 
+                    <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "5px", textAlign: "center", fontSize: "16px"}}>Comment on Submission</h4>
+                    <input id="comment_index" value={i} style={{display: "none"}}></input>
+
+                    <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Comment</label>
+                    <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "952px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
+                    {this.state.fulfillments[i].commentError &&
+                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.fulfillments[i].commentError}</p>}
+                    <button type='submit'  className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "rgb(21, 38, 57)",  display: "block", padding: "10px 16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
+                  </form>
+
+                }
                 {this.state.fulfillments[i].comments.length > 0 &&
-                  <div style={{borderTop: "1px solid rgba(256,256,256, 0.18)", padding: "30px 0px 0px 30px", marginTop: "70px"}}>
+                  <div style={{borderTop: "1px solid rgba(256,256,256, 0.18)", padding: "30px 0px 0px 30px", marginTop: this.state.fulfillments[i].commentsOpen?"30px":"70px"}}>
                     <h5 style={{margin: "5px 0px", textAlign: "left", fontWeight: "200"}}><b style={{fontSize: "16px", fontWeight: "200", color: "#FFDE46"}}>{this.state.fulfillments[i].comments.length} Comment{ this.state.fulfillments[i].comments.length === 1? "" : "s"}</b></h5>
 
                     {fulfillmentComments}
@@ -1896,20 +1982,7 @@ handleCloseNoWeb3(){
 
               </div>
 </div>
-              {this.state.fulfillments[i].commentsOpen &&
-                <form className='Contribute' onSubmit={this.handleCommentOnFulfillment} style={{width: "967px", display: "inline-block", paddingTop: "15px", padding: "15px", backgroundColor: "rgba(10, 22, 40, 0.5)"}}>
 
-                  <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "5px", textAlign: "center", fontSize: "16px"}}>Comment on Submission</h4>
-                  <input id="comment_index" value={i} style={{display: "none"}}></input>
-
-                  <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Comment</label>
-                  <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "952px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
-                  {this.state.fulfillments[i].commentError &&
-                    <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.fulfillments[i].commentError}</p>}
-                  <button type='submit'  className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "rgb(21, 38, 57)",  display: "block", padding: "10px 16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
-                </form>
-
-              }
             </div>
           </div>
         );
@@ -1917,8 +1990,47 @@ handleCloseNoWeb3(){
 
       }
       fulBody = (
-        <div style={{width: "100%", marginTop: "30px", display: "block", marginBottom: "50px", borderBottom: "1px solid rgba(255, 255, 255, 0.18)", paddingBottom: "30px"}}>
-          <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "30px", textAlign: "center", fontWeight: "200"}}>{numPushed} Submission{numPushed !== 1? "s" : ""}</h3>
+        <div style={{width: "100%", marginTop: "30px", display: "block", marginBottom: "30px", paddingBottom: "30px", minHeight: "90vh"}}>
+          {(this.state.contract.stage === "Active" && !this.state.contract.mine)&&
+            <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", marginBottom: "30px"}}>
+              <div style={{width: "940px", marginTop: "15px", marginLeft: "15px", marginRight: "15px", position: "relative", padding: "15px"}}>
+                {!this.state.fulfillmentOpen? <SvgDown onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "15px", top: "15px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>
+              : <SvgUp onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "0px", top: "0px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
+                <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Fulfill the Bounty</h3>
+                {this.state.fulfillmentOpen &&
+
+                  <div style={{paddingBottom: "0px"}}>
+                    <form className='Fulfill' onSubmit={this.handleFulfill} style={{marginBottom: "15px"}}>
+                    <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginRight: "15px"}}>
+                    <label htmlFor='contact' style={{fontSize: "12px"}}>{"Contact"}</label>
+                    <input id='contact' className='SendAmount' style={{width: "450px", border: "0px", display: "block"}}/>
+                    </div>
+                    <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginLeft: "15px"}}>
+                      <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
+                      <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
+                      <div style={{width: "440px", display: "block", border: "0px", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "0px", borderRadius: "4px"}}>
+                        <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "0px", marginTop: "-1px"}}> Upload </label>
+                        <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
+                      </div>
+                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any file associated with your submission</p>
+                    </div>
+
+
+                      <input id='bounty_deadline' type='text' defaultValue={0} style={{width: "0.01px", display: "none"}}/>
+
+                      <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Submission Description and Comments</label>
+                      <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px"}}></textarea>
+                      {this.state.fulfillmentError &&
+                        <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
+                        <button type='submit' className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", width: "200px", margin: "0 auto", display: "block"}}>Submit</button>
+                    </form>
+                  </div>
+                }
+
+              </div>
+            </div>
+
+          }
           {fulfillments}
         </div>
       );
@@ -1990,7 +2102,13 @@ handleCloseNoWeb3(){
           <BountiesFacts total={this.state.total}/>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
 
-          <FlatButton href="/newBounty/" style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
+          <div style={{display: "block", width: "190px", backgroundColor: "rgba(10, 22, 40, 0.25)", overflow: "hidden", float: "right", margin: "15px"}}>
+            <select onChange={this.handleChangeNetwork} value={this.state.requiredNetwork} style={{fontSize: "10px",backgroundColor: "rgba(10, 22, 40, 0)",border: "0px",color: "#d0d0d0", width: "190px", height: "30px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
+              <option value="1">Ethereum Main Network</option>
+              <option value="4">Rinkeby Network</option>
+            </select>
+          </div>
+          <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border:"1px solid #16e5cd", color: "#16e5cd", width: "150px", marginTop: '15px', float: "right"}} > New Bounty </FlatButton>
 
           </div>
 
@@ -2003,7 +2121,7 @@ handleCloseNoWeb3(){
               <Halogen.ScaleLoader color={"#16e5cd"} />
               </div>
             }
-              <div style={{ marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "30px", marginTop: "15px", border: "0", backgroundColor: "rgba(10, 22, 40, 0.5)", borderBottom: "0px solid #16e5cd", color :"white", paddingTop: "30px"}} className="ContractCard">
+              <div style={{marginBottom: "0px", boxShadow: "none", borderRadius: "0", padding: "30px", marginTop: "15px", border: "0", backgroundColor: "rgba(10, 22, 40, 0.5)", borderBottom: "0px solid #16e5cd", color :"white", paddingTop: "30px"}} className="ContractCard">
               <h3 style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "28px", textAlign: "center"}}> {this.state.contract.bountyData.title}</h3>
 
                 <div style={{float: "left", display: "inline-block", width: "200px",}}>
@@ -2042,6 +2160,8 @@ handleCloseNoWeb3(){
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Deadline:</b> {this.state.contract.deadlineString}</p>
 
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Contact the bounty issuer:</b> { this.state.contract.bountyData.contact}</p>
+                  {this.state.contract.bountyData.githubLink &&
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Github Link: </b> <a style={{color: "#16e5cd"}} target={"_blank"} href={this.state.contract.bountyData.githubLink}> {this.state.contract.bountyData.githubLink} </a> </p>}
                   {this.state.contract.bountyData.sourceFileHash &&
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Associated File: </b> <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.contract.bountyData.sourceFileHash}> {this.state.contract.bountyData.sourceFileName} </a> </p>}
                   {this.state.contract.paysTokens &&
@@ -2057,39 +2177,42 @@ handleCloseNoWeb3(){
 
 
 
+                {actions}
 
             </div>
-            {actions &&
-              <div style={{ marginBottom: "15px", boxShadow: "none", borderRadius: "0", padding: "15px", marginTop: "15px", border: "0", backgroundColor: "rgba(10, 22, 40, 0.5)", borderBottom: "0px solid #16e5cd", color :"white", paddingTop: "15px"}} className="ContractCard">
-              {actions}
-
-              </div>
-            }
 
 
-            {fulBody}
-            <div style={{overflow: "hidden", display: "block", width: "940px", backgroundColor: "rgba(10, 22, 40, 0.5)", position: "relative", padding: "30px"}}>
-              <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "0px", textAlign: "center", fontSize: "1.17em"}}>Comment on Bounty</h4>
+            <Tabs tabItemContainerStyle={{backgroundColor: "rgba(10, 22, 40, 0.5)", color: "#16e5cd"}}
+                  inkBarStyle={{backgroundColor: "rgb(255, 222, 70)", color: "#16e5cd"}}
+                  style={{backgroundColor: "rgba(0,0,0,0)"}}
+                  onChange={this.handleMainTabsChange}
+                  value={this.state.mainTabValue}
+                  tabTemplate={TabTemplate}
+                  style={{
+                      flex: '1 1 100%',
+                      minHeight: "0",
+                      display: 'flex',
+                      flexDirection: 'column',
+                      backgroundColor: "rgba(0,0,0,0)"
+                  }}
+                  contentContainerStyle={{
+                      flex: '1 1 100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      overflowY: 'auto',
+                      height: "fixed"
+                  }}>
+              <Tab label={numPushed+" Submission"+(numPushed !== 1? "s" : "")} value={0} style={{color: this.state.mainTabValue === 0? "#fff" : "#16e5cd", fontSize: "16px", backgroundColor: this.state.mainTabValue === 0? "rgba(10, 22, 40, 0.5)" : "rgba(10, 22, 40, 0)"}}>
+                {fulBody}
+              </Tab>
+              <Tab label={this.state.myComments.length+" Comment"+(this.state.myComments.length !== 1? "s" : "")} value={1} style={{color: this.state.mainTabValue === 1? "#fff" : "#16e5cd", fontSize: "16px", backgroundColor: this.state.mainTabValue === 1? "rgba(10, 22, 40, 0.5)" : "rgba(10, 22, 40, 0)"}}>
+                {comments}
+              </Tab>
 
-              {!this.state.commentOnBountyOpen? <SvgDown onClick={this.handleToggleComment} style={{position: "absolute", right: "30px", top: "30px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>
-            : <SvgUp onClick={this.handleToggleComment} style={{position: "absolute", right: "30px", top: "30px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
 
-              {this.state.commentOnBountyOpen &&
-                <form className='Contribute' onSubmit={this.handleComment} style={{width: "940px", display: "inline-block"}}>
-
-                  <label htmlFor='comment_title' style={{fontSize: "12px", display: "block"}}>Title</label>
-                  <input id='comment_title' className='SendAmount' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}/>
-                  <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Description</label>
-                  <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
-                  {this.state.commentError &&
-                    <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.commentError}</p>}
-                  <button type='submit'  className='AddBtn' style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "30px", fontSize: "1em", width: "200px"}}>Comment</button>
-                </form>
-              }
-            </div>
+            </Tabs>
 
 
-            {comments}
           </div>
         </div>
         <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>

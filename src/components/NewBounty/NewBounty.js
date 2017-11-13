@@ -2,16 +2,10 @@ import React, { Component } from 'react'
 import './NewBounty.css'
 
 import Web3 from 'web3';
-const web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io"));
-
-
-
 const json = require('../../../contracts.json');
 const networkId = json.networkId;
 
 const Buffer = require('buffer/').Buffer;
-
-const StandardBounties = web3.eth.contract(json.interfaces.StandardBounties).at(json.standardBountiesAddress);
 
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
@@ -50,6 +44,40 @@ const CATEGORIES = [
 class NewBounty extends Component {
   constructor(props) {
     super(props)
+    var requiredNetwork = 0;
+    var standardBountiesAddress = "";
+    var userCommentsAddress = "";
+    var networkName = "";
+    var providerLink = "";
+    var stored = localStorage.getItem('ethereumNetwork');
+    if (!stored){
+      providerLink = "https://mainnet.infura.io";
+      requiredNetwork = 1;
+      standardBountiesAddress = json.mainNet.standardBountiesAddress;
+      userCommentsAddress = json.mainNet.userCommentsAddress;
+      networkName = "Main Network";
+      localStorage.setItem('ethereumNetwork', "MainNet");
+    } else {
+      if (stored === "MainNet"){
+        providerLink = "https://mainnet.infura.io";
+        requiredNetwork = 1;
+        standardBountiesAddress = json.mainNet.standardBountiesAddress;
+        userCommentsAddress = json.mainNet.userCommentsAddress;
+        networkName = "Main Network";
+
+
+      } else if (stored === "Rinkeby"){
+        providerLink = "https://rinkeby.infura.io";
+        requiredNetwork = 4;
+        standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+        userCommentsAddress = json.rinkeby.userCommentsAddress;
+        networkName = "Rinkeby Network";
+      }
+
+    }
+    web3.setProvider(new Web3.providers.HttpProvider(providerLink));
+
+
     this.state = {
       numUpdated: 0,
       modalError: "",
@@ -87,6 +115,13 @@ class NewBounty extends Component {
       submitting: false,
       loadingAmount: 10,
       loadingString: "",
+      containsCode: false,
+      requiredNetwork: requiredNetwork,
+      networkName: networkName,
+      standardBountiesAddress: standardBountiesAddress,
+      userCommentsAddress: userCommentsAddress,
+      StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
+      UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
     ipfsFiles.setProvider({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
@@ -101,6 +136,7 @@ class NewBounty extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
+    this.handleChangeNetwork = this.handleChangeNetwork.bind(this);
 
   }
   componentDidMount() {
@@ -121,9 +157,16 @@ class NewBounty extends Component {
     if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
       // Use Mist/MetaMask's provider
       console.log("Successfully connected to MetaMask")
+
       web3.setProvider(window.web3.currentProvider);
-      if (networkId !== web3.version.network){
-        this.setState({modalError: ("Please change your Ethereum network to the " + json.networkName), modalOpen: true});
+
+      console.log("this.state.web3", web3.currentProvider);
+
+      web3.version.getNetwork((err, netId) => {
+
+      if (parseInt(this.state.requiredNetwork) !== parseInt(netId)){
+        console.log("network, ", netId, this.state.requiredNetwork);
+          this.setState({modalError: ("Please change your Ethereum network to the " + this.state.networkName), modalOpen: true});
       } else {
         web3.eth.getAccounts(function(err, accs){
           if (err){
@@ -139,12 +182,12 @@ class NewBounty extends Component {
                   account = web3.eth.accounts[0];
                   window.location.reload();
                 }
-              }, 100);
+              }.bind(this), 100);
               this.setState({accounts: accs});
 
               console.log("about to get...");
 
-              StandardBounties.getNumBounties((cerr, succ) => {
+              this.state.StandardBounties.getNumBounties((cerr, succ) => {
                 var total = parseInt(succ,10);
                 this.setState({total: total});
               });
@@ -156,6 +199,7 @@ class NewBounty extends Component {
 
 
       }
+    });
     } else {
       this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
     }
@@ -174,6 +218,10 @@ class NewBounty extends Component {
     var tokenAddress = "0x0";
     if (evt.target.token_address){
       tokenAddress = evt.target.token_address.value;
+    }
+    var githubLink;
+    if (evt.target.github_link){
+      githubLink = evt.target.github_link.value;
     }
 
     var foundError = false;
@@ -251,7 +299,8 @@ class NewBounty extends Component {
           sourceFileHash: this.state.sourceFileHash,
           sourceFileName: this.state.sourceFileName,
           contact: info,
-          categories: this.state.optionsList
+          categories: this.state.optionsList,
+          githubLink: githubLink
         };
           this.setState({loadingAmount: 15});
 
@@ -260,7 +309,7 @@ class NewBounty extends Component {
           if (this.state.activateNow === "now"){
             this.setState({loadingString: "Please confirm the Ethereum transaction to issue and activate your bounty"});
 
-            StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, stringValue, {from: this.state.accounts[0], value: stringValue}, (cerr, succ)=> {
+            this.state.StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, stringValue, {from: this.state.accounts[0], value: stringValue}, (cerr, succ)=> {
               if (err){
                 console.log("cerr", err);
                 this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
@@ -288,7 +337,7 @@ class NewBounty extends Component {
             });
           } else {
             this.setState({loadingString: "Please confirm the Ethereum transaction to issue your bounty"});
-            StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, {from: this.state.accounts[0]}, (err, succ)=> {
+            this.state.StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, {from: this.state.accounts[0]}, (err, succ)=> {
               if (err){
                 console.log("cerr", err);
                 this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
@@ -344,7 +393,7 @@ class NewBounty extends Component {
             if (this.state.activateNow === "now"){
               this.setState({loadingString: "Please confirm the Ethereum transaction to transfer the tokens for the new bounty"});
 
-              tokenContract.approve(StandardBounties.address, stringValue, {from: this.state.accounts[0]}, (err, succ)=> {
+              tokenContract.approve(this.state.StandardBounties.address, stringValue, {from: this.state.accounts[0]}, (err, succ)=> {
                 if (err){
                   console.log("cerr", err);
                   this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
@@ -359,7 +408,7 @@ class NewBounty extends Component {
                         if (succ.blockNumber){
                           hasSucceeded = true;
                           this.setState({loadingString: "Please confirm the Ethereum transaction to issue and activate your new bounty", loadingAmount: 80});
-                          StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, stringValue, {from: this.state.accounts[0]}, (cerr, succ)=> {
+                          this.state.StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, stringValue, {from: this.state.accounts[0]}, (cerr, succ)=> {
                             if (err){
                               console.log("cerr", err);
                               this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
@@ -397,7 +446,7 @@ class NewBounty extends Component {
             } else {
               this.setState({loadingString: "Please confirm the Ethereum transaction to issue your bounty"});
 
-              StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, {from: this.state.accounts[0]}, (cerr, succ)=> {
+              this.state.StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, {from: this.state.accounts[0]}, (cerr, succ)=> {
                 if (err){
                   console.log("cerr", err);
                   this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
@@ -465,10 +514,52 @@ class NewBounty extends Component {
   handleEncryptChange(evt){
     this.setState({encrypt: evt.target.value});
   }
+  handleChangeNetwork(evt){
+    evt.preventDefault();
+
+    var requiredNetwork = evt.target.value;
+    var standardBountiesAddress = "";
+    var userCommentsAddress = "";
+    var networkName = "";
+    var providerLink = "";
+
+    if (parseInt(requiredNetwork) === parseInt(1)){
+      providerLink = "https://mainnet.infura.io";
+      standardBountiesAddress = json.mainNet.standardBountiesAddress;
+      userCommentsAddress = json.mainNet.userCommentsAddress;
+      networkName = "Main Network";
+      localStorage.setItem('ethereumNetwork', "MainNet");
+
+
+
+    } else if (parseInt(requiredNetwork) === parseInt(4)){
+      providerLink = "https://rinkeby.infura.io";
+      standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+      userCommentsAddress = json.rinkeby.userCommentsAddress;
+      networkName = "Rinkeby Network";
+      localStorage.setItem('ethereumNetwork', "Rinkeby");
+
+    }
+    this.setState({requiredNetwork: requiredNetwork,
+                  providerLink: providerLink,
+                  standardBountiesAddress: standardBountiesAddress,
+                  userCommentsAddress: userCommentsAddress,
+                  networkName: networkName,
+                  web3: new Web3(new Web3.providers.HttpProvider(providerLink)),
+                  StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
+                  UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
+                  });
+
+    this.getInitialData();
+  }
 
   handleSelectChange (value) {
     var optionsList = value.split(",");
-    this.setState({ optionsList: optionsList, value: value});
+    var containsCode = false;
+    if (optionsList.includes("Code")|| optionsList.includes("Bugs")){
+      containsCode = true;
+    }
+    this.setState({ optionsList: optionsList, value: value, containsCode: containsCode});
     this.forceUpdate();
 
   }
@@ -508,9 +599,15 @@ class NewBounty extends Component {
             </a>
             <BountiesFacts total={this.state.total}/>
             <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
+            <div style={{display: "block", width: "190px", backgroundColor: "rgba(10, 22, 40, 0.25)", overflow: "hidden", float: "right", margin: "15px"}}>
+              <select onChange={this.handleChangeNetwork} value={this.state.requiredNetwork} style={{fontSize: "10px",backgroundColor: "rgba(10, 22, 40, 0)",border: "0px",color: "#d0d0d0", width: "190px", height: "30px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
+                <option value="1">Ethereum Main Network</option>
+                <option value="4">Rinkeby Network</option>
+              </select>
+            </div>
           </div>
             <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", paddingBottom: "60px", marginBottom: "15px", marginTop: "30px", backgroundColor: "rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #16e5cd", color :"white"}} className="ContractCard">
-              <h3 style={{fontFamily: "Open Sans", margin: "24px", textAlign: "Center", fontWeight: "500", width: "1000px"}}>Create a New Bounty</h3>
+              <h3 style={{fontFamily: "Open Sans", margin: "24px", textAlign: "Center",width: "1000px"}}>Create a New Bounty</h3>
               <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "white"}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
                 <input id='contract_title' style={{border: "none", width: "1000px"}} className='SendAmount' type='text' />
@@ -607,6 +704,13 @@ class NewBounty extends Component {
                       <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
                       <input id='token_address' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
                       <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
+                    </div>
+                  )}
+                  {this.state.containsCode && (
+                    <div style={{float: "left", display: "inline-block"}}>
+                      <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Github Link</label>
+                      <input id='github_link' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
+                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>a github link to a relevant repository</p>
                     </div>
                   )}
                 {this.state.submitting &&

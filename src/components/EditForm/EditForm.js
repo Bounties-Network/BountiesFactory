@@ -36,12 +36,19 @@ class EditForm extends Component {
           <input id="contact" style={{width: "450px", border: "none"}} defaultValue={this.props.bountyData.contact}></input>
           <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_code'>Associated Files</label>
           <input id='contract_code' type="file" name="file" onChange={this.props.onHandleCaptureEditFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
-          <div style={{width: "455px", display: "block", border: "1px solid white", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px", marginBottom: "15px"}}>
+          <div style={{width: "452px", display: "block", border: "1px solid white", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px", marginBottom: "15px"}}>
             <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "4px", marginTop: "-1px"}}> Upload </label>
             <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
           </div>
           <label style={{fontSize: "12px"}} >Bounty Category</label>
-          <Select multi simpleValue disabled={this.props.disabled} value={this.props.selectedValue} placeholder="Select task categories" options={CATEGORIES} onChange={this.props.onHandleChangeSelected} style={{width: "470px", marginBottom: "15px"}}/>
+          <Select multi simpleValue disabled={this.props.disabled} value={this.props.selectedValue} placeholder="Select task categories" options={CATEGORIES} onChange={this.props.onHandleChangeSelected} style={{width: "466px", marginBottom: "15px"}}/>
+          {this.props.containsCode && (
+            <div style={{float: "left", display: "inline-block"}}>
+              <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Github Link</label>
+              <input id='github_link' style={{border: "none", width: "450px"}} defaultValue={this.props.bountyData.githubLink} className='SendAmount' type='text'/>
+              <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>a github link to a relevant repository</p>
+            </div>
+          )}
         <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#16e5cd", border:"0px", color: "#152639"}}>Submit Edits</button>
       </form>
       </div>
