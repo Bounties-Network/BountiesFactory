@@ -9,10 +9,6 @@ const networkId = json.networkId;
 import Web3 from 'web3';
 const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
 
-const UserCommentsContract = web3.eth.contract(json.interfaces.UserComments).at(json.UserCommentsAddress);
-const StandardBounties = web3.eth.contract(json.interfaces.StandardBounties).at(json.standardBountiesAddress);
-
-
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 const BN = require(`bn.js`);
@@ -60,6 +56,40 @@ const ipfsAPI = require('ipfs-api');
 class UserPage extends Component {
   constructor(props) {
     super(props)
+
+    var requiredNetwork = 0;
+    var standardBountiesAddress = "";
+    var userCommentsAddress = "";
+    var networkName = "";
+    var providerLink = "";
+    var stored = localStorage.getItem('ethereumNetwork');
+    if (!stored){
+      providerLink = "https://mainnet.infura.io";
+      requiredNetwork = 1;
+      standardBountiesAddress = json.mainNet.standardBountiesAddress;
+      userCommentsAddress = json.mainNet.userCommentsAddress;
+      networkName = "Main Network";
+      localStorage.setItem('ethereumNetwork', "MainNet");
+    } else {
+      if (stored === "MainNet"){
+        providerLink = "https://mainnet.infura.io";
+        requiredNetwork = 1;
+        standardBountiesAddress = json.mainNet.standardBountiesAddress;
+        userCommentsAddress = json.mainNet.userCommentsAddress;
+        networkName = "Main Network";
+
+
+      } else if (stored === "Rinkeby"){
+        providerLink = "https://rinkeby.infura.io";
+        requiredNetwork = 4;
+        standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+        userCommentsAddress = json.rinkeby.userCommentsAddress;
+        networkName = "Rinkeby Network";
+      }
+
+    }
+    web3.setProvider(new Web3.providers.HttpProvider(providerLink));
+
     this.state = {
       modalError: "",
       balance: 0,
@@ -76,6 +106,12 @@ class UserPage extends Component {
       userAddress: this.props.params.address,
       commentError: "",
       noWeb3Error: false,
+      requiredNetwork: requiredNetwork,
+      networkName: networkName,
+      standardBountiesAddress: standardBountiesAddress,
+      userCommentsAddress: userCommentsAddress,
+      StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
+      UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
 
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
@@ -87,9 +123,15 @@ class UserPage extends Component {
 
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
+    this.handleChangeNetwork = this.handleChangeNetwork.bind(this);
+
   }
   componentDidMount() {
-    window.addEventListener('load',this.getInitialData);
+    if (window.loaded){
+      this.getInitialData();
+    } else {
+      window.addEventListener('load', this.getInitialData);
+    }
   }
 
   toUTF8(hex) {
@@ -116,7 +158,7 @@ class UserPage extends Component {
   getFulfillmentsForBounty(i){
     var index = i;
     var bountyId = this.state.bounties[index].bountyId;
-    StandardBounties.getNumFulfillments(bountyId, (err, succ)=> {
+    this.state.StandardBounties.getNumFulfillments(bountyId, (err, succ)=> {
       var total = parseInt(succ, 10);
       var fulfillments = [];
       if (total === 0){
@@ -125,7 +167,7 @@ class UserPage extends Component {
         this.setState({bounties: bounties});
       }
       for (var j = 0; j < total; j++){
-        StandardBounties.getFulfillment(bountyId, j, (err, succ)=> {
+        this.state.StandardBounties.getFulfillment(bountyId, j, (err, succ)=> {
           ipfs.catJSON(succ[2], (err, result)=> {
             fulfillments.push({
               accepted:succ[0],
@@ -152,8 +194,8 @@ class UserPage extends Component {
   }
 
   getBounty(bountyId, bounties, total){
-    StandardBounties.getBounty(bountyId, (err, succ)=> {
-      StandardBounties.getBountyData(bountyId, (err, data)=> {
+    this.state.StandardBounties.getBounty(bountyId, (err, succ)=> {
+      this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
         ipfs.catJSON(data, (err, result)=> {
           var stage;
           if (parseInt(succ[4], 10) === 0){
@@ -187,7 +229,7 @@ class UserPage extends Component {
               this.getBountyComments();
             }
           } else {
-            StandardBounties.getBountyToken(bountyId, (err, address)=> {
+            this.state.StandardBounties.getBountyToken(bountyId, (err, address)=> {
               var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
               HumanStandardToken.symbol((err, symbol)=> {
                 HumanStandardToken.decimals((err, dec)=> {
@@ -239,10 +281,13 @@ class UserPage extends Component {
     if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
       // Use Mist/MetaMask's provider
       web3.setProvider(window.web3.currentProvider);
-      if (networkId !== web3.version.network){
-        console.log("network", networkId, web3.version.network);
-          this.setState({modalError: ("Please change your Ethereum network to the " + json.networkName), modalOpen: true});
-      } else {
+      web3.version.getNetwork((err, netId) => {
+
+        if (parseInt(this.state.requiredNetwork) !== parseInt(netId)){
+            console.log("network, ", netId, this.state.requiredNetwork);
+            this.setState({modalError: ("Please change your Ethereum network to the " + this.state.networkName), modalOpen: true});
+        } else {
+
 
       web3.eth.getAccounts(function(err, accs){
         if (err){
@@ -265,7 +310,7 @@ class UserPage extends Component {
           this.setState({accounts: accs});
           var bounties = [];
 
-          StandardBounties.getNumBounties((err, succ)=> {
+          this.state.StandardBounties.getNumBounties((err, succ)=> {
             var total = parseInt(succ, 10);
             this.setState({total: total});
             for (var i = 0; i < total; i++){
@@ -433,11 +478,12 @@ class UserPage extends Component {
 
         }.bind(this));
       }
+    });
     } else {
 
       var bounties = [];
 
-      StandardBounties.getNumBounties((err, succ)=> {
+      this.state.StandardBounties.getNumBounties((err, succ)=> {
         var total = parseInt(succ, 10);
         this.setState({total: total});
         for (var i = 0; i < total; i++){
@@ -476,7 +522,7 @@ class UserPage extends Component {
       this.setState({commentError: ""});
       ipfs.addJSON({title: title, description: description}, (err, succ)=> {
         console.log("about to add", succ, 0x0, true, this.state.bountyId);
-        UserCommentsContract.addComment(succ, 0x0, true, this.state.bountyId, {from: this.state.accounts[0]}, (cerr, succ)=> {
+        this.state.UserCommentsContract.addComment(succ, 0x0, true, this.state.bountyId, {from: this.state.accounts[0]}, (cerr, succ)=> {
 
           window.location.reload();
         });
@@ -488,6 +534,45 @@ class UserPage extends Component {
 
 handleOpen () {
   this.setState({modalOpen: true});
+}
+handleChangeNetwork(evt){
+  evt.preventDefault();
+
+  var requiredNetwork = evt.target.value;
+  var standardBountiesAddress = "";
+  var userCommentsAddress = "";
+  var networkName = "";
+  var providerLink = "";
+
+  if (parseInt(requiredNetwork) === parseInt(1)){
+    providerLink = "https://mainnet.infura.io";
+    standardBountiesAddress = json.mainNet.standardBountiesAddress;
+    userCommentsAddress = json.mainNet.userCommentsAddress;
+    networkName = "Main Network";
+    localStorage.setItem('ethereumNetwork', "MainNet");
+
+
+
+  } else if (parseInt(requiredNetwork) === parseInt(4)){
+    providerLink = "https://rinkeby.infura.io";
+    standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+    userCommentsAddress = json.rinkeby.userCommentsAddress;
+    networkName = "Rinkeby Network";
+    localStorage.setItem('ethereumNetwork', "Rinkeby");
+
+  }
+
+  this.setState({requiredNetwork: requiredNetwork,
+                providerLink: providerLink,
+                standardBountiesAddress: standardBountiesAddress,
+                userCommentsAddress: userCommentsAddress,
+                networkName: networkName,
+                web3: new Web3(new Web3.providers.HttpProvider(providerLink)),
+                StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
+                UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
+                });
+
+  this.getInitialData();
 }
 
 handleClose(){
@@ -749,8 +834,13 @@ handleCloseNoWeb3(){
             </a>
           <BountiesFacts total={this.state.total}/>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-
-          <FlatButton href="/newBounty/" style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
+          <div style={{display: "block", width: "190px", backgroundColor: "rgba(10, 22, 40, 0.25)", overflow: "hidden", float: "right", margin: "30px"}}>
+            <select onChange={this.handleChangeNetwork} value={this.state.requiredNetwork} style={{fontSize: "10px",backgroundColor: "rgba(10, 22, 40, 0)",border: "0px",color: "#d0d0d0", width: "190px", height: "30px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
+              <option value="1">Ethereum Main Network</option>
+              <option value="4">Rinkeby Network</option>
+            </select>
+          </div>
+          <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border:"1px solid #16e5cd", color: "#16e5cd", width: "150px", marginTop: '30px', float: "right", height: "30px", lineHeight: "30px"}} > New Bounty </FlatButton>
 
           </div>
           <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px"}}>

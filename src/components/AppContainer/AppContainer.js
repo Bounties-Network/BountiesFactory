@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import './AppContainer.css'
 
 import Web3 from 'web3';
+import Select from 'react-select';
+
 
 const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
 const json = require('../../../contracts.json');
@@ -22,6 +24,17 @@ import ContractList from 'components/ContractList/ContractList';
 import Dialog from 'material-ui/Dialog';
 import SvgArrow from 'material-ui/svg-icons/hardware/keyboard-arrow-right';
 
+
+const CATEGORIES = [
+  { label: 'Code', value: 'Code' },
+  { label: 'Bugs', value: 'Bugs' },
+  { label: 'Questions', value: 'Questions' },
+  { label: 'Graphic Design', value: 'Graphic Design' },
+  { label: 'Social Media', value: 'Social Media' },
+  { label: 'Content Creation', value: 'Content Creation' },
+  { label: 'Translations', value: 'Translations'},
+  { label: 'Surveys', value: 'Surveys'}
+];
 
 
 class AppContainer extends Component {
@@ -68,6 +81,7 @@ class AppContainer extends Component {
       accounts: [],
       contracts: [],
       bounties: [],
+      optionsList: [],
       total: 0,
       totalMe: 0,
       loading: true,
@@ -91,12 +105,20 @@ class AppContainer extends Component {
     this.handleChangeStage = this.handleChangeStage.bind(this);
     this.handleMineChange = this.handleMineChange.bind(this);
     this.handleChangeToMine = this.handleChangeToMine.bind(this);
+
     this.handleChangeNetwork = this.handleChangeNetwork.bind(this);
+
+    this.handleSelectChange = this.handleSelectChange.bind(this);
+
   }
+
   componentDidMount() {
 
-
-    window.addEventListener('load',this.getInitialData);
+    if (window.loaded){
+      this.getInitialData();
+    } else {
+      window.addEventListener('load', this.getInitialData);
+    }
   }
 
 
@@ -140,52 +162,52 @@ class AppContainer extends Component {
     var oneSecond = 1000;
     var difference = givenDate - Date.now();
     if (difference > 0){
-      if (parseInt(difference/oneMillenium) >= 1){
+      if (difference >= oneMillenium){
         var num = parseInt(difference/oneMillenium);
         var time = (num === 1? "millennium" : "millennia");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneCentury) >= 1){
+      if (difference >= oneCentury){
         var num = parseInt(difference/oneCentury);
         var time = (num === 1? "century" : "centuries");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneDecade) >= 1){
+      if (difference >= oneDecade){
         var num = parseInt(difference/oneDecade);
         var time = (num === 1? "decade" : "decades");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneYear) >= 1){
+      if (difference >= oneYear){
         var num = parseInt(difference/oneYear);
         var time = (num === 1? "year" : "years");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneMonth) >= 1){
+      if (difference >= oneMonth){
         var num = parseInt(difference/oneMonth);
         var time = (num === 1? "month" : "months");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneWeek) >= 1){
+      if (difference >= oneWeek){
         var num = parseInt(difference/oneWeek);
         var time = (num === 1? "week" : "weeks");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneDay) >= 1){
+      if (difference >= oneDay){
         var num = parseInt(difference/oneDay);
         var time = (num === 1? "day" : "days");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneHour) >= 1){
+      if (difference >= oneHour){
         var num = parseInt(difference/oneHour);
         var time = (num === 1? "hour" : "hours");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneMinute) >= 1){
+      if (difference >= oneMinute){
         var num = parseInt(difference/oneMinute);
         var time = (num === 1? "minute" : "minutes");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneSecond) >= 1){
+      if (difference >= oneSecond){
         var num = parseInt(difference/oneSecond);
         var time = (num === 1? "second" : "seconds");
         return ("ends in " + num + " "+time);
@@ -193,52 +215,53 @@ class AppContainer extends Component {
 
     } else if (difference < 0){
       difference = difference * -1;
-      if (parseInt(difference/oneMillenium) >= 1){
+
+      if (difference >= oneMillenium){
         var num = parseInt(difference/oneMillenium);
         var time = (num === 1? "millennium" : "millennia");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneCentury) >= 1){
+      if (difference >= oneCentury){
         var num = parseInt(difference/oneCentury);
         var time = (num === 1? "century" : "centuries");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneDecade) >= 1){
+      if (difference >= oneDecade){
         var num = parseInt(difference/oneDecade);
         var time = (num === 1? "decade" : "decades");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneYear) >= 1){
+      if (difference >= oneYear){
         var num = parseInt(difference/oneYear);
         var time = (num === 1? "year" : "years");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneMonth) >= 1){
+      if (difference >= oneMonth){
         var num = parseInt(difference/oneMonth);
         var time = (num === 1? "month" : "months");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneWeek) >= 1){
+      if (difference >= oneWeek){
         var num = parseInt(difference/oneWeek);
         var time = (num === 1? "week" : "weeks");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneDay) >= 1){
+      if (difference >= oneDay){
         var num = parseInt(difference/oneDay);
         var time = (num === 1? "day" : "days");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneHour) >= 1){
+      if (difference >= oneHour){
         var num = parseInt(difference/oneHour);
         var time = (num === 1? "hour" : "hours");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneMinute) >= 1){
+      if (difference >= oneMinute){
         var num = parseInt(difference/oneMinute);
         var time = (num === 1? "minute" : "minutes");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneSecond) >= 1){
+      if (difference >= oneSecond){
         var num = parseInt(difference/oneSecond);
         var time = (num === 1? "second" : "seconds");
         return (num + " "+time+" ago");
@@ -249,11 +272,18 @@ class AppContainer extends Component {
     }
   }
 
-
   getInitialData(){
+    window.loaded = true;
+
+    console.log("page loaded, about to get initial data");
+
     if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
+      console.log("provider defined");
+
       // Use Mist/MetaMask's provider
         web3.setProvider(window.web3.currentProvider);
+        console.log("provider is defined", window.web3.currentProvider);
+
         web3.version.getNetwork((err, netId) => {
 
           if (parseInt(this.state.requiredNetwork) !== parseInt(netId)){
@@ -278,9 +308,13 @@ class AppContainer extends Component {
                 }
               }, 100);
               this.setState({accounts: accs});
+              console.log("just got accounts", accs);
+
               var bounties = [];
               this.state.StandardBounties.getNumBounties((err, succ)=> {
                 var total = parseInt(succ, 10);
+                console.log("got ", total, "bounties");
+
                 this.setState({total: total});
                 for (var i = 0; i < total; i++){
                   this.getBounty(i, bounties, total);
@@ -475,6 +509,17 @@ class AppContainer extends Component {
 
     this.getInitialData();
   }
+  handleSelectChange(value){
+    var optionsList = value.split(",");
+    var containsCode = false;
+    if (optionsList.includes("Code") || optionsList.includes("Bugs")){
+      containsCode = true;
+    }
+    console.log("options list", optionsList);
+    this.setState({ optionsList: optionsList, value: value, containsCode: containsCode});
+    this.forceUpdate();
+
+  }
 
   render() {
     var newList = [];
@@ -497,15 +542,32 @@ class AppContainer extends Component {
           deadMe++;
         }
       }
-      if (this.state.bounties[i].stage === this.state.selectedStage || this.state.selectedStage === "ANY"){
-        if (this.state.selectedMine === "ANY"){
-          activeList.push(this.state.bounties[i]);
-        } else if (this.state.selectedMine === "MINE" && this.state.bounties[i].issuer === this.state.accounts[0]){
-          activeList.push(this.state.bounties[i]);
-        } else if (this.state.selectedMine === "NOT MINE" && this.state.bounties[i].issuer !== this.state.accounts[0]){
-          activeList.push(this.state.bounties[i]);
+      var isInSelectedCategories = false;
+
+      for (var j = 0; j < this.state.bounties[i].bountyData.categories.length; i++){
+        console.log("categories: ", this.state.bounties[j]);
+        /*
+        if (this.state.optionsList.indexOf(this.state.bounties[i].bountyData.categories[i]) >= 0){
+          isInSelectedCategories = true;
         }
+        */
       }
+
+      if (this.state.optionsList.length === 0){
+        isInSelectedCategories = true;
+      }
+
+
+        if (this.state.bounties[i].stage === this.state.selectedStage || this.state.selectedStage === "ANY"){
+          if (this.state.selectedMine === "ANY"){
+            activeList.push(this.state.bounties[i]);
+          } else if (this.state.selectedMine === "MINE" && this.state.bounties[i].issuer === this.state.accounts[0]){
+            activeList.push(this.state.bounties[i]);
+          } else if (this.state.selectedMine === "NOT MINE" && this.state.bounties[i].issuer !== this.state.accounts[0]){
+            activeList.push(this.state.bounties[i]);
+          }
+        }
+
     }
     var recentList = [];
     for (var j = 0; j < 3 && j < this.state.bounties.length; j++){
@@ -524,6 +586,7 @@ class AppContainer extends Component {
   activeList.sort(function(b1, b2){
     return (b2.bountyId - b1.bountyId);
   });
+
     return (
       <div>
       <Dialog
@@ -623,8 +686,9 @@ class AppContainer extends Component {
           <div style={{width: "630px", float: "left", display: "block"}}>
             <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Bounties'}/>
           </div>
-          <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}}>
+          <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className="FilterBar">
             <h3 style={{fontFamily: "Open Sans", marginTop: "31px", marginBottom: "31px", textAlign: "center", color: "white", width: "100%"}}>Filter</h3>
+
             <div style={{display: "block", width: "100%", backgroundColor: "rgba(10, 22, 40, 0.5)", overflow: "hidden"}}>
               <select onChange={this.handleChangeStage} value={this.state.selectedStage} style={{fontSize: "16px",backgroundColor: "rgba(10, 22, 40, 0)", border: "0px",color: "white", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="Draft">Draft Bounties</option>
@@ -639,6 +703,9 @@ class AppContainer extends Component {
                 <option value="MINE">My Bounties</option>
                 <option value="NOT MINE">Not My Bounties</option>
               </select>
+            </div>
+            <div style={{width: "100%", float: "left", display: "block", marginTop: "15px"}}>
+              <Select multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select Categories" options={CATEGORIES} onChange={this.handleSelectChange} />
             </div>
 
 

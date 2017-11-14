@@ -60,3 +60,6 @@ span {
 a {
   color: rgb(22, 229, 205);
 }
+input {
+  border-radius: 0px;
+}

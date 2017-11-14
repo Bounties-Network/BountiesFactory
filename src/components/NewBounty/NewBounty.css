@@ -128,6 +128,7 @@
 }
 .Select-placeholder {
   font-size: 14px;
+  line-height: 40px;
 }
 .has-value.Select--single > .Select-control .Select-value .Select-value-label,
 .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
@@ -415,4 +416,7 @@
   to {
     -webkit-transform: rotate(1turn);
   }
+}
+input {
+  border-radius: 0px;
 }

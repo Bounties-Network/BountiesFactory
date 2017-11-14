@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import './NewBounty.css'
 
 import Web3 from 'web3';
+const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
+
 const json = require('../../../contracts.json');
 const networkId = json.networkId;
 
@@ -141,8 +143,11 @@ class NewBounty extends Component {
   }
   componentDidMount() {
     //  this.getContractData();
-    window.addEventListener('load',this.getInitialData);
-
+    if (window.loaded){
+      this.getInitialData();
+    } else {
+      window.addEventListener('load', this.getInitialData);
+    }
 
   }
   handleOpen () {
@@ -153,7 +158,48 @@ class NewBounty extends Component {
     this.setState({modalOpen: false});
     this.getInitialData();
   }
+  handleChangeNetwork(evt){
+    evt.preventDefault();
+
+    var requiredNetwork = evt.target.value;
+    var standardBountiesAddress = "";
+    var userCommentsAddress = "";
+    var networkName = "";
+    var providerLink = "";
+
+    if (parseInt(requiredNetwork) === parseInt(1)){
+      providerLink = "https://mainnet.infura.io";
+      standardBountiesAddress = json.mainNet.standardBountiesAddress;
+      userCommentsAddress = json.mainNet.userCommentsAddress;
+      networkName = "Main Network";
+      localStorage.setItem('ethereumNetwork', "MainNet");
+
+
+
+    } else if (parseInt(requiredNetwork) === parseInt(4)){
+      providerLink = "https://rinkeby.infura.io";
+      standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+      userCommentsAddress = json.rinkeby.userCommentsAddress;
+      networkName = "Rinkeby Network";
+      localStorage.setItem('ethereumNetwork', "Rinkeby");
+
+    }
+
+    this.setState({requiredNetwork: requiredNetwork,
+                  providerLink: providerLink,
+                  standardBountiesAddress: standardBountiesAddress,
+                  userCommentsAddress: userCommentsAddress,
+                  networkName: networkName,
+                  web3: new Web3(new Web3.providers.HttpProvider(providerLink)),
+                  StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
+                  UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
+                  });
+
+    this.getInitialData();
+  }
+
   getInitialData(){
+    window.loaded = true;
     if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
       // Use Mist/MetaMask's provider
       console.log("Successfully connected to MetaMask")
@@ -182,7 +228,7 @@ class NewBounty extends Component {
                   account = web3.eth.accounts[0];
                   window.location.reload();
                 }
-              }.bind(this), 100);
+              }, 100);
               this.setState({accounts: accs});
 
               console.log("about to get...");
@@ -599,7 +645,7 @@ class NewBounty extends Component {
             </a>
             <BountiesFacts total={this.state.total}/>
             <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-            <div style={{display: "block", width: "190px", backgroundColor: "rgba(10, 22, 40, 0.25)", overflow: "hidden", float: "right", margin: "15px"}}>
+            <div style={{display: "block", width: "190px", backgroundColor: "rgba(10, 22, 40, 0.25)", overflow: "hidden", float: "right", margin: "30px"}}>
               <select onChange={this.handleChangeNetwork} value={this.state.requiredNetwork} style={{fontSize: "10px",backgroundColor: "rgba(10, 22, 40, 0)",border: "0px",color: "#d0d0d0", width: "190px", height: "30px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="1">Ethereum Main Network</option>
                 <option value="4">Rinkeby Network</option>

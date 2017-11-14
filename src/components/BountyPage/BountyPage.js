@@ -9,6 +9,7 @@ const json = require('../../../contracts.json');
 const networkId = json.networkId;
 
 import Web3 from 'web3';
+const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
 
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
@@ -168,7 +169,7 @@ class BountyPage extends Component {
         standardBountiesAddress: standardBountiesAddress,
         userCommentsAddress: userCommentsAddress,
         StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
-        UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
+        UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
 
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
@@ -223,52 +224,52 @@ class BountyPage extends Component {
     var oneSecond = 1000;
     var difference = givenDate - Date.now();
     if (difference > 0){
-      if (parseInt(difference/oneMillenium) >= 1){
+      if (difference >= oneMillenium){
         var num = parseInt(difference/oneMillenium);
         var time = (num === 1? "millennium" : "millennia");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneCentury) >= 1){
+      if (difference >= oneCentury){
         var num = parseInt(difference/oneCentury);
         var time = (num === 1? "century" : "centuries");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneDecade) >= 1){
+      if (difference >= oneDecade){
         var num = parseInt(difference/oneDecade);
         var time = (num === 1? "decade" : "decades");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneYear) >= 1){
+      if (difference >= oneYear){
         var num = parseInt(difference/oneYear);
         var time = (num === 1? "year" : "years");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneMonth) >= 1){
+      if (difference >= oneMonth){
         var num = parseInt(difference/oneMonth);
         var time = (num === 1? "month" : "months");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneWeek) >= 1){
+      if (difference >= oneWeek){
         var num = parseInt(difference/oneWeek);
         var time = (num === 1? "week" : "weeks");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneDay) >= 1){
+      if (difference >= oneDay){
         var num = parseInt(difference/oneDay);
         var time = (num === 1? "day" : "days");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneHour) >= 1){
+      if (difference >= oneHour){
         var num = parseInt(difference/oneHour);
         var time = (num === 1? "hour" : "hours");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneMinute) >= 1){
+      if (difference >= oneMinute){
         var num = parseInt(difference/oneMinute);
         var time = (num === 1? "minute" : "minutes");
         return ("ends in " + num + " "+time);
       }
-      if (parseInt(difference/oneSecond) >= 1){
+      if (difference >= oneSecond){
         var num = parseInt(difference/oneSecond);
         var time = (num === 1? "second" : "seconds");
         return ("ends in " + num + " "+time);
@@ -276,52 +277,53 @@ class BountyPage extends Component {
 
     } else if (difference < 0){
       difference = difference * -1;
-      if (parseInt(difference/oneMillenium) >= 1){
+
+      if (difference >= oneMillenium){
         var num = parseInt(difference/oneMillenium);
         var time = (num === 1? "millennium" : "millennia");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneCentury) >= 1){
+      if (difference >= oneCentury){
         var num = parseInt(difference/oneCentury);
         var time = (num === 1? "century" : "centuries");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneDecade) >= 1){
+      if (difference >= oneDecade){
         var num = parseInt(difference/oneDecade);
         var time = (num === 1? "decade" : "decades");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneYear) >= 1){
+      if (difference >= oneYear){
         var num = parseInt(difference/oneYear);
         var time = (num === 1? "year" : "years");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneMonth) >= 1){
+      if (difference >= oneMonth){
         var num = parseInt(difference/oneMonth);
         var time = (num === 1? "month" : "months");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneWeek) >= 1){
+      if (difference >= oneWeek){
         var num = parseInt(difference/oneWeek);
         var time = (num === 1? "week" : "weeks");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneDay) >= 1){
+      if (difference >= oneDay){
         var num = parseInt(difference/oneDay);
         var time = (num === 1? "day" : "days");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneHour) >= 1){
+      if (difference >= oneHour){
         var num = parseInt(difference/oneHour);
         var time = (num === 1? "hour" : "hours");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneMinute) >= 1){
+      if (difference >= oneMinute){
         var num = parseInt(difference/oneMinute);
         var time = (num === 1? "minute" : "minutes");
         return (num + " "+time+" ago");
       }
-      if (parseInt(difference/oneSecond) >= 1){
+      if (difference >= oneSecond){
         var num = parseInt(difference/oneSecond);
         var time = (num === 1? "second" : "seconds");
         return (num + " "+time+" ago");
@@ -333,7 +335,11 @@ class BountyPage extends Component {
   }
   componentDidMount() {
 
-    window.addEventListener('load',this.getInitialData);
+    if (window.loaded){
+      this.getInitialData();
+    } else {
+      window.addEventListener('load', this.getInitialData);
+    }
 
   }
 
@@ -391,6 +397,8 @@ class BountyPage extends Component {
   }
 
   getInitialData(){
+    window.loaded = true;
+
     if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
       // Use Mist/MetaMask's provider
       web3.setProvider(window.web3.currentProvider);
@@ -445,6 +453,8 @@ class BountyPage extends Component {
                       newDate = new Date(parseInt(succ[1], 10)*1000);
                       dateString = this.dateToString(parseInt(succ[1], 10)*1000);
                     }
+                    console.log("got date", parseInt(succ[1], 10)*1000, newDate, dateString);
+
                     if (!succ[3]){
                       var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
                       var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
@@ -491,6 +501,7 @@ class BountyPage extends Component {
                             this.setState({contract: {
                               issuer: succ[0],
                               deadline: newDate.toUTCString(),
+                              deadlineString: dateString,
                               value: parseInt(newAmount, 10),
                               paysTokens: succ[3],
                               stage: stage,
@@ -546,7 +557,23 @@ class BountyPage extends Component {
                   var to = succ[2];
                   var aboutBounty = succ[3];
                   var bountyId = succ[4];
-                  var date = new Date(parseInt(succ[5], 10)*1000);
+
+                  var intDate = parseInt(succ[5], 10);
+                  var newDate;
+                  var dateString;
+                  var max = new BN(8640000000000000);
+                  if ((succ[5].times(1000)).greaterThan(max)){
+                    newDate = new Date(parseInt(max, 10));
+                    console.log("new date bigger", newDate)
+                    dateString = this.dateToString(8640000000000000);
+                  } else {
+                    newDate = new Date(parseInt(succ[5], 10)*1000);
+                    dateString = this.dateToString(parseInt(succ[5], 10)*1000);
+                  }
+
+
+                  console.log("got date", parseInt(succ[5], 10)*1000, newDate, dateString);
+
                   ipfs.catJSON(succ[0], (err, result)=> {
                     comments.push({title: result.title,
                                   aboutFulfillment: result.aboutFulfillment,
@@ -556,7 +583,7 @@ class BountyPage extends Component {
                                   aboutBounty: aboutBounty,
                                   bountyId: bountyId,
                                   description: result.description,
-                                  date: date.toUTCString()});
+                                  dateString: dateString});
                     if (comments.length === total){
                       this.setState({comments: comments});
                     }
@@ -586,9 +613,19 @@ class BountyPage extends Component {
               } else {
                 stage = "Dead";
               }
-              var newDate = new Date(parseInt(succ[1], 10)*1000);
-              var dateString = this.dateToString(parseInt(succ[1], 10)*1000);
 
+              var intDate = parseInt(succ[1], 10);
+              var newDate;
+              var dateString;
+              var max = new BN(8640000000000000);
+              if ((succ[1].times(1000)).greaterThan(max)){
+                newDate = new Date(parseInt(max, 10));
+                console.log("new date bigger", newDate)
+                dateString = this.dateToString(8640000000000000);
+              } else {
+                newDate = new Date(parseInt(succ[1], 10)*1000);
+                dateString = this.dateToString(parseInt(succ[1], 10)*1000);
+              }
 
               if (!succ[3]){
                 var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
@@ -597,6 +634,7 @@ class BountyPage extends Component {
                 this.setState({contract: {
                   issuer: succ[0],
                   deadline: newDate.toUTCString(),
+                  deadlineString: dateString,
                   value: value,
                   paysTokens: succ[3],
                   stage: stage,
@@ -631,6 +669,7 @@ class BountyPage extends Component {
                       this.setState({contract: {
                         issuer: succ[0],
                         deadline: newDate.toUTCString(),
+                        deadlineString: dateString,
                         value: parseInt(newAmount, 10),
                         paysTokens: succ[3],
                         stage: stage,
@@ -728,6 +767,7 @@ class BountyPage extends Component {
             newDate = new Date(parseInt(succ[5], 10)*1000);
             dateString = this.dateToString(parseInt(succ[5], 10)*1000);
           }
+          console.log("got date", parseInt(succ[5], 10)*1000, newDate, dateString);
 
           ipfs.catJSON(succ[0], (err, result)=> {
             comments.push({title: result.title,
@@ -1049,11 +1089,10 @@ class BountyPage extends Component {
     let ipfsId;
     // eslint-disable-next-line
     const buffer = Buffer.from(reader.result);
-    ipfs.add(buffer, (err, response)=> {
-      console.log("response", response);
 
-      ipfsId = response[0].hash;
-      console.log("response", ipfsId);
+    ipfs.add(buffer, (err, response)=> {
+      console.log("response", response, err);
+
 
       this.setState({sourceFileHash: response});
 
@@ -1892,7 +1931,7 @@ handleChangeNetwork(evt){
               <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
               {this.state.commentError &&
                 <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.commentError}</p>}
-              <button type='submit'  className='AddBtn' style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "30px", fontSize: "1em", width: "200px"}}>Comment</button>
+              <button type='submit'  className='AddBtn' style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "30px", fontSize: "1em", width: "200px", fontWeight: "700"}}>COMMENT</button>
             </form>
           }
         </div>
@@ -1901,7 +1940,6 @@ handleChangeNetwork(evt){
     );
     var numPushed = 0;
 
-    if (this.state.fulfillments.length){
       var fulfillments = [];
       for (var i = 0; i < this.state.fulfillments.length; i++){
         var fulfillmentComments = [];
@@ -1956,13 +1994,13 @@ handleChangeNetwork(evt){
                     <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "952px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
                     {this.state.fulfillments[i].commentError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.fulfillments[i].commentError}</p>}
-                    <button type='submit'  className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "rgb(21, 38, 57)",  display: "block", padding: "10px 16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
+                    <button type='submit'  className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "rgb(21, 38, 57)",  display: "block", padding: "10px 16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px", fontWeight: "700"}}>COMMENT</button>
                   </form>
 
                 }
                 {this.state.fulfillments[i].comments.length > 0 &&
                   <div style={{borderTop: "1px solid rgba(256,256,256, 0.18)", padding: "30px 0px 0px 30px", marginTop: this.state.fulfillments[i].commentsOpen?"30px":"70px"}}>
-                    <h5 style={{margin: "5px 0px", textAlign: "left", fontWeight: "200"}}><b style={{fontSize: "16px", fontWeight: "200", color: "#FFDE46"}}>{this.state.fulfillments[i].comments.length} Comment{ this.state.fulfillments[i].comments.length === 1? "" : "s"}</b></h5>
+                    <h5 style={{margin: "5px 0px", textAlign: "left", fontWeight: "200"}}><b style={{fontSize: "16px", fontWeight: "200", color: "#FFDE46"}}>{this.state.fulfillments[i].comments.length +"  Comment"+  (this.state.fulfillments[i].comments.length === 1? "" : "s")}</b></h5>
 
                     {fulfillmentComments}
 
@@ -1995,7 +2033,7 @@ handleChangeNetwork(evt){
             <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", marginBottom: "30px"}}>
               <div style={{width: "940px", marginTop: "15px", marginLeft: "15px", marginRight: "15px", position: "relative", padding: "15px"}}>
                 {!this.state.fulfillmentOpen? <SvgDown onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "15px", top: "15px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>
-              : <SvgUp onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "0px", top: "0px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
+              : <SvgUp onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "15px", top: "15px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
                 <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Fulfill the Bounty</h3>
                 {this.state.fulfillmentOpen &&
 
@@ -2022,7 +2060,8 @@ handleChangeNetwork(evt){
                       <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px"}}></textarea>
                       {this.state.fulfillmentError &&
                         <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
-                        <button type='submit' className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", width: "200px", margin: "0 auto", display: "block"}}>Submit</button>
+                      <button type='submit'  className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "white",  color: "#152639", display: "block", padding: "16px", margin: "0 auto", marginTop: "30px", fontSize: "1em", width: "200px", fontWeight: "700"}}>SUBMIT</button>
+
                     </form>
                   </div>
                 }
@@ -2036,7 +2075,7 @@ handleChangeNetwork(evt){
       );
 
 
-    }
+
     const modalActions = [
       <FlatButton
         label="Retry"
@@ -2102,13 +2141,13 @@ handleChangeNetwork(evt){
           <BountiesFacts total={this.state.total}/>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
 
-          <div style={{display: "block", width: "190px", backgroundColor: "rgba(10, 22, 40, 0.25)", overflow: "hidden", float: "right", margin: "15px"}}>
+          <div style={{display: "block", width: "190px", backgroundColor: "rgba(10, 22, 40, 0.25)", overflow: "hidden", float: "right", margin: "30px"}}>
             <select onChange={this.handleChangeNetwork} value={this.state.requiredNetwork} style={{fontSize: "10px",backgroundColor: "rgba(10, 22, 40, 0)",border: "0px",color: "#d0d0d0", width: "190px", height: "30px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
               <option value="1">Ethereum Main Network</option>
               <option value="4">Rinkeby Network</option>
             </select>
           </div>
-          <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border:"1px solid #16e5cd", color: "#16e5cd", width: "150px", marginTop: '15px', float: "right"}} > New Bounty </FlatButton>
+          <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border:"1px solid #16e5cd", color: "#16e5cd", width: "150px", marginTop: '30px', float: "right", height: "30px", lineHeight: "30px"}} > New Bounty </FlatButton>
 
           </div>
 
@@ -2128,7 +2167,7 @@ handleChangeNetwork(evt){
                   <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
 
                     <h1 style={{textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>{this.state.contract.value}</h1>
-                    <h5 style={{ fontSize: "17px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#FFDE46"}}>{this.props.symbol? this.props.symbol : 'ETH'}</h5>
+                    <h5 style={{ fontSize: "17px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#FFDE46"}}>{this.state.contract.symbol? this.state.contract.symbol: 'ETH'}</h5>
                     <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
                     <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center", marginBottom: "7.5px"}}><b style={{color: "#FFDE46", fontWeight: "500", marginRight: "5px"}}>BALANCE</b> {this.state.contract.balance + " " + this.state.contract.symbol}</p>
                   </div>
