@@ -10,6 +10,7 @@ class ContractList extends Component {
     var contractsList;
     var acc = this.props.acc;
     if (this.props.list){
+      var handleAddCategory = this.props.handleAddCategory;
       contractsList = this.props.list.map(function (contract, i){
 
         return (
@@ -35,6 +36,7 @@ class ContractList extends Component {
                       deadline={contract.deadline}
                       numFul={contract.numFul}
                       dateString={contract.dateString}
+                      handleAddCategory={handleAddCategory}
                       />
         );
       });

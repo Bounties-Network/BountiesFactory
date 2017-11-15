@@ -105,6 +105,7 @@ class AppContainer extends Component {
     this.handleChangeStage = this.handleChangeStage.bind(this);
     this.handleMineChange = this.handleMineChange.bind(this);
     this.handleChangeToMine = this.handleChangeToMine.bind(this);
+    this.handleAddCategory = this.handleAddCategory.bind(this);
 
     this.handleChangeNetwork = this.handleChangeNetwork.bind(this);
 
@@ -275,19 +276,15 @@ class AppContainer extends Component {
   getInitialData(){
     window.loaded = true;
 
-    console.log("page loaded, about to get initial data");
 
     if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
-      console.log("provider defined");
 
       // Use Mist/MetaMask's provider
         web3.setProvider(window.web3.currentProvider);
-        console.log("provider is defined", window.web3.currentProvider);
 
         web3.version.getNetwork((err, netId) => {
 
           if (parseInt(this.state.requiredNetwork) !== parseInt(netId)){
-              console.log("network, ", netId, this.state.requiredNetwork);
               this.setState({modalError: ("Please change your Ethereum network to the " + this.state.networkName), modalOpen: true});
           } else {
 
@@ -302,18 +299,18 @@ class AppContainer extends Component {
               } else {
               var account = web3.eth.accounts[0];
               setInterval(function() {
-                if (web3.eth.accounts[0] !== account) {
-                  account = web3.eth.accounts[0];
-                  window.location.reload();
-                }
-              }, 100);
+                web3.eth.getAccounts(function(err, accs){
+                  if (accs[0] !== account) {
+                    account = web3.eth.accounts[0];
+                    window.location.reload();
+                  }
+                });
+              });
               this.setState({accounts: accs});
-              console.log("just got accounts", accs);
 
               var bounties = [];
               this.state.StandardBounties.getNumBounties((err, succ)=> {
                 var total = parseInt(succ, 10);
-                console.log("got ", total, "bounties");
 
                 this.setState({total: total});
                 for (var i = 0; i < total; i++){
@@ -332,7 +329,6 @@ class AppContainer extends Component {
         }
       });
     } else {
-      console.log("no web3");
       var bounties = [];
       this.state.StandardBounties.getNumBounties((err, succ)=> {
         var total = parseInt(succ, 10);
@@ -378,7 +374,6 @@ class AppContainer extends Component {
             var max = new BN(8640000000000000);
             if ((succ[1].times(1000)).greaterThan(max)){
               newDate = new Date(parseInt(max, 10));
-              console.log("new date bigger", newDate)
               dateString = this.dateToString(8640000000000000);
             } else {
               newDate = new Date(parseInt(succ[1], 10)*1000);
@@ -434,7 +429,6 @@ class AppContainer extends Component {
                       symbol: symbol,
                       numFul: parseInt(numFul, 10)
                     });
-                    console.log("bounties", bounties);
                     if (bounties.length === total){
                       this.setState({bounties: bounties, loading: false});
                     }
@@ -457,7 +451,6 @@ class AppContainer extends Component {
   handleChangeStage(evt){
     evt.preventDefault();
     var selected = evt.target.value;
-    console.log("selected", selected);
     this.setState({selectedStage: selected});
   }
 
@@ -515,10 +508,14 @@ class AppContainer extends Component {
     if (optionsList.includes("Code") || optionsList.includes("Bugs")){
       containsCode = true;
     }
-    console.log("options list", optionsList);
     this.setState({ optionsList: optionsList, value: value, containsCode: containsCode});
     this.forceUpdate();
 
+  }
+  handleAddCategory(item){
+    var optionsList = [];
+    optionsList.push(item);
+    this.setState({optionsList: optionsList, value: item});
   }
 
   render() {
@@ -542,22 +539,28 @@ class AppContainer extends Component {
           deadMe++;
         }
       }
-      var isInSelectedCategories = false;
+        var isInSelectedCategories = false;
+        var newCategories = this.state.bounties[i].bountyData.categories.filter((n)=> { return this.state.optionsList.includes(n)});
+        if (newCategories.length > 0 || this.state.optionsList[0] === "" || this.state.optionsList.length === 0){
+          isInSelectedCategories = true;
+        }
+      /*
+
 
       for (var j = 0; j < this.state.bounties[i].bountyData.categories.length; i++){
         console.log("categories: ", this.state.bounties[j]);
-        /*
+
         if (this.state.optionsList.indexOf(this.state.bounties[i].bountyData.categories[i]) >= 0){
           isInSelectedCategories = true;
         }
-        */
+
       }
 
       if (this.state.optionsList.length === 0){
         isInSelectedCategories = true;
       }
-
-
+*/
+      if (isInSelectedCategories){
         if (this.state.bounties[i].stage === this.state.selectedStage || this.state.selectedStage === "ANY"){
           if (this.state.selectedMine === "ANY"){
             activeList.push(this.state.bounties[i]);
@@ -567,6 +570,8 @@ class AppContainer extends Component {
             activeList.push(this.state.bounties[i]);
           }
         }
+      }
+
 
     }
     var recentList = [];
@@ -684,7 +689,7 @@ class AppContainer extends Component {
 
           </div>
           <div style={{width: "630px", float: "left", display: "block"}}>
-            <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Bounties'}/>
+            <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'Bounties'} handleAddCategory={this.handleAddCategory}/>
           </div>
           <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className="FilterBar">
             <h3 style={{fontFamily: "Open Sans", marginTop: "31px", marginBottom: "31px", textAlign: "center", color: "white", width: "100%"}}>Filter</h3>

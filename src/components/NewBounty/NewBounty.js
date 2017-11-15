@@ -224,11 +224,13 @@ class NewBounty extends Component {
             } else {
               var account = web3.eth.accounts[0];
               setInterval(function() {
-                if (web3.eth.accounts[0] !== account) {
-                  account = web3.eth.accounts[0];
-                  window.location.reload();
-                }
-              }, 100);
+                web3.eth.getAccounts(function(err, accs){
+                  if (accs[0] !== account) {
+                    account = web3.eth.accounts[0];
+                    window.location.reload();
+                  }
+                });
+              });
               this.setState({accounts: accs});
 
               console.log("about to get...");

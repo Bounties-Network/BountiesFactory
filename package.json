@@ -66,6 +66,7 @@
     "react": "^15.6.2",
     "react-blockies": "^1.2.2",
     "react-datetime": "^2.8.10",
+    "react-document-meta": "^2.1.2",
     "react-dom": "^15.6.2",
     "react-fileupload-progress": "^0.4.0",
     "react-format-text": "^1.1.1",

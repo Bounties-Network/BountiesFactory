@@ -25,8 +25,10 @@ class ContractCard extends Component {
         categories.push(
           <Chip style={{margin: "4px 9px 0px 0px", float: "left", border: "1px solid rgba(22, 229, 205, 0.25)", backgroundColor: "rgba(0, 126, 255, 0)", height: "20px"}}
                 labelStyle={{color: "#adbbbc", fontSize: "11px", marginTop: "-6px"}}
-                key={this.props.data.categories[i]}>
-            {this.props.data.categories[i]}
+                key={this.props.data.categories[i]}
+                onClick={this.props.handleAddCategory.bind(this, this.props.data.categories[i])}
+                className="Chip">
+            <b className="Chip" style={{fontWeight: "300", }}>{this.props.data.categories[i]}</b>
           </Chip>
         );
       }

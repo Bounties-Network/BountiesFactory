@@ -420,11 +420,13 @@ class BountyPage extends Component {
 
             var account = web3.eth.accounts[0];
             setInterval(function() {
-              if (web3.eth.accounts[0] !== account) {
-                account = web3.eth.accounts[0];
-                window.location.reload();
-              }
-            }, 100);
+              web3.eth.getAccounts(function(err, accs){
+                if (accs[0] !== account) {
+                  account = web3.eth.accounts[0];
+                  window.location.reload();
+                }
+              });
+            });
 
             this.setState({accounts: accs});
             this.state.StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
@@ -1808,7 +1810,7 @@ handleChangeNetwork(evt){
             <Tab label="Transfer Ownership" value={3} style={{color: this.state.tabValue === 3? "#fff" : "#16e5cd"}}>
               <TransferOwnershipForm onhandleTransfer={this.handleTransfer} transferError={this.state.transferError} />
             </Tab>
-            <Tab label="Increase Reward" value={4} style={{color: this.state.tabValue === 4? "#fff" : "#16e5cd"}}>
+            <Tab label="Increase Prize" value={4} style={{color: this.state.tabValue === 4? "#fff" : "#16e5cd"}}>
               <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.contract.symbol}/>
             </Tab>
           </Tabs>
@@ -1822,7 +1824,7 @@ handleChangeNetwork(evt){
             <Tab label="Extend Bounty Deadline" value={0} style={{color: this.state.tabValue === 0? "#fff" : "#16e5cd"}}>
               <ExtendDeadlineForm onhandleDeadline={this.handleDeadline} deadlineError={this.state.deadlineError} dateNum={this.state.contract.dateString}/>
             </Tab>
-            <Tab label="Increase Reward" value={3} style={{color: this.state.tabValue === 3? "#fff" : "#16e5cd"}}>
+            <Tab label="Increase Prize" value={3} style={{color: this.state.tabValue === 3? "#fff" : "#16e5cd"}}>
               <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.contract.symbol}/>
             </Tab>
             <Tab label="Kill Bounty" value={1} style={{color: this.state.tabValue === 1? "#fff" : "#16e5cd"}}>
@@ -1847,7 +1849,7 @@ handleChangeNetwork(evt){
              <Tab label="Transfer Ownership" value={2} style={{color: this.state.tabValue === 2? "#fff" : "#16e5cd"}}>
                <TransferOwnershipForm onhandleTransfer={this.handleTransfer} transferError={this.state.transferError} />
              </Tab>
-             <Tab label="Increase Reward" value={3} style={{color: this.state.tabValue === 3? "#fff" : "#16e5cd"}}>
+             <Tab label="Increase Prize" value={3} style={{color: this.state.tabValue === 3? "#fff" : "#16e5cd"}}>
                <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.contract.symbol}/>
              </Tab>
            </Tabs>
@@ -1893,13 +1895,13 @@ handleChangeNetwork(evt){
       }
     var commentsArray = [];
     var comments;
-
+    var commentExample = ("<div > Hello fraudulent comment </div>");
     for (i = 0; i < this.state.myComments.length; i++){
       commentsArray.push(
         <div style={{display: "block", borderBottom: "0px solid #16e5cd", marginBottom: "15px", overflow: "hidden"}} key={"comment: "+i}>
           <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
               <h5 style={{margin: "5px 0px"}}><b style={{fontSize: "16px"}}>{this.state.myComments[i].title}</b></h5>
-              <p style={{ fontSize: "15px", width: "100%", margin: "2.5px 0px", }}><b style={{color: "#FFDE46"}}></b>{this.state.myComments[i].description}</p>
+              <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#FFDE46", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.myComments[i].description}</Text>
 
               <p style={{ fontSize: "12px", margin: "4px  10px 2.5px 0px", display: "inline-block", float: "left"}}><b style={{color: "#FFDE46"}}>By: </b></p>
               <Blockies
