@@ -135,7 +135,7 @@ input {
     white-space: nowrap;
   }
   .Select-placeholder {
-    font-size: 16px;
+    font-size: 14px;
     line-height: 40px;
   }
   .has-value.Select--single > .Select-control .Select-value .Select-value-label,
@@ -226,7 +226,7 @@ input {
   }
   .Select-clear {
     display: inline-block;
-    font-size: 18px;
+    font-size: 14px;
     line-height: 1;
   }
   .Select--multi .Select-clear-zone {

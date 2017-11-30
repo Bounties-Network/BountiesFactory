@@ -3,15 +3,111 @@ import './ContractList.css'
 
 import ContractCard from 'components/ContractCard/ContractCard'
 import Halogen from 'halogen';
+import SvgDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down';
+import SvgUp from 'material-ui/svg-icons/hardware/keyboard-arrow-up';
 
 class ContractList extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      sortByCreated: true,
+      sortByValue: false,
+      sortByExpiry: false,
+      createdDescending: true,
+      valueDescending: true,
+      expiryDescending: true,
+
+    }
+
+    this.handleToggleSort = this.handleToggleSort.bind(this);
+
+
+  }
+
+handleToggleSort(newSort){
+var sortByCreated = false;
+var sortByValue = false;
+var sortByExpiry = false;
+var createdDescending = true;
+var valueDescending =  true;
+var expiryDescending = true;
+
+if (newSort === "Created" && this.state.sortByCreated === true){
+  sortByCreated = true;
+  createdDescending = !this.state.createdDescending;
+} else if (newSort === "Value" && this.state.sortByValue === true){
+  sortByValue = true;
+  valueDescending = !this.state.valueDescending;
+
+} else if (newSort === "Expiry" && this.state.sortByExpiry === true){
+  sortByExpiry = true;
+  expiryDescending = !this.state.expiryDescending;
+} else if (newSort === "Created"){
+  sortByCreated = true;
+} else if (newSort === "Value"){
+  sortByValue = true;
+} else if (newSort === "Expiry"){
+  sortByExpiry = true;
+}
+console.log("about to set state", {sortByCreated: sortByCreated,
+                sortByValue: sortByValue,
+                sortByExpiry: sortByExpiry,
+                createdDescending: createdDescending,
+                valueDescending: valueDescending,
+                expiryDescending: expiryDescending});
+this.setState({sortByCreated: sortByCreated,
+                sortByValue: sortByValue,
+                sortByExpiry: sortByExpiry,
+                createdDescending: createdDescending,
+                valueDescending: valueDescending,
+                expiryDescending: expiryDescending});
+
+}
+
   render() {
+
+    var givenList = this.props.list;
+    console.log("given list", givenList);
+    var prices = this.props.prices;
+
+
+    if (this.state.sortByCreated){
+      if (this.state.createdDescending){
+        givenList.sort(function(b1, b2){
+          return (b2.bountyId - b1.bountyId);
+        });
+      } else {
+        givenList.sort(function(b1, b2){
+          return (b1.bountyId - b2.bountyId);
+        });
+      }
+    } else if (this.state.sortByExpiry){
+      if (this.state.expiryDescending){
+        givenList.sort(function(b1, b2){
+          return (b2.dateNum - b1.dateNum);
+        });
+      } else {
+        givenList.sort(function(b1, b2){
+          return (b1.dateNum - b2.dateNum);
+        });
+      }
+    } else if (this.state.sortByValue){
+      if (this.state.valueDescending){
+        givenList.sort(function(b1, b2){
+          return (prices[b2.symbol]*b2.value - prices[b1.symbol]*b1.value);
+        });
+      } else {
+        givenList.sort(function(b1, b2){
+          return (prices[b1.symbol]*b1.value - prices[b2.symbol]*b2.value);
+        });
+      }
+    }
 
     var contractsList;
     var acc = this.props.acc;
     if (this.props.list){
       var handleAddCategory = this.props.handleAddCategory;
-      contractsList = this.props.list.map(function (contract, i){
+      contractsList = givenList.map(function (contract, i){
 
         return (
         <ContractCard data={contract.bountyData}
@@ -37,17 +133,99 @@ class ContractList extends Component {
                       numFul={contract.numFul}
                       dateString={contract.dateString}
                       handleAddCategory={handleAddCategory}
+                      price={prices[contract.symbol]}
                       />
         );
       });
     }
     var error;
-    if (this.props.list.length === 0){
+    if (givenList.length === 0){
       error = (<p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46", width: "100%"}}>There are no bounties here!</p>)
     }
     return (
       <div className='ContractList'>
-      <h3 style={{fontFamily: "Open Sans", marginTop: "31px", marginBottom: "31px", textAlign: "center", color: "white", width: "100%"}}> {this.props.title}</h3>
+      <h3 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "white", width: "100%",  fontWeight: "600"}}> {this.props.title}</h3>
+      <div style={{display: "block", width: "60%", margin: "0 auto", overflow: "hidden", marginBottom: "15px"}}>
+      <p style={{display: "inline-block",
+                  float: "left",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  marginTop: "1px",
+                  marginBottom: "5px",
+                  color: "rgb(140, 152, 153)",
+                  marginLeft: "15px"}}> SORT BY: </p>
+      <p onClick={this.handleToggleSort.bind(this, "Value")}
+      style={{display: "inline-block",
+                float: "left",
+                fontSize: "12px",
+                fontWeight: "600",
+                marginTop: "0px",
+                marginBottom: "5px",
+                color: this.state.sortByValue?  "rgba(36,61,81, 1)" : "rgb(208, 208, 208)",
+                marginLeft: "15px",
+                border: "1px solid",
+                padding: "0px 10px",
+                borderRadius: "4px",
+                cursor: "pointer",
+                borderColor: this.state.sortByValue?  "rgba(208, 208, 208, 1)" : "rgba(140, 152, 153, 0.5)",
+                backgroundColor: this.state.sortByValue?  "rgba(208, 208, 208, 1)" : "rgba(140, 152, 153, 0)",
+                position: "relative",
+                paddingRight: this.state.sortByValue?  "20px" : "10px"}}> Value
+                {
+
+                  this.state.valueDescending? <SvgDown style={{color: "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !this.state.sortByValue?  "none" : ""}}/>:
+                                              <SvgUp style={{color: "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !this.state.sortByValue?  "none" : ""}}/>
+
+                }</p>
+      <p onClick={this.handleToggleSort.bind(this, "Created")}
+      style={{display: "inline-block",
+                float: "left",
+                fontSize: "12px",
+                fontWeight: "600",
+                marginTop: "0px",
+                marginBottom: "5px",
+                cursor: "pointer",
+                color:this.state.sortByCreated?  "rgba(36,61,81, 1)" : "rgb(208, 208, 208)",
+                marginLeft: "15px",
+                border: "1px solid",
+                padding: "0px 10px",
+                borderRadius: "4px",
+                borderColor: this.state.sortByCreated?  "rgba(208, 208, 208, 1)" : "rgba(140, 152, 153, 0.5)",
+                backgroundColor: this.state.sortByCreated?  "rgba(208, 208, 208, 1)" : "rgba(140, 152, 153, 0)",
+                position: "relative",
+                paddingRight: this.state.sortByCreated?  "20px" : "10px"}}> Creation
+                {
+
+                  this.state.createdDescending? <SvgDown style={{color: "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !this.state.sortByCreated?  "none" : ""}}/>:
+                                              <SvgUp style={{color: "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !this.state.sortByCreated?  "none" : ""}}/>
+
+                }</p>
+      <p onClick={this.handleToggleSort.bind(this, "Expiry")}
+      style={{display: "inline-block",
+                float: "left",
+                fontSize: "12px",
+                fontWeight: "600",
+                marginTop: "0px",
+                marginBottom: "5px",
+                color: this.state.sortByExpiry?  "rgba(36,61,81, 1)" : "rgb(208, 208, 208)",
+                marginLeft: "15px",
+                cursor: "pointer",
+                border: "1px solid",
+                padding: "0px 10px",
+                borderRadius: "4px",
+                borderColor: this.state.sortByExpiry?  "rgba(208, 208, 208, 1)" : "rgba(140, 152, 153, 0.5)",
+                backgroundColor: this.state.sortByExpiry?  "rgba(208, 208, 208, 1)" : "rgba(140, 152, 153, 0)",
+                position: "relative",
+                paddingRight: this.state.sortByExpiry?  "20px" : "10px"}}> Expiry
+                {
+
+                  this.state.expiryDescending? <SvgDown style={{color: "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !this.state.sortByExpiry?  "none" : ""}}/>:
+                                              <SvgUp style={{color: "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !this.state.sortByExpiry?  "none" : ""}}/>
+
+                }</p>
+
+      </div>
+
       {this.props.loading &&
         <div style={{width: "100%"}}>
           <div style={{marginLeft: "296px", marginTop: "60px", overflow: "hidden", }}>

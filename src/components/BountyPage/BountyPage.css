@@ -63,3 +63,8 @@ a {
 input {
   border-radius: 0px;
 }
+.hexagon {
+  background-color: red;
+  -webkit-mask: url(./images/hexagon.svg) no-repeat 100% 100% !important ;
+  mask: url(./images/hexagon.svg) no-repeat 100% 100% !important;
+}

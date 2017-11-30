@@ -2,6 +2,10 @@ import React, { Component } from 'react'
 import './EditForm.css'
 import Select from 'react-select';
 
+
+import Halogen from 'halogen';
+import SvgCheck from 'material-ui/svg-icons/action/check-circle';
+
 const CATEGORIES = [
   { label: 'Code', value: 'Code' },
   { label: 'Bugs', value: 'Bugs' },
@@ -23,7 +27,7 @@ class EditForm extends Component {
     return (
       <div style={{width: "467px", display: "block", paddingRight: "15px", paddingLeft: "15px", margin: "0 auto", marginTop: "15px", marginBottom: "15px"}}>
       <form className='Activate' onSubmit={this.props.onHandleEdit} style={{width: "100%", display: "inline-block"}}>
-        <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}> Edit your Bounty</h3>
+        <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center",  fontWeight: "600"}}> Edit your Bounty</h3>
         <label style={{fontSize: "12px"}} htmlFor='contract_title'>Title</label>
         <input id='title' style={{border: "none", width: "450px"}} className='SendAmount' type='text' defaultValue={this.props.bountyData.title}/>
         {this.props.titleError &&
@@ -38,6 +42,20 @@ class EditForm extends Component {
           <input id='contract_code' type="file" name="file" onChange={this.props.onHandleCaptureEditFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
           <div style={{width: "452px", display: "block", border: "1px solid white", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px", marginBottom: "15px"}}>
             <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "4px", marginTop: "-1px"}}> Upload </label>
+            {
+              (this.props.didUploadFile && !this.props.fileUploadFinished)&&
+              <div style={{ float: "right", display: "inline-block", padding: "0px 15px 0px 5px", overflow: "hidden"}}>
+                <Halogen.ClipLoader color={"#16e5cd"} size={"15px"} style={{float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
+              </div>
+
+            }
+            {
+              (this.props.didUploadFile && this.props.fileUploadFinished)&&
+              <div style={{ float: "right", display: "inline-block", padding: "3px 15px 0px 5px", overflow: "hidden"}}>
+              <SvgCheck style={{color: "rgb(22, 229, 205)", float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
+              </div>
+
+            }
             <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
           </div>
           <label style={{fontSize: "12px"}} >Bounty Category</label>

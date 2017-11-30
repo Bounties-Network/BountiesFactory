@@ -6,7 +6,7 @@ class IncreasePayoutForm extends Component {
     return (
       <div style={{width: "467px", display: "block", paddingLeft: "15px", margin: "0 auto", paddingRight: "15px", marginTop: "15px", marginBottom: "15px"}}>
         <form className='Activate' onSubmit={this.props.onhandleIncrease} style={{width: "100%", display: "inline-block"}}>
-          <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Increase Prize</h3>
+          <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center", fontWeight: "600"}}>Increase Prize</h3>
           <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>{"Deposit Amount (" +this.props.symbol + ")"}</label>
           <input id='newDeposit' className='SendAmount' type='number' step="any" style={{width: "450px", border: "0px"}}/>
           <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>You must have a sufficient balance to pay out your reward at least once</p>

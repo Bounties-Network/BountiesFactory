@@ -16,15 +16,25 @@ import SvgArrow from 'material-ui/svg-icons/hardware/keyboard-arrow-right';
 import Blockies from 'react-blockies';
 
 
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 
 class ContractCard extends Component {
   render() {
     var categories = [];
+    categories.push(
+      <Chip style={{margin: "4px 9px 0px 0px", float: "left", border: "0px solid rgba(173, 187, 188,0.15)", backgroundColor: "rgba(173, 187, 188,0.15)", height: "20px"}}
+            labelStyle={{color: "#e9e9e9", fontSize: "11px", marginTop: "-5px"}}
+            key={this.props.numFul+ this.props.numFul===1? " SUBMISSION":" SUBMISSIONS"}>
+        <b style={{fontWeight: "500"}}>{this.props.numFul}</b><b style={{color: "#bababa", fontWeight: "200", marginLeft: "5px"}}>{this.props.numFul===1? " SUBMISSION":" SUBMISSIONS"}</b>
+      </Chip>
+    );
     if (this.props.data.categories){
       for (var i = 0; i < this.props.data.categories.length; i++){
         categories.push(
           <Chip style={{margin: "4px 9px 0px 0px", float: "left", border: "1px solid rgba(22, 229, 205, 0.25)", backgroundColor: "rgba(0, 126, 255, 0)", height: "20px"}}
-                labelStyle={{color: "#adbbbc", fontSize: "11px", marginTop: "-6px"}}
+                labelStyle={{color: "#bababa", fontSize: "11px", marginTop: "-6px"}}
                 key={this.props.data.categories[i]}
                 onClick={this.props.handleAddCategory.bind(this, this.props.data.categories[i])}
                 className="Chip">
@@ -42,10 +52,10 @@ class ContractCard extends Component {
         <div style={{width: "560px", marginBottom: "0px",boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "#12293f", color: "white", border: "1px solid #16e5cd", borderWidth: "0 0 0 1px", display: "flex", justifyContent: "center", alignItems: "center"}} className="ContractCard">
 
           <div style={{float: "left", display: "inline-block", width: "430px", padding: "5px"}}>
-            <a style={{color: "white", textDecoration: "none"}} href={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px"}}> {this.props.data.title}</h4></a>
+            <a style={{color: "white", textDecoration: "none"}} href={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px", fontWeight: "600"}}> {this.props.data.title}</h4></a>
             <div style={{display: "block", width: "440px", overflow: "hidden"}}>
             <p style={{ fontSize: "12px", margin: "6px 0px", float: "left", display: "inline-block"}}>
-              <b style={{color: "#FFDE46", fontWeight: "500"}}>Issuer:  </b>
+              <b style={{color: "#FFDE46", fontWeight: "500"}}>By:  </b>
             </p>
             <Blockies
             seed={this.props.issuer}
@@ -61,13 +71,7 @@ class ContractCard extends Component {
             </p>
 
             </div>
-
-
-            <p style={{ fontSize: "12px",margin: "2.5px 0px", float: "left", display :"inline-block"}}><b style={{color: "#adbbbc", fontWeight: "200"}}>BALANCE </b> {" "+this.props.balance + " " + this.props.symbol}</p>
-            <p style={{ fontSize: "12px", margin: "2.5px 0px", marginLeft:" 15px", float: "left", display :"inline-block"}}><b style={{fontWeight: "200"}}>{this.props.numFul}</b><b style={{color: "#adbbbc", fontWeight: "200", marginLeft: "5px"}}>{this.props.numFul===1? " SUBMISSION   ":" SUBMISSIONS   "}</b>
-
-            </p>
-            <div style={{display: "block", overflow: "hidden", float: "left", width: "100%"}}>
+            <div style={{display: "block", overflow: "hidden", float: "left", width: "100%"}} className="chipset">
               {categories}
             </div>
 
@@ -75,9 +79,12 @@ class ContractCard extends Component {
           <div style={{float: "right", marginTop: "0px"}}>
 
             <div style={{overflow: "hidden", display: "block",  width: "120px",}}>
-            <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#ffFFFF", fontSize: reward.length > 6? "24px":"28px"}}>{reward}</h1>
-            <h5 style={{ fontSize: "17px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#FFDE46"}}>{this.props.symbol? this.props.symbol : 'ETH'}</h5>
             <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
+
+            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "white", fontSize: "24px", fontWeight: "600"}}><b style={{color: "#FFDE46", fontWeight: "200", lineHeight: "28px"}}>$</b>{numberWithCommas(parseInt((reward* this.props.price)))}</h5>
+
+            <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#d0d0d0", fontSize: "12px", fontWeight: "200"}}>{reward} {this.props.symbol? this.props.symbol : 'ETH'}</h1>
+
             <h5 style={{ fontSize: "11px", width: "100%", textAlign: "center", marginTop: "10px", marginBottom: "0px", color: "#d0d0d0", fontWeight: "200"}}>{this.props.dateString}</h5>
 
             </div>

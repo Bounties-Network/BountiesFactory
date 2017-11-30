@@ -19,6 +19,7 @@ const utf8 = require('utf8');
 
 import logo from '../AppContainer/images/logo.svg';
 
+import hexagonImage from './images/hexagon.svg';
 
 import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
 
@@ -45,6 +46,16 @@ import SvgSurvey from 'material-ui/svg-icons/editor/drag-handle';
 import SvgEdit from 'material-ui/svg-icons/editor/mode-edit';
 import SvgDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down';
 import SvgUp from 'material-ui/svg-icons/hardware/keyboard-arrow-up';
+import SvgTwitter from 'material-ui-community-icons/icons/twitter';
+import SvgFacebook from 'material-ui-community-icons/icons/facebook';
+import SvgReddit from 'material-ui-community-icons/icons/reddit';
+import SvgCheck from 'material-ui/svg-icons/action/check-circle';
+
+
+import DocumentMeta from 'react-document-meta';
+
+import {Helmet} from "react-helmet";
+
 
 import Dialog from 'material-ui/Dialog';
 
@@ -60,6 +71,11 @@ import Text from 'react-format-text';
 
 const ipfsAPI = require('ipfs-api');
 
+var ipfsNew = ipfsAPI({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 
 class TabTemplate extends Component {
     render() {
@@ -122,6 +138,7 @@ class BountyPage extends Component {
       comments: [],
       sourceFileName: "",
       sourceFileHash: "",
+      sourceDirectoryHash: "",
       contract: {
                 bountyAddr: this.props.params.id,
                 bountyData: {
@@ -141,6 +158,7 @@ class BountyPage extends Component {
                 numMilestones: 0,
                 balance: 0,
                 bountyBroken: "false"},
+        prices: {},
         bountyId: this.props.params.id,
         myComments: [],
         commentError: "",
@@ -160,6 +178,7 @@ class BountyPage extends Component {
         txLoadingMessage: "",
         editSourceFileName: "",
         editSourceFileHash: "",
+        editSourceDirectoryHash: "",
         noWeb3Error: false,
         fulfillmentOpen: false,
         commentOnBountyOpen: false,
@@ -208,6 +227,9 @@ class BountyPage extends Component {
 
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
+
+    this.getPrices = this.getPrices.bind(this);
+
   }
   dateToString(date){
     var givenDate = date;
@@ -334,6 +356,8 @@ class BountyPage extends Component {
     }
   }
   componentDidMount() {
+    this.getPrices();
+
 
     if (window.loaded){
       this.getInitialData();
@@ -342,24 +366,37 @@ class BountyPage extends Component {
     }
 
   }
+  getPrices(){
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "https://api.coinmarketcap.com/v1/ticker/?convert=USD&limit=0", false);
+    //xhttp.setRequestHeader("Content-type", "application/json");
+    xhttp.send();
+    var response = JSON.parse(xhttp.responseText);
+    var prices = {};
+    for (var i = 0; i < response.length; i++){
+      prices[response[i].symbol] = response[i].price_usd;
+    }
+    this.setState({prices: prices});
+
+
+  }
 
   handleTabsChange(value){
     this.setState({
       tabValue: value,
     });
-    console.log("changed tab");
   }
   handleMainTabsChange(value){
     this.setState({
       mainTabValue: value,
     });
-    console.log("changed tab");
   }
   handleCaptureEditFile (event) {
     event.stopPropagation()
     event.preventDefault()
     const file = event.target.files[0]
-    this.setState({editSourceFileName: file.name, didUploadFile: true});
+    this.setState({editSourceFileName: file.name, editDidUploadFile: true});
 
 
     let reader = new window.FileReader()
@@ -372,11 +409,11 @@ class BountyPage extends Component {
     const buffer = Buffer.from(reader.result);
     console.log("about to save...", buffer, reader);
 
-    ipfs.add([buffer], (err, response)=> {
+    ipfsNew.add([{path: "/bounties/" + this.state.editSourceFileName, content: buffer}], (err, response)=> {
       console.log("response", response);
-
-      this.setState({editSourceFileHash: response, fileUploadFinished: true});
+      this.setState({editSourceDirectoryHash: response[1].hash, editFileUploadFinished: true});
     });
+
 
   }
 
@@ -402,11 +439,29 @@ class BountyPage extends Component {
     if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
       // Use Mist/MetaMask's provider
       web3.setProvider(window.web3.currentProvider);
+
       web3.version.getNetwork((err, netId) => {
-        if (parseInt(this.state.requiredNetwork) !== parseInt(netId)){
-          console.log("network, ", netId, this.state.requiredNetwork);
-            this.setState({modalError: ("Please change your Ethereum network to the " + this.state.networkName), modalOpen: true});
+        if (netId === "1"){
+          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress),
+                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+                         selectedNetwork: netId});
+        } else if (netId === "4"){
+          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress),
+                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
+                         selectedNetwork: netId});
         } else {
+          this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
+        }
+        console.log("got network", netId);
+
+
+        setInterval(function() {
+          web3.version.getNetwork(function(err, newNetId){
+            if (netId !== newNetId) {
+              window.location.reload();
+            }
+          });
+        });
 
         web3.eth.getAccounts(function(err, accs){
           if (err){
@@ -436,17 +491,22 @@ class BountyPage extends Component {
 
                   ipfs.catJSON(data, (err, result)=> {
                     var stage;
+                    var max = new BN(8640000000000000);
+
                     if (parseInt(succ[4], 10) === 0){
                       stage = "Draft";
+                    } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
+                      stage = "Completed";
+                    } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
+                      stage = "Expired";
                     } else if (parseInt(succ[4], 10) === 1){
                       stage = "Active";
-                    } else {
+                    }  else {
                       stage = "Dead";
                     }
                     var intDate = parseInt(succ[1], 10);
                     var newDate;
                     var dateString;
-                    var max = new BN(8640000000000000);
                     if ((succ[1].times(1000)).greaterThan(max)){
                       newDate = new Date(parseInt(max, 10));
                       console.log("new date bigger", newDate)
@@ -479,6 +539,7 @@ class BountyPage extends Component {
                       selectedValue: result.categories.join(","),
                       editSourceFileName: result.sourceFileName,
                       editSourceFileHash: result.sourceFileHash,
+                      editSourceDirectoryHash: result.sourceDirectoryHash,
                       optionsList: result.categories,
                       containsCode: (result.categories.includes("Code") || result.categories.includes("Bugs"))
                     });
@@ -520,6 +581,7 @@ class BountyPage extends Component {
                             selectedValue: result.categories.join(","),
                             editSourceFileName: result.sourceFileName,
                             editSourceFileHash: result.sourceFileHash,
+                            editSourceDirectoryHash: result.sourceDirectoryHash,
                             optionsList: result.categories,
                             containsCode: (result.categories.includes("Code") || result.categories.includes("Bugs"))});
                             this.getComments();
@@ -548,56 +610,11 @@ class BountyPage extends Component {
               var total = parseInt(succ,10);
               this.setState({total: total});
             });
-            this.state.UserCommentsContract.numComments((err, succ)=> {
-              var total = parseInt(succ, 10);
-              var comments = [];
-
-              console.log("total comments: ", total);
-              for (var i = 0; i < total; i++){
-                this.state.UserCommentsContract.getComment( i, (err, succ)=> {
-                  var from = succ[1];
-                  var to = succ[2];
-                  var aboutBounty = succ[3];
-                  var bountyId = succ[4];
-
-                  var intDate = parseInt(succ[5], 10);
-                  var newDate;
-                  var dateString;
-                  var max = new BN(8640000000000000);
-                  if ((succ[5].times(1000)).greaterThan(max)){
-                    newDate = new Date(parseInt(max, 10));
-                    console.log("new date bigger", newDate)
-                    dateString = this.dateToString(8640000000000000);
-                  } else {
-                    newDate = new Date(parseInt(succ[5], 10)*1000);
-                    dateString = this.dateToString(parseInt(succ[5], 10)*1000);
-                  }
-
-
-                  console.log("got date", parseInt(succ[5], 10)*1000, newDate, dateString);
-
-                  ipfs.catJSON(succ[0], (err, result)=> {
-                    comments.push({title: result.title,
-                                  aboutFulfillment: result.aboutFulfillment,
-                                  fulfillmentId: result.fulfillmentId,
-                                  from: from,
-                                  to: to,
-                                  aboutBounty: aboutBounty,
-                                  bountyId: bountyId,
-                                  description: result.description,
-                                  dateString: dateString});
-                    if (comments.length === total){
-                      this.setState({comments: comments});
-                    }
-                  });
-                });
-              }
-            });
 
           }
         }
           }.bind(this));
-        }
+
       });
 
     } else {
@@ -608,21 +625,25 @@ class BountyPage extends Component {
 
             ipfs.catJSON(data, (err, result)=> {
               var stage;
+              var max = new BN(8640000000000000);
+
               if (parseInt(succ[4], 10) === 0){
                 stage = "Draft";
+              } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
+                stage = "Completed";
+              } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
+                stage = "Expired";
               } else if (parseInt(succ[4], 10) === 1){
                 stage = "Active";
-              } else {
+              }  else {
                 stage = "Dead";
               }
 
               var intDate = parseInt(succ[1], 10);
               var newDate;
               var dateString;
-              var max = new BN(8640000000000000);
               if ((succ[1].times(1000)).greaterThan(max)){
                 newDate = new Date(parseInt(max, 10));
-                console.log("new date bigger", newDate)
                 dateString = this.dateToString(8640000000000000);
               } else {
                 newDate = new Date(parseInt(succ[1], 10)*1000);
@@ -650,7 +671,9 @@ class BountyPage extends Component {
                 selectedValue: result.categories.join(","),
                 editSourceFileName: result.sourceFileName,
                 editSourceFileHash: result.sourceFileHash,
+                editSourceDirectoryHash: result.sourceDirectoryHash,
                 optionsList: result.categories});
+                this.getComments();
               } else {
                 this.state.StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
                   var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
@@ -687,7 +710,9 @@ class BountyPage extends Component {
                       selectedValue: result.categories.join(","),
                       editSourceFileName: result.sourceFileName,
                       editSourceFileHash: result.sourceFileHash,
+                      editSourceDirectoryHash: result.sourceDirectoryHash,
                       optionsList: result.categories});
+                      this.getComments();
 
                     });
                   });
@@ -733,11 +758,10 @@ class BountyPage extends Component {
           commentsOpen: false,
           comments: [],
         });
-        console.log("got fulfillment", fulfillments);
 
         if (fulfillments.length === total){
 
-          fulfillments.sort(function(f1, f2){return f1.fulfillmentId-f2.fulfillmentId});
+          fulfillments.sort(function(f1, f2){return f2.fulfillmentId-f1.fulfillmentId});
 
           this.setState({fulfillments: fulfillments});
         }
@@ -763,13 +787,11 @@ class BountyPage extends Component {
           var max = new BN(8640000000000000);
           if ((succ[5].times(1000)).greaterThan(max)){
             newDate = new Date(parseInt(max, 10));
-            console.log("new date bigger", newDate)
             dateString = this.dateToString(8640000000000000);
           } else {
             newDate = new Date(parseInt(succ[5], 10)*1000);
             dateString = this.dateToString(parseInt(succ[5], 10)*1000);
           }
-          console.log("got date", parseInt(succ[5], 10)*1000, newDate, dateString);
 
           ipfs.catJSON(succ[0], (err, result)=> {
             comments.push({title: result.title,
@@ -817,7 +839,7 @@ class BountyPage extends Component {
         this.setState({txModalOpen: true, txLoadingAmount: 10});
         this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to fulfill the bounty"});
 
-        ipfs.addJSON({description: data, sourceFileName: this.state.sourceFileName, sourceFileHash: this.state.sourceFileHash, contact: contact}, (err, succ)=> {
+        ipfs.addJSON({description: data, sourceFileName: this.state.sourceFileName, sourceDirectoryHash: this.state.sourceDirectoryHash, sourceFileHash: this.state.sourceFileHash, contact: contact}, (err, succ)=> {
           this.setState({txLoadingAmount: 40});
 
           console.log("about to fulfill", this.state.bountyId, succ);
@@ -980,6 +1002,7 @@ class BountyPage extends Component {
         description: description,
         sourceFileHash: this.state.editSourceFileHash,
         sourceFileName: this.state.editSourceFileName,
+        sourceDirectoryHash: this.state.editSourceDirectoryHash,
         contact: contact,
         categories: this.state.optionsList
       };
@@ -1038,6 +1061,7 @@ class BountyPage extends Component {
         description: this.state.contract.bountyData.description,
         sourceFileHash: this.state.contract.bountyData.sourceFileHash,
         sourceFileName: this.state.contract.bountyData.sourceFileName,
+        sourceDirectoryHash: this.state.contract.bountyData.sourceDirectoryHash,
         contact: this.state.contract.bountyData.contact,
         categories: this.state.contract.bountyData.categories
       };
@@ -1080,7 +1104,7 @@ class BountyPage extends Component {
     event.stopPropagation()
     event.preventDefault()
     const file = event.target.files[0]
-    this.setState({sourceFileName: file.name});
+    this.setState({sourceFileName: file.name, didUploadFile: true});
 
 
     let reader = new window.FileReader()
@@ -1092,12 +1116,10 @@ class BountyPage extends Component {
     // eslint-disable-next-line
     const buffer = Buffer.from(reader.result);
 
-    ipfs.add(buffer, (err, response)=> {
-      console.log("response", response, err);
+    ipfsNew.add([{path: "/bounties/" + this.state.sourceFileName, content: buffer}], (err, response)=> {
 
-
-      this.setState({sourceFileHash: response});
-
+      console.log("response", response);
+      this.setState({sourceDirectoryHash: response[1].hash, fileUploadFinished: true});
     });
 
   }
@@ -1679,6 +1701,7 @@ handleKill(evt){
 handleAccept(i){
   this.setState({txModalOpen: true, txLoadingAmount: 10});
   this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to accept the bounty submission"});
+  console.log("about to accept", this.state.bountyId, i, this.state.accounts[0]);
   this.state.StandardBounties.acceptFulfillment(this.state.bountyId, i, {from: this.state.accounts[0]}, (err, succ)=> {
     if (err){
       console.log("err", err);
@@ -1773,7 +1796,6 @@ handleChangeNetwork(evt){
 }
 
   render() {
-    document.title = "Bounties Explorer | " + this.state.contract.bountyData.title;
 
 
 
@@ -1802,6 +1824,8 @@ handleChangeNetwork(evt){
               onHandleCaptureEditFile={this.handleCaptureEditFile}
               sourceFileName={this.state.editSourceFileName}
               containsCode={this.state.containsCode}
+              fileUploadFinished={this.state.editFileUploadFinished}
+              didUploadFile={this.state.editDidUploadFile}
               />
             </Tab>
             <Tab label="Change Deadline" value={2} style={{color: this.state.tabValue === 2? "#fff" : "#16e5cd"}}>
@@ -1895,12 +1919,11 @@ handleChangeNetwork(evt){
       }
     var commentsArray = [];
     var comments;
-    var commentExample = ("<div > Hello fraudulent comment </div>");
     for (i = 0; i < this.state.myComments.length; i++){
       commentsArray.push(
         <div style={{display: "block", borderBottom: "0px solid #16e5cd", marginBottom: "15px", overflow: "hidden"}} key={"comment: "+i}>
           <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
-              <h5 style={{margin: "5px 0px"}}><b style={{fontSize: "16px"}}>{this.state.myComments[i].title}</b></h5>
+              <h5 style={{margin: "5px 0px", color :"rgb(255, 222, 70)"}}><b style={{fontSize: "16px"}}>{this.state.myComments[i].title}</b></h5>
               <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#FFDE46", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.myComments[i].description}</Text>
 
               <p style={{ fontSize: "12px", margin: "4px  10px 2.5px 0px", display: "inline-block", float: "left"}}><b style={{color: "#FFDE46"}}>By: </b></p>
@@ -1919,7 +1942,7 @@ handleChangeNetwork(evt){
     comments = (
       <div style={{paddingTop: "30px", display: "block",  minHeight: "66vh"}}>
         <div style={{overflow: "hidden", display: "block", width: "940px", backgroundColor: "rgba(10, 22, 40, 0.5)", position: "relative", padding: "30px", marginBottom: "30px"}}>
-          <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "0px", textAlign: "center", fontSize: "1.17em"}}>Comment on Bounty</h4>
+          <h4 onClick={this.handleToggleComment} style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "0px", textAlign: "center", fontSize: "1.17em", cursor: "pointer",  fontWeight: "600"}}>Comment on Bounty</h4>
 
           {!this.state.commentOnBountyOpen? <SvgDown onClick={this.handleToggleComment} style={{position: "absolute", right: "30px", top: "30px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>
         : <SvgUp onClick={this.handleToggleComment} style={{position: "absolute", right: "30px", top: "30px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
@@ -1981,8 +2004,11 @@ handleChangeNetwork(evt){
                 <p style={{ fontSize: "14px", margin: "4px  10px 2.5px 10px", display: "inline-block", float: "left"}}><a style={{color: "#16e5cd"}} target={"_blank"} href={"/user/"+ this.state.fulfillments[i].fulfiller}>{this.state.fulfillments[i].fulfiller}</a></p>
                 {this.state.fulfillments[i].data.contact &&
                 <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#FFDE46"}}>Contact: </b> {this.state.fulfillments[i].data.contact} </p>}
-                {this.state.fulfillments[i].data.sourceFileHash &&
+                {(this.state.fulfillments[i].data.sourceFileHash && false) &&
                 <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#FFDE46"}}>Associated File: </b> <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.fulfillments[i].data.sourceFileHash} download={this.state.fulfillments[i].data.sourceFileName}> {this.state.fulfillments[i].data.sourceFileName} </a> </p>}
+                {this.state.fulfillments[i].data.sourceDirectoryHash &&
+                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#FFDE46"}}>Associated File: </b> <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.fulfillments[i].data.sourceDirectoryHash+"/"+this.state.fulfillments[i].data.sourceFileName}> {this.state.fulfillments[i].data.sourceFileName} </a> </p>}
+
                 <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", color: "#FFDE46", display: "block", overflow: "hidden"}}><b>Submission</b>:</p>
                 <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#FFDE46", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.fulfillments[i].data.description}</Text>
                 <FlatButton style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white", float: "left",  marginTop: "15px", display: "block", width: "200px"}} onClick={this.handleExpandComment.bind(this,i)}>Add Comment </FlatButton>
@@ -2018,7 +2044,7 @@ handleChangeNetwork(evt){
                     {this.state.fulfillments[i].accepted? "Accepted" : "Not Accepted"}
               </Chip>
                 {this.state.contract.stage === "Active" && !this.state.fulfillments[i].accepted && this.state.accounts && this.state.accounts[0] === this.state.contract.issuer &&
-                <FlatButton style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", float: "right",  margin: "10px", display: "block"}} onClick={this.handleAccept.bind(this,i)}> Accept </FlatButton>}
+                <FlatButton style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", float: "right",  margin: "10px", display: "block"}} onClick={this.handleAccept.bind(this,this.state.fulfillments[i].fulfillmentId)}> Accept </FlatButton>}
 
               </div>
 </div>
@@ -2036,33 +2062,54 @@ handleChangeNetwork(evt){
               <div style={{width: "940px", marginTop: "15px", marginLeft: "15px", marginRight: "15px", position: "relative", padding: "15px"}}>
                 {!this.state.fulfillmentOpen? <SvgDown onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "15px", top: "15px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>
               : <SvgUp onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "15px", top: "15px", width: "40px", height: "40px", color: "rgb(22, 229, 205)", marginTop: "-7px"}}/>}
-                <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}>Fulfill the Bounty</h3>
+                <h3 onClick={this.handleToggleFulfillment} style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center", cursor: "pointer",  fontWeight: "600"}}>Fulfill the Bounty</h3>
                 {this.state.fulfillmentOpen &&
 
                   <div style={{paddingBottom: "0px"}}>
-                    <form className='Fulfill' onSubmit={this.handleFulfill} style={{marginBottom: "15px"}}>
-                    <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginRight: "15px"}}>
-                    <label htmlFor='contact' style={{fontSize: "12px"}}>{"Contact"}</label>
-                    <input id='contact' className='SendAmount' style={{width: "450px", border: "0px", display: "block"}}/>
-                    </div>
-                    <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginLeft: "15px"}}>
-                      <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
-                      <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
-                      <div style={{width: "440px", display: "block", border: "0px", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "0px", borderRadius: "4px"}}>
-                        <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "0px", marginTop: "-1px"}}> Upload </label>
-                        <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
+                    <form className='Fulfill' onSubmit={this.handleFulfill} style={{overflow: "hidden"}}>
+                      <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginRight: "15px"}}>
+                      <label htmlFor='contact' style={{fontSize: "12px"}}>{"Contact"}</label>
+                      <input id='contact' className='SendAmount' style={{width: "450px", border: "0px", display: "block"}}/>
                       </div>
-                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any file associated with your submission</p>
-                    </div>
+                      {
+                        <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginLeft: "15px"}}>
+                          <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
+                          <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
+                          <div style={{width: "440px", display: "block", border: "0px", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "0px", borderRadius: "4px"}}>
+                            <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "0px", marginTop: "-1px"}}> Upload </label>
+                            {
+                              (this.state.didUploadFile && !this.state.fileUploadFinished)&&
+                              <div style={{ float: "right", display: "inline-block", padding: "0px 15px 0px 5px", overflow: "hidden"}}>
+                                <Halogen.ClipLoader color={"#16e5cd"} size={"15px"} style={{float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
+                              </div>
+
+                            }
+                            {
+                              (this.state.didUploadFile && this.state.fileUploadFinished)&&
+                              <div style={{ float: "right", display: "inline-block", padding: "3px 15px 0px 5px", overflow: "hidden"}}>
+                              <SvgCheck style={{color: "rgb(22, 229, 205)", float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
+                              </div>
+
+                            }
+                            <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
+                          </div>
+                          <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any file associated with your submission</p>
+                        </div>
+
+                      }
 
 
-                      <input id='bounty_deadline' type='text' defaultValue={0} style={{width: "0.01px", display: "none"}}/>
+                      <div style={{width: "100%", display: "block", overflow: "hidden", float: "left", marginRight: "0"}}>
+                        <label htmlFor='deposit_amount' style={{fontSize: "12px", display: "block", width: "100%"}}>Submission Description and Comments</label>
+                        <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px", padding: "15px"}}></textarea>
+                        {this.state.fulfillmentError &&
+                          <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
+                      </div>
+                      <div style={{width: "100%", display: "block", overflow: "hidden", float: "left", marginRight: "0"}}>
+                      <button type='submit'  className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "white",  color: "#152639", display: "block", padding: "15px", margin: "0 auto", marginTop: "30px",marginBottom: "15px", fontSize: "1em", width: "200px", fontWeight: "700"}}>SUBMIT</button>
 
-                      <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Submission Description and Comments</label>
-                      <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px"}}></textarea>
-                      {this.state.fulfillmentError &&
-                        <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
-                      <button type='submit'  className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", color: "white",  color: "#152639", display: "block", padding: "16px", margin: "0 auto", marginTop: "30px", fontSize: "1em", width: "200px", fontWeight: "700"}}>SUBMIT</button>
+                      </div>
+
 
                     </form>
                   </div>
@@ -2099,8 +2146,60 @@ handleChangeNetwork(evt){
         onClick={this.handleCloseNoWeb3}
       />
     ];
+
+    var hexagonColour = "#fff";
+    if (this.state.contract.stage === "Active"){
+      hexagonColour = "rgb(140, 226, 88)";
+    }
+    if (this.state.contract.stage === "Draft"){
+      hexagonColour = "rgb(255, 186, 20)";
+    }
+    if (this.state.contract.stage === "Dead"){
+      hexagonColour = "rgb(255, 104, 70)";
+    }
+    if (this.state.contract.stage === "Expired"){
+      hexagonColour = "rgb(104, 166, 166)";
+    }
+    if (this.state.contract.stage === "Completed"){
+      hexagonColour = "rgb(255, 222, 70)";
+    }
     return (
       <div>
+      <Helmet
+          meta={[{property: 'og:title', content: "EXPLORER SEO TEST"},
+          {property: 'og:type', content: 'website'},
+          {property: 'og:url', content: 'https://beta.bounties.network/bounty/'},
+          {property: 'og:image', content: 'https://bounties.network/images/twitter.png'},
+          {property: 'og:description', content: "EXPLORER SEO TEST"},
+                  ]}
+                    >
+                    {/*
+                      <meta charSet="utf-8" />
+                      <title>{"Bounties Explorer | " + this.state.contract.bountyData.title}</title>
+                      <link rel="canonical" href={'https://beta.bounties.network/bounty/'+this.state.bountyId} />
+                      <meta name="twitter:card" value="summary"/>
+                  		<meta name="twitter:site" content="@ethbounties"/>
+                  		<meta name="twitter:title" content={"Bounties Explorer | " + this.state.contract.bountyData.title}/>
+                  		<meta name="twitter:description" content={this.state.contract.bountyData.description.substring(0,100)}/>
+                  		<meta name="twitter:image:src" content="https://bounties.network/images/twitter.png"/>
+
+
+                      <meta property="og:title" content={this.state.contract.bountyData.title + " | Bounties Explorer" }/>
+                  		<meta property="og:type" content="website" />
+                  		<meta property="og:url" content={'https://beta.bounties.network/bounty/'+this.state.bountyId}/>
+                  		<meta property="og:image" content="https://bounties.network/images/twitter.png" />
+                  		<meta property="og:description" content={this.state.contract.bountyData.description.substring(0,100)}/>
+
+
+                      <meta property="og:title" content="EXPLORER SEO TEST"/>
+                  		<meta property="og:type" content="website" />
+                  		<meta property="og:url" content={'https://beta.bounties.network/bounty/'+this.state.bountyId}/>
+                  		<meta property="og:image" content="https://bounties.network/images/twitter.png" />
+                  		<meta property="og:description" content="EXPLORER SEO TEST"/>
+                      */
+                    }
+
+      </Helmet>
       <Dialog
          title=""
          actions={modalActions}
@@ -2137,44 +2236,45 @@ handleChangeNetwork(evt){
         <div id="colourBody">
           <div style={{overflow: "hidden"}}>
             <a href="/" style={{width: "276px", overflow: "hidden", display: "inline-block", float: "left", padding: "1.25em 0em"}}>
-              <div style={{backgroundImage: `url(${logo})`, width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat",  height: "3em", float: "left", marginLeft: "60px", display: "block"}}>
+              <div style={{backgroundImage: `url(${logo})`, width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat",  height: "3em", float: "left", marginLeft: "45px", display: "block"}}>
               </div>
             </a>
-          <BountiesFacts total={this.state.total}/>
+
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
 
-          <div style={{display: "block", width: "190px", backgroundColor: "rgba(10, 22, 40, 0.25)", overflow: "hidden", float: "right", margin: "30px"}}>
-            <select onChange={this.handleChangeNetwork} value={this.state.requiredNetwork} style={{fontSize: "10px",backgroundColor: "rgba(10, 22, 40, 0)",border: "0px",color: "#d0d0d0", width: "190px", height: "30px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
-              <option value="1">Ethereum Main Network</option>
-              <option value="4">Rinkeby Network</option>
-            </select>
-          </div>
-          <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border:"1px solid #16e5cd", color: "#16e5cd", width: "150px", marginTop: '30px', float: "right", height: "30px", lineHeight: "30px"}} > New Bounty </FlatButton>
+          <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border:"1px solid #16e5cd", color: "#16e5cd", width: "150px", marginTop: '30px', float: "right", height: "30px", lineHeight: "30px", marginRight: "30px"}} > New Bounty </FlatButton>
 
           </div>
 
           <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px", display: "block"}}>
 
-            <div style={{float: "left", display: "block", margin: "0 15px", width: "1000px"}}>
-            { this.state.loading &&
+          { this.state.loading &&
 
-              <div style={{marginLeft: "480px", marginTop: "60px", overflow: "hidden", marginBottom: "60px"}}>
-              <Halogen.ScaleLoader color={"#16e5cd"} />
-              </div>
-            }
+            <div style={{marginLeft: "480px", marginTop: "60px", overflow: "hidden", marginBottom: "60px"}}>
+            <Halogen.ScaleLoader color={"#16e5cd"} />
+            </div>
+          }
+          {
+            !this.state.loading &&
+            <div style={{float: "left", display: "block", margin: "0 15px", width: "1000px"}}>
+
+
               <div style={{marginBottom: "0px", boxShadow: "none", borderRadius: "0", padding: "30px", marginTop: "15px", border: "0", backgroundColor: "rgba(10, 22, 40, 0.5)", borderBottom: "0px solid #16e5cd", color :"white", paddingTop: "30px"}} className="ContractCard">
-              <h3 style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "28px", textAlign: "center"}}> {this.state.contract.bountyData.title}</h3>
+                <h3 style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "28px", textAlign: "center",  fontWeight: "600"}}> {this.state.contract.bountyData.title}</h3>
 
                 <div style={{float: "left", display: "inline-block", width: "200px",}}>
                   <div style={{backgroundColor: "rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px"}}>
+                  <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
 
-                    <h1 style={{textAlign: "center", marginTop: "7.5px", marginBottom: "7.5px"}}>{this.state.contract.value}</h1>
-                    <h5 style={{ fontSize: "17px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#FFDE46"}}>{this.state.contract.symbol? this.state.contract.symbol: 'ETH'}</h5>
-                    <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
-                    <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center", marginBottom: "7.5px"}}><b style={{color: "#FFDE46", fontWeight: "500", marginRight: "5px"}}>BALANCE</b> {this.state.contract.balance + " " + this.state.contract.symbol}</p>
+                  <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "0px", color: "white", fontSize: "32px", fontWeight: "600"}}>{this.state.contract.value}<b style={{color: "#FFDE46", fontWeight: "200", lineHeight: "28px"}}>{this.state.contract.symbol? this.state.contract.symbol : 'ETH'}</b></h5>
+
+                  <h5 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "white", marginBottom: "15px", fontSize: "16px", fontWeight: "200"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>$</b>{numberWithCommas(parseInt((this.state.contract.value* this.state.prices[this.state.contract.symbol])))}</h5>
+
+                    <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center", marginBottom: "7.5px", color: "#d0d0d0"}}>Total Balance: {this.state.contract.balance + " " + this.state.contract.symbol}</p>
                   </div>
+
                   <form className='Contribute' onSubmit={this.handleContribute} style={{width: "100%", display: "inline-block", marginTop: "30px"}}>
-                    <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center"}}> Contribute to Bounty</h4>
+                    <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center",  fontWeight: "600"}}> Contribute to Bounty</h4>
                     <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Deposit Amount ({this.state.contract.symbol? this.state.contract.symbol: 'ΞTH'})</label>
                     <input id='deposit_amount' className='SendAmount' type='number'  step="any" style={{width: "182px", border: "0px"}}/>
                     {this.state.contributionError &&
@@ -2182,6 +2282,20 @@ handleChangeNetwork(evt){
                     <button type='submit' className='AddBtn' style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white", width: "200px"}}>Contribute</button>
 
                   </form>
+                  <div style={{margin: "0 auto", display: "block", overflow: "hidden", width: "111px"}}>
+                    <a target="_blank" href={"https://twitter.com/home?status=New Bounty: "+ this.state.contract.bountyData.title.substring(0,80) + (this.state.contract.bountyData.title.length > 80? "...":"")+"%20https%3A//beta.bounties.network/bounty/"+this.state.bountyId}>
+                    <SvgTwitter style={{width: "15px", height: "15px", color: "rgb(22, 229, 205)", padding: "5px", border: "1px solid rgb(22, 229, 205)", borderRadius: "100px", marginTop: "30px", marginRight: "15px"}}
+                                className="iconHover"/>
+                    </a>
+                    <a target="_blank" href={"https://www.facebook.com/sharer/sharer.php?u=https%3A//beta.bounties.network/bounty/"+this.state.bountyId}>
+                    <SvgFacebook style={{width: "15px", height: "15px", color: "rgb(22, 229, 205)", padding: "5px", border: "1px solid rgb(22, 229, 205)", borderRadius: "100px", marginTop: "30px", marginRight: "15px"}}
+                                className="iconHover"/>
+                    </a>
+                    <a target="_blank" href={"http://reddit.com/submit?url=https%3A%2F%2Fbeta.bounties.network%2Fbounty%2F"+this.state.bountyId+"&title="+ this.state.contract.bountyData.title.substring(0,80) + (this.state.contract.bountyData.title.length > 80? "...":"")}>
+                    <SvgReddit style={{width: "15px", height: "15px", color: "rgb(22, 229, 205)", padding: "5px", border: "1px solid rgb(22, 229, 205)", borderRadius: "100px", marginTop: "30px"}}
+                                className="iconHover"/>
+                    </a>
+                  </div>
                 </div>
                 <div style={{float: "left", display: "inline-block", width: "600px", paddingRight: "110px"}}>
 
@@ -2196,15 +2310,16 @@ handleChangeNetwork(evt){
                   <p style={{ fontSize: "14px", margin: "4px  0px 10px 0px", display: "inline-block", float: "left"}}><a style={{color: "#16e5cd"}} target={"_blank"} href={"/user/"+ this.state.contract.issuer}>{ this.state.contract.issuer}</a></p>
 
 
-
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Bounty Stage:</b> {this.state.contract.stage}</p>
-                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Deadline:</b> {this.state.contract.deadlineString}</p>
+
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Deadline:</b> {this.state.contract.deadlineString}</p>
 
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Contact the bounty issuer:</b> { this.state.contract.bountyData.contact}</p>
                   {this.state.contract.bountyData.githubLink &&
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Github Link: </b> <a style={{color: "#16e5cd"}} target={"_blank"} href={this.state.contract.bountyData.githubLink}> {this.state.contract.bountyData.githubLink} </a> </p>}
-                  {this.state.contract.bountyData.sourceFileHash &&
-                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Associated File: </b> <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.contract.bountyData.sourceFileHash}> {this.state.contract.bountyData.sourceFileName} </a> </p>}
+
+                  {this.state.contract.bountyData.sourceDirectoryHash &&
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Associated File: </b> <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://ipfs.infura.io/ipfs/" + this.state.contract.bountyData.sourceDirectoryHash + "/"+ this.state.contract.bountyData.sourceFileName}> {this.state.contract.bountyData.sourceFileName} </a> </p>}
                   {this.state.contract.paysTokens &&
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Token Contract:</b> <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.contract.tokenContract.address}>{this.state.contract.tokenContract.address}</a></p>}
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#FFDE46", marginRight: "10px"}}>Description: </b> </p>
@@ -2213,6 +2328,14 @@ handleChangeNetwork(evt){
                     {categories}
                   </div>
                 </div>
+                {
+                  /*
+                  <div className="" style={{width: "110px", marginTop: "0px", webkitMask: `url(${hexagonImage}) no-repeat 50% 50%`, mask: `url(${hexagonImage}) no-repeat 50% 50%`, webkitMaskSize: "cover", maskSize: "cover", backgroundColor: hexagonColour, height: "130px", display: "flex", justifyContent: "center", alignItems: "center"}}>
+                    <p style={{ fontSize: "20px", width: "100%", textAlign: "center", display: "block", fontWeight: "600", color: "#16283b"}}>{this.state.contract.stage} Bounty</p>
+                  </div>
+                  */
+                }
+
 
 
 
@@ -2254,7 +2377,9 @@ handleChangeNetwork(evt){
             </Tabs>
 
 
+
           </div>
+          }
         </div>
         <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>
         This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>

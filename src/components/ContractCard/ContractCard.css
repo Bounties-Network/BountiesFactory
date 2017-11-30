@@ -77,3 +77,6 @@ Canvas.identicon{
 .Chip{
   cursor: pointer !important;
 }
+.chipset span:hover{
+border-color: rgb(22, 229, 205) !important
+}

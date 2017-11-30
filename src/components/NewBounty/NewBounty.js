@@ -13,6 +13,10 @@ const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 const ipfsAPI = require('ipfs-api');
 
+var ipfsNew = ipfsAPI({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
+
+
+
 import ipfsFiles from "browser-ipfs";
 
 import { browserHistory } from 'react-router';
@@ -21,12 +25,14 @@ import logo from '../AppContainer/images/logo.svg';
 import FlatButton from 'material-ui/FlatButton';
 
 import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
+import SvgCheck from 'material-ui/svg-icons/action/check-circle';
 
 import Select from 'react-select';
 import Dialog from 'material-ui/Dialog';
 import LinearProgress from 'material-ui/LinearProgress';
 
 
+import Halogen from 'halogen';
 
 
 const CATEGORIES = [
@@ -101,6 +107,7 @@ class NewBounty extends Component {
       optionsList: [],
       sourceFileName: "",
       sourceFileHash: "",
+      sourceDirectoryHash: "",
       payoutMethod: "ETH",
       activateNow: "later",
       encrypt: false,
@@ -210,10 +217,25 @@ class NewBounty extends Component {
 
       web3.version.getNetwork((err, netId) => {
 
-      if (parseInt(this.state.requiredNetwork) !== parseInt(netId)){
-        console.log("network, ", netId, this.state.requiredNetwork);
-          this.setState({modalError: ("Please change your Ethereum network to the " + this.state.networkName), modalOpen: true});
-      } else {
+        if (netId === "1"){
+          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress),
+                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+                         selectedNetwork: netId});
+        } else if (netId ===  "4"){
+          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress),
+                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
+                         selectedNetwork: netId});
+        } else {
+          this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
+        }
+
+        setInterval(function() {
+          web3.version.getNetwork(function(err, newNetId){
+            if (netId !== newNetId) {
+              window.location.reload();
+            }
+          });
+        });
         web3.eth.getAccounts(function(err, accs){
           if (err){
             console.log ('error fetching accounts', err);
@@ -243,10 +265,6 @@ class NewBounty extends Component {
           }
         }.bind(this));
 
-
-
-
-      }
     });
     } else {
       this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
@@ -345,6 +363,7 @@ class NewBounty extends Component {
           title: title,
           description: description,
           sourceFileHash: this.state.sourceFileHash,
+          sourceDirectoryHash: this.state.sourceDirectoryHash,
           sourceFileName: this.state.sourceFileName,
           contact: info,
           categories: this.state.optionsList,
@@ -431,6 +450,7 @@ class NewBounty extends Component {
             title: title,
             description: description,
             sourceFileHash: this.state.sourceFileHash,
+            sourceDirectoryHash: this.state.sourceDirectoryHash,
             sourceFileName: this.state.sourceFileName,
             contact: info,
             categories: this.state.optionsList
@@ -543,13 +563,11 @@ class NewBounty extends Component {
     let ipfsId
 
     const buffer = Buffer.from(reader.result);
-    console.log("about to save...", buffer, reader);
 
-    ipfs.add([buffer], (err, response)=> {
+    ipfsNew.add([{path: "/bounties/" + this.state.sourceFileName, content: buffer}], (err, response)=> {
+
       console.log("response", response);
-
-
-      this.setState({sourceFileHash: response, fileUploadFinished: true});
+      this.setState({sourceDirectoryHash: response[1].hash, fileUploadFinished: true});
     });
 
   }
@@ -642,20 +660,15 @@ class NewBounty extends Component {
         <div id="colourBody" style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
           <div style={{overflow: "hidden"}}>
             <a href="/" style={{width: "276px", overflow: "hidden", display: "block", float: "left", padding: "1.25em 0em"}}>
-            <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", float: "left", marginLeft: "44px", display: "inline-block"}}>
+            <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", float: "left", marginLeft: "45px", display: "inline-block"}}>
             </div>
             </a>
-            <BountiesFacts total={this.state.total}/>
             <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-            <div style={{display: "block", width: "190px", backgroundColor: "rgba(10, 22, 40, 0.25)", overflow: "hidden", float: "right", margin: "30px"}}>
-              <select onChange={this.handleChangeNetwork} value={this.state.requiredNetwork} style={{fontSize: "10px",backgroundColor: "rgba(10, 22, 40, 0)",border: "0px",color: "#d0d0d0", width: "190px", height: "30px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
-                <option value="1">Ethereum Main Network</option>
-                <option value="4">Rinkeby Network</option>
-              </select>
-            </div>
+            <BountiesFacts total={this.state.total}/>
+
           </div>
             <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", paddingBottom: "60px", marginBottom: "15px", marginTop: "30px", backgroundColor: "rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #16e5cd", color :"white"}} className="ContractCard">
-              <h3 style={{fontFamily: "Open Sans", margin: "24px", textAlign: "Center",width: "1000px"}}>Create a New Bounty</h3>
+              <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "1000px", fontWeight: "600"}}>Create a New Bounty</h3>
               <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "white"}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
                 <input id='contract_title' style={{border: "none", width: "1000px"}} className='SendAmount' type='text' />
@@ -689,7 +702,22 @@ class NewBounty extends Component {
                     <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
                     <div style={{width: "475px", display: "block", border: "1px solid white", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px"}}>
                       <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "4px", marginTop: "-1px"}}> Upload </label>
-                      <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
+                      {
+                        (this.state.didUploadFile && !this.state.fileUploadFinished)&&
+                        <div style={{ float: "right", display: "inline-block", padding: "0px 15px 0px 5px", overflow: "hidden"}}>
+                          <Halogen.ClipLoader color={"#16e5cd"} size={"15px"} style={{float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
+                        </div>
+
+                      }
+                      {
+                        (this.state.didUploadFile && this.state.fileUploadFinished)&&
+                        <div style={{ float: "right", display: "inline-block", padding: "3px 15px 0px 5px", overflow: "hidden"}}>
+                        <SvgCheck style={{color: "rgb(22, 229, 205)", float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
+                        </div>
+
+                      }
+                      <span style={{float: "right", marginRight: "15px"}}> {fileName} </span>
+
                     </div>
                     <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any files required by bounty hunters</p>
                     {this.state.fileUploadError &&

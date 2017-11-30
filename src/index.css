@@ -50,3 +50,15 @@ thead {
   background-repeat: no-repeat;
     background-attachment: fixed;
 }
+.gitter-open-chat-button {
+  border: 1px solid rgb(22, 229, 205);
+  border-width: 1px 1px 0px 1px;
+  background-color: rgba(0,0,0,0);
+  border-radius: 0px;
+  color: rgb(22, 229, 205) !important;
+  right: 30px;
+}
+.gitter-open-chat-button:hover {
+  background-color: #275d7a;
+  border-radius: 0px;
+}
