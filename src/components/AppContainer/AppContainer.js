@@ -737,13 +737,29 @@ class AppContainer extends Component {
           }
           {this.state.accounts.length === 0 &&
             <div>
-            <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "700", textAlign: "center", fontSize: "18px"}}>You have no account!</h5>
-            <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px"}}>{"This is likely because you're not using a web3 enabled browser."}</h5>
-            <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px", paddingTop: "15px", borderTop: "1px solid #16e5cd"}}>{"You can download the "}<a href="https://metamask.io" target="_blank" style={{color: "#16e5cd", fontWeight: "700"}}> Metamask </a>{" extension to begin posting bounties."}</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "700", textAlign: "center", fontSize: "18px"}}>You have no account!</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px"}}>{"This is likely because you're not using a web3 enabled browser."}</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px", paddingTop: "15px", borderTop: "1px solid #16e5cd"}}>{"You can download the "}<a href="https://metamask.io" target="_blank" style={{color: "#16e5cd", fontWeight: "700"}}> Metamask </a>{" extension to begin posting bounties."}</h5>
 
-</div>
+            </div>
           }
 
+            </div>
+            <div id="mc_embed_signup">
+            <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "rgb(208,208,208)", width: "100%", fontWeight: "600", textAlign: "center", fontSize: "14px"}}>SIGN UP TO RECEIVE <br/> BOUNTIES NOTIFICATIONS</h5>
+
+              <form action="//network.us16.list-manage.com/subscribe/post?u=03351ad14a86e9637146ada2a&amp;id=96ba00fd12" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" className="validate" target="_blank" >
+                  <div id="mc_embed_signup_scroll">
+
+										<div className="6u$ 12u$(xsmall)">
+											<input type="email" name="EMAIL" id="mce-EMAIL" placeholder="email address" required style={{fontFamily: "Open Sans", border: "0px", borderBottom: "1px solid rgb(22, 229, 205)", backgroundColor: "rgba(0,0,0,0)", color: "rgb(208, 208, 208)", width: "16.2em"}}/>
+										</div>
+                  <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
+                    <input type="text" name="b_03351ad14a86e9637146ada2a_96ba00fd12" tabIndex="-1" value=""/>
+                    </div>
+                      <input type="submit" value="SIGN UP" name="subscribe" id="mc-embedded-subscribe" className="button" style={{boxShadow: "none", padding: "0px 18px", fontFamily: "Open Sans", backgroundColor: "#183653", width: "17.4em", color: "rgb(208, 208, 208)", border: "0px", padding: "5px 15px", fontWeight: "600"}}/>
+                  </div>
+              </form>
             </div>
 
           </div>
