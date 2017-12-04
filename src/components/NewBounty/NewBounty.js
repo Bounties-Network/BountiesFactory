@@ -22,6 +22,9 @@ import ipfsFiles from "browser-ipfs";
 import { browserHistory } from 'react-router';
 
 import logo from '../AppContainer/images/logo.svg';
+import darkMoon from '../AppContainer/images/DarkMoon.png';
+import lightMoon from '../AppContainer/images/LightMoon.png';
+
 import FlatButton from 'material-ui/FlatButton';
 
 import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
@@ -85,7 +88,7 @@ class NewBounty extends Component {
     }
     web3.setProvider(new Web3.providers.HttpProvider(providerLink));
 
-
+    console.log("localStorage.getItem('lightMode')", localStorage.getItem('lightMode'));
     this.state = {
       numUpdated: 0,
       modalError: "",
@@ -130,7 +133,9 @@ class NewBounty extends Component {
       standardBountiesAddress: standardBountiesAddress,
       userCommentsAddress: userCommentsAddress,
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
-      UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
+      UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
+      lightMode:   localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
+
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
     ipfsFiles.setProvider({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
@@ -146,6 +151,7 @@ class NewBounty extends Component {
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
     this.handleChangeNetwork = this.handleChangeNetwork.bind(this);
+    this.handleToggleLightMode = this.handleToggleLightMode.bind(this);
 
   }
   componentDidMount() {
@@ -630,6 +636,12 @@ class NewBounty extends Component {
 
   }
 
+  handleToggleLightMode(){
+    var lightMode = !this.state.lightMode;
+    this.setState({lightMode: lightMode});
+    localStorage.setItem('lightMode', lightMode);
+
+  }
   render() {
     const modalActions = [
       <FlatButton
@@ -647,7 +659,7 @@ class NewBounty extends Component {
     document.title = "Bounties Explorer | New Bounty";
 
     return (
-      <div>
+      <div style={{position: "relative"}}>
         <Dialog
         title=""
         actions={modalActions}
@@ -657,40 +669,44 @@ class NewBounty extends Component {
         >
           {this.state.modalError}
         </Dialog>
-        <div id="colourBody" style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
-          <div style={{overflow: "hidden"}}>
-            <a href="/" style={{width: "276px", overflow: "hidden", display: "block", float: "left", padding: "1.25em 0em"}}>
-            <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", float: "left", marginLeft: "45px", display: "inline-block"}}>
-            </div>
+        <div id={this.state.lightMode? "colourBodyLight": "colourBodyDark"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
+          <div style={{position: "fixed", bottom: "15px", left: "15px", display: "block", overflow: "hidden", width: "100px"}} className="CornerEmoji">
+          <div onClick={this.handleToggleLightMode} style={{backgroundImage:  this.state.lightMode? `url(${darkMoon})`:`url(${lightMoon})`, height: "28px", width: "28px", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
+          </div>
+          </div>
+          <div style={{overflow: "hidden"}} className="navBar">
+            <a href="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
+              <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
+              </div>
             </a>
             <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
 
           </div>
-            <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", paddingBottom: "60px", marginBottom: "15px", marginTop: "30px", backgroundColor: "rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #16e5cd", color :"white"}} className="ContractCard">
-              <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "1000px", fontWeight: "600"}}>Create a New Bounty</h3>
-              <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "white"}}>
+            <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: this.state.lightMode? "rgb(249,249,249)":"rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #16e5cd", color:this.state.lightMode? "rgb(25, 55, 83)":"white"}} className="ContractCard">
+              <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "1000px", fontWeight: "600", fontSize: "28px"}}>Create a New Bounty</h3>
+              <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: this.state.lightMode? "rgb(25, 55, 83)":"white"}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
                 <input id='contract_title' style={{border: "none", width: "1000px"}} className='SendAmount' type='text' />
                 {this.state.titleError &&
                   <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.titleError}</p>}
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Description</label>
-                <textarea rows="3" id='contract_description' className='SendAmount' type='text'  style={{width: "995px", marginBottom: "15px", fontSize: "16px", padding: "10px"}}/>
+                <textarea rows="3" id='contract_description' className='SendAmount ' type='text'  style={{width: "995px", marginBottom: "15px", fontSize: "16px", padding: "10px", border: "0px"}}/>
                 {this.state.descriptionError &&
                   <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.descriptionError}</p>}
                 <div style={{display: "inline-block"}}>
                   <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} >Payout Method</label>
-                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: "white", width: "490px", height: "40px", display: "block"}}>
+                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:this.state.lightMode? "1px solid rgb(25, 55, 83)":"1px solid white", color: this.state.lightMode? "rgb(25, 55, 83)":"white", width: "490px", height: "40px", display: "block"}}>
                       <option value="ETH">ETH</option>
                       <option value="ERC">ERC20 Token </option>
                     </select>
-                    <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "10px", marginBottom: "15px"}}>the token which will be used to pay out the reward</p>
+                    <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "10px", marginBottom: "15px"}}>the token which will be used to pay out the reward</p>
 
                   </div>
                   <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (ETH or whole tokens)</label>
                     <input id="fulfillmentAmount" style={{width: "470px", border: "0px"}} type="number" step="any"></input>
-                    <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
+                    <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
                   </div>
@@ -698,8 +714,8 @@ class NewBounty extends Component {
                 <div style={{display: "inline-block"}}>
                   <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
-                    <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "white", height: "0px", padding: "0px", margin: "0px"}}/>
-                    <div style={{width: "475px", display: "block", border: "1px solid white", color: "white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px"}}>
+                    <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: this.state.lightMode? "rgb(25, 55, 83)":"white", height: "0px", padding: "0px", margin: "0px"}}/>
+                    <div style={{width: "475px", display: "block", border: this.state.lightMode? "1px solid rgb(25, 55, 83)":"1px solid white", color: this.state.lightMode? "rgb(25, 55, 83)":"white", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px"}}>
                       <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "4px", marginTop: "-1px"}}> Upload </label>
                       {
                         (this.state.didUploadFile && !this.state.fileUploadFinished)&&
@@ -718,14 +734,14 @@ class NewBounty extends Component {
                       <span style={{float: "right", marginRight: "15px"}}> {fileName} </span>
 
                     </div>
-                    <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px"}}>any files required by bounty hunters</p>
+                    <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "5px"}}>any files required by bounty hunters</p>
                     {this.state.fileUploadError &&
-                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fileUploadError}</p>}
+                      <p style={{fontSize: "12px", color:"#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fileUploadError}</p>}
                   </div>
                   <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='contact_info'>Contact Info</label>
                     <input id="contact_info" style={{width: "468px", border: "none"}}></input>
-                    <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>for bounty hunters to be able to contact you off-chain</p>
+                    <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>for bounty hunters to be able to contact you off-chain</p>
                     {this.state.contactError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.contactError}</p>}
                   </div>
@@ -733,31 +749,31 @@ class NewBounty extends Component {
                 <div style={{display: "inline-block"}}>
                   <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} >When to Activate</label>
-                    <select onChange={this.handleActivateNowChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: "white", width: "490px", height: "40px", display: "block"}}>
+                    <select onChange={this.handleActivateNowChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:this.state.lightMode? "1px solid rgb(25, 55, 83)":"1px solid white", color: this.state.lightMode? "rgb(25, 55, 83)":"white", width: "490px", height: "40px", display: "block"}}>
                       <option value="later">Later</option>
                       <option value="now">Now</option>
                     </select>
-                    <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "10px", marginBottom: "15px"}}>The requirements for a bounty can only be edited while it is in the draft stage</p>
+                    <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "10px", marginBottom: "15px"}}>The requirements for a bounty can only be edited while it is in the draft stage</p>
                   </div>
                   <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='bounty_deadline'>Bounty Deadline (UTC)</label>
                     <input id='bounty_deadline' style={{border: "none", width: "470px"}} type='datetime-local' max="2222-12-22T22:22"/>
-                    <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the deadline for submitting any bugs</p>
+                    <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the deadline for submitting any bugs</p>
                     {this.state.deadlineError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.deadlineError}</p>}
                   </div>
                 </div>
                 <div style={{display: "inline-block"}}>
-                  <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}} className={this.state.lightMode? "LightMode":""}>
                     <label style={{fontSize: "12px"}} >Bounty Category</label>
                     <Select multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select task categories" options={CATEGORIES} onChange={this.handleSelectChange} />
-                    <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "5px", marginBottom: "15px"}}>the types of tasks being bountied</p>
+                    <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "5px", marginBottom: "15px"}}>the types of tasks being bountied</p>
                   </div>
                   {this.state.activateNow === "now" && (
                     <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
                       <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Deposit Amount</label>
                       <input id='deposit_amount' style={{border: "none", width: "470px"}} className='SendAmount' type='number' step="any"/>
-                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>To activate, you must deposit enough to pay the bounty at least once</p>
+                      <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>To activate, you must deposit enough to pay the bounty at least once</p>
                       {this.state.valueError &&
                         <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.valueError}</p>}
                     </div>
@@ -766,11 +782,11 @@ class NewBounty extends Component {
                   <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
 
                       <label style={{fontSize: "12px"}} >Encrypt File Submissions</label>
-                      <select onChange={this.handleEncryptChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: "white", width: "457px", height: "40px", display: "block"}}>
+                      <select onChange={this.handleEncryptChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: this.state.lightMode? "rgb(25, 55, 83)":"white", width: "457px", height: "40px", display: "block"}}>
                         <option value="encrypt">Encrypt Submissions</option>
                         <option value="no">No Encryption of Submissions</option>
                       </select>
-                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "10px", marginBottom: "15px"}}>Submissions will be encrypted for the issuer, unless otherwise specified</p>
+                      <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "10px", marginBottom: "15px"}}>Submissions will be encrypted for the issuer, unless otherwise specified</p>
 
                   </div>}
                 </div>
@@ -778,14 +794,14 @@ class NewBounty extends Component {
                     <div style={{float: "left", display: "inline-block"}}>
                       <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
                       <input id='token_address' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
-                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
+                      <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
                     </div>
                   )}
                   {this.state.containsCode && (
                     <div style={{float: "left", display: "inline-block"}}>
                       <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Github Link</label>
                       <input id='github_link' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
-                      <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>a github link to a relevant repository</p>
+                      <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>a github link to a relevant repository</p>
                     </div>
                   )}
                 {this.state.submitting &&
@@ -798,11 +814,12 @@ class NewBounty extends Component {
                 <button type='submit' className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", width: "200px", margin: "0 auto", color: "rgb(21, 38, 57)", display: "block", marginTop: "30px"}}>Create</button>
 
               </form>
-            </div>
 
-          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>
-          This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
+            </div>
+            <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>
+            This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
         </div>
+
       </div>
     )
   }

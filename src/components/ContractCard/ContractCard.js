@@ -25,16 +25,16 @@ class ContractCard extends Component {
     var categories = [];
     categories.push(
       <Chip style={{margin: "4px 9px 0px 0px", float: "left", border: "0px solid rgba(173, 187, 188,0.15)", backgroundColor: "rgba(173, 187, 188,0.15)", height: "20px"}}
-            labelStyle={{color: "#e9e9e9", fontSize: "11px", marginTop: "-5px"}}
+            labelStyle={{color:  this.props.lightMode? "rgb(25, 55, 83)":"#e9e9e9", fontSize: "11px", marginTop: "-5px"}}
             key={this.props.numFul+ this.props.numFul===1? " SUBMISSION":" SUBMISSIONS"}>
-        <b style={{fontWeight: "500"}}>{this.props.numFul}</b><b style={{color: "#bababa", fontWeight: "200", marginLeft: "5px"}}>{this.props.numFul===1? " SUBMISSION":" SUBMISSIONS"}</b>
+        <b style={{fontWeight: "500"}}>{this.props.numFul}</b><b style={{color:  this.props.lightMode? "rgb(25, 55, 83)":"#bababa", fontWeight: "200", marginLeft: "5px"}}>{this.props.numFul===1? " SUBMISSION":" SUBMISSIONS"}</b>
       </Chip>
     );
     if (this.props.data.categories){
       for (var i = 0; i < this.props.data.categories.length; i++){
         categories.push(
-          <Chip style={{margin: "4px 9px 0px 0px", float: "left", border: "1px solid rgba(22, 229, 205, 0.25)", backgroundColor: "rgba(0, 126, 255, 0)", height: "20px"}}
-                labelStyle={{color: "#bababa", fontSize: "11px", marginTop: "-6px"}}
+          <Chip style={{margin: "4px 9px 0px 0px", float: "left", border: this.props.lightMode?  "1px solid rgba(25, 55, 83,0.5)":"1px solid rgba(22, 229, 205, 0.25)", backgroundColor: "rgba(0, 126, 255, 0)", height: "20px"}}
+                labelStyle={{color:  this.props.lightMode? "rgb(25, 55, 83)":"#bababa", fontSize: "11px", marginTop: "-6px"}}
                 key={this.props.data.categories[i]}
                 onClick={this.props.handleAddCategory.bind(this, this.props.data.categories[i])}
                 className="Chip">
@@ -49,13 +49,13 @@ class ContractCard extends Component {
 //
     return (
       <div style={{float: "left", display: "block", width: "630px", marginBottom: "15px", display: "flex"}}>
-        <div style={{width: "560px", marginBottom: "0px",boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "#12293f", color: "white", border: "1px solid #16e5cd", borderWidth: "0 0 0 1px", display: "flex", justifyContent: "center", alignItems: "center"}} className="ContractCard">
+        <div style={{width: "560px", marginBottom: "0px",boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: this.props.lightMode? "rgb(249, 249, 249)":"#12293f", color: "white", borderLeft: this.props.lightMode? "1px solid rgb(56, 90, 116)":"1px solid #16e5cd", borderWidth: "0px 0px 0px 1px", display: "flex", justifyContent: "center", alignItems: "center"}} className="ContractCard">
 
           <div style={{float: "left", display: "inline-block", width: "430px", padding: "5px"}}>
-            <a style={{color: "white", textDecoration: "none"}} href={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px", fontWeight: "600"}}> {this.props.data.title}</h4></a>
+            <a style={{color: this.props.lightMode? "rgb(25, 55, 83)":"white", textDecoration: "none"}} href={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px", fontWeight: "600"}}> {this.props.data.title}</h4></a>
             <div style={{display: "block", width: "440px", overflow: "hidden"}}>
             <p style={{ fontSize: "12px", margin: "6px 0px", float: "left", display: "inline-block"}}>
-              <b style={{color: "#FFDE46", fontWeight: "500"}}>By:  </b>
+              <b style={{color: this.props.lightMode?"rgb(56, 89, 115)":"#FFDE46", fontWeight: "500"}}>By:  </b>
             </p>
             <Blockies
             seed={this.props.issuer}
@@ -81,19 +81,19 @@ class ContractCard extends Component {
             <div style={{overflow: "hidden", display: "block",  width: "120px",}}>
             <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
 
-            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "white", fontSize: "24px", fontWeight: "600"}}><b style={{color: "#FFDE46", fontWeight: "200", lineHeight: "28px"}}>$</b>{numberWithCommas(parseInt((reward* this.props.price)))}</h5>
+            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color:  this.props.lightMode? "rgb(25, 55, 83)":"white", fontSize: "24px", fontWeight: "600"}}><b style={{color: "#FFDE46", fontWeight: "200", lineHeight: "28px"}}>$</b>{numberWithCommas(parseInt((reward* this.props.price)))}</h5>
 
-            <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#d0d0d0", fontSize: "12px", fontWeight: "200"}}>{reward} {this.props.symbol? this.props.symbol : 'ETH'}</h1>
+            <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: this.props.lightMode? "#8C9899":"#d0d0d0", fontSize: "12px", fontWeight: "200"}}>{reward} {this.props.symbol? this.props.symbol : 'ETH'}</h1>
 
-            <h5 style={{ fontSize: "11px", width: "100%", textAlign: "center", marginTop: "10px", marginBottom: "0px", color: "#d0d0d0", fontWeight: "200"}}>{this.props.dateString}</h5>
+            <h5 style={{ fontSize: "11px", width: "100%", textAlign: "center", marginTop: "10px", marginBottom: "0px", color: this.props.lightMode? "#8C9899":"#d0d0d0", fontWeight: "200"}}>{this.props.dateString}</h5>
 
             </div>
           </div>
 
         </div>
           <a style={{}} href={url}>
-            <div className={"SideArrow"} style={{float: "right", display: "flex", justifyContent: "center", alignItems: "center", width: "39px",   color: "#16e5cd", textAlign: "right", height: "100%"}}>
-              <SvgArrow style={{color: "#16e5cd", fontSize: "44px", display: "inline-block"}}/>
+            <div className={ this.props.lightMode? "SideArrowLight":"SideArrow"} style={{float: "right", display: "flex", justifyContent: "center", alignItems: "center", width: "39px",   color: "#16e5cd", textAlign: "right", height: "100%"}}>
+              <SvgArrow style={{color: this.props.lightMode? "rgb(25, 55, 83)":"#16e5cd", fontSize: "44px", display: "inline-block"}}/>
             </div>
           </a>
         </div>
