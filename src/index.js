@@ -17,7 +17,6 @@ import './index.css'
         <Route path="/" component={App} />
         <Route path="/bounty/:id" component={BountyPage} />
         <Route path="/user/:address" component={UserPage} />
-        <Route path="/newbounty/" component={NewBounty} />
         <Route path="/allBounties/" component={AllBountiesPage} />
 
       </Router>
