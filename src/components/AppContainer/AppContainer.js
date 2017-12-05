@@ -91,7 +91,7 @@ class AppContainer extends Component {
       totalMe: 0,
       loading: true,
       myBountiesLoading: true,
-      selectedStage: "Active",
+      selectedStage: "ANY",
       selectedMine: "ANY",
       requiredNetwork: requiredNetwork,
       networkName: networkName,
@@ -723,14 +723,7 @@ handleToggleLightMode(){
 
               </div>
 
-              <FlatButton
-                label="New Bounty"
-                primary={true}
-                labelPosition="before"
-                href={"/newBounty/"}
-                style={{color:  this.state.lightMode? "#193753":"white", width: "100%", backgroundColor: "#16e5cd", color: "#152639"}}
-                icon={<SvgArrow style={{ border:"0px", color: "#152639", fontSize: "44px"}}/>}
-              />
+
               <FlatButton
                 label="My Profile"
                 primary={true}
