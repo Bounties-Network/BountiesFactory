@@ -949,8 +949,9 @@ handleToggleLightMode(){
               {comments}
             </div>
           </div>
-          <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)", bottom: "0", position: "absolute", width: "100vw"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>
-          This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
+          <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: this.state.lightMode? "rgb(25, 55, 83)":"#16e5cd"}}>ConsenSys</a> Formation <br/>
+           <a href="/privacyPolicy/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Terms of Service</a>
+           </p>
         </div>
       </div>
     )

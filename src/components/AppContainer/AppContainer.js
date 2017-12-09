@@ -102,7 +102,7 @@ class AppContainer extends Component {
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
       lightMode:   localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
     }
-
+console.log("stdb", this.state.StandardBounties);
 
     this.getInitialData = this.getInitialData.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
@@ -802,8 +802,9 @@ handleToggleLightMode(){
 
           </div>
         </div>
-        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>
-        This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
+        <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: this.state.lightMode? "rgb(25, 55, 83)":"#16e5cd"}}>ConsenSys</a> Formation <br/>
+         <a href="/privacyPolicy/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Terms of Service</a>
+         </p>
 
       </div>
 

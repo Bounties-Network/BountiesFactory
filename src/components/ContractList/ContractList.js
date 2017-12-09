@@ -136,6 +136,7 @@ this.setState({sortByCreated: sortByCreated,
                       handleAddCategory={handleAddCategory}
                       price={prices[contract.symbol]}
                       lightMode={lightMode}
+                      stage={contract.stage}
                       />
         );
       });
