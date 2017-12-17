@@ -47,6 +47,8 @@ class AppContainer extends Component {
 
     var requiredNetwork = 0;
     var standardBountiesAddress = "";
+    var standardBountiesAddressv0 = "";
+
     var userCommentsAddress = "";
     var networkName = "";
     var providerLink = "";
@@ -54,7 +56,9 @@ class AppContainer extends Component {
     if (!stored){
       providerLink = "https://mainnet.infura.io";
       requiredNetwork = 1;
-      standardBountiesAddress = json.mainNet.standardBountiesAddress;
+      standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
+      standardBountiesAddress = json.mainNet.standardBountiesAddress.v0;
+
       userCommentsAddress = json.mainNet.userCommentsAddress;
       networkName = "Main Network";
       localStorage.setItem('ethereumNetwork', "MainNet");
@@ -62,7 +66,9 @@ class AppContainer extends Component {
       if (stored === "MainNet"){
         providerLink = "https://mainnet.infura.io";
         requiredNetwork = 1;
-        standardBountiesAddress = json.mainNet.standardBountiesAddress;
+        standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
+        standardBountiesAddress = json.mainNet.standardBountiesAddress.v0;
+
         userCommentsAddress = json.mainNet.userCommentsAddress;
         networkName = "Main Network";
 
@@ -70,7 +76,9 @@ class AppContainer extends Component {
       } else if (stored === "Rinkeby"){
         providerLink = "https://rinkeby.infura.io";
         requiredNetwork = 4;
-        standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+        standardBountiesAddress = json.rinkeby.standardBountiesAddress.v1;
+        standardBountiesAddress = json.rinkeby.standardBountiesAddress.v0;
+
         userCommentsAddress = json.rinkeby.userCommentsAddress;
         networkName = "Rinkeby Network";
       }
@@ -86,6 +94,7 @@ class AppContainer extends Component {
       accounts: [],
       contracts: [],
       bounties: [],
+      bountiesv0: [],
       optionsList: [],
       total: 0,
       totalMe: 0,
@@ -99,10 +108,10 @@ class AppContainer extends Component {
       standardBountiesAddress: standardBountiesAddress,
       userCommentsAddress: userCommentsAddress,
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
+      StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
       lightMode:   localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
     }
-console.log("stdb", this.state.StandardBounties);
 
     this.getInitialData = this.getInitialData.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
@@ -296,11 +305,13 @@ console.log("stdb", this.state.StandardBounties);
 
         web3.version.getNetwork((err, netId) => {
           if (netId === "1"){
-            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress),
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
+                           StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
                            selectedNetwork: netId});
           } else if (netId === "4"){
-            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress),
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
+                           StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                            selectedNetwork: netId});
           } else {
@@ -342,7 +353,21 @@ console.log("stdb", this.state.StandardBounties);
 
                 this.setState({total: total});
                 for (var i = 0; i < total; i++){
-                  this.getBounty(i, bounties, total);
+                  this.getBounty(i, bounties, total, 1);
+
+                }
+                if (total === 0){
+                  this.setState({loading: false});
+                }
+
+              });
+              var bountiesv0 = [];
+              this.state.StandardBountiesv0.getNumBounties((err, succ)=> {
+                var total = parseInt(succ, 10);
+
+                this.setState({total: this.state.total+total});
+                for (var i = 0; i < total; i++){
+                  this.getBounty(i, bountiesv0, total, 0);
 
                 }
                 if (total === 0){
@@ -362,7 +387,20 @@ console.log("stdb", this.state.StandardBounties);
         var total = parseInt(succ, 10);
         this.setState({total: total});
         for (var i = 0; i < total; i++){
-          this.getBounty(i, bounties, total);
+          this.getBounty(i, bounties, total,1);
+
+        }
+        if (total === 0){
+          this.setState({loading: false});
+        }
+
+      });
+      var bountiesv0 = [];
+      this.state.StandardBountiesv0.getNumBounties((err, succ)=> {
+        var total = parseInt(succ, 10);
+        this.setState({total: this.state.total+total});
+        for (var i = 0; i < total; i++){
+          this.getBounty(i, bountiesv0, total, 0);
 
         }
         if (total === 0){
@@ -383,104 +421,214 @@ console.log("stdb", this.state.StandardBounties);
       */
     }
   }
-  getBounty(bountyId, bounties, total){
-    this.state.StandardBounties.getBounty(bountyId, (err, succ)=> {
-      this.state.StandardBounties.getNumFulfillments(bountyId, (err, numFul)=>{
-        this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
-          ipfs.catJSON(data, (err, result)=> {
-            var stage;
-            var max = new BN(8640000000000000);
-            if (parseInt(succ[4], 10) === 0){
-              stage = "Draft";
-            } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
-              stage = "Completed";
-            } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
-              stage = "Expired";
-            } else if (parseInt(succ[4], 10) === 1){
-              stage = "Active";
-            }  else {
-              stage = "Dead";
-            }
-            var intDate = parseInt(succ[1], 10);
-            var newDate;
-            var dateString;
-            if ((succ[1].times(1000)).greaterThan(max)){
-              newDate = new Date(parseInt(max, 10));
-              dateString = this.dateToString(8640000000000000);
-            } else {
-              newDate = new Date(parseInt(succ[1], 10)*1000);
-              dateString = this.dateToString(parseInt(succ[1], 10)*1000);
-            }
-
-
-            if (!succ[3]){
-              var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
-              var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
-              bounties.push({
-                bountyId: bountyId,
-                issuer: succ[0],
-                deadline: newDate.toUTCString(),
-                dateNum: newDate.getTime(),
-                value: value,
-                paysTokens: succ[3],
-                stage: stage,
-                balance: balance,
-                bountyData: result,
-                symbol: "ETH",
-                dateString: dateString,
-                numFul: parseInt(numFul, 10)
-              });
-              if (bounties.length === total){
-                this.setState({bounties: bounties, loading: false});
+  getBounty(bountyId, bounties, total, version){
+    if (version == 0){
+      this.state.StandardBountiesv0.getBounty(bountyId, (err, succ)=> {
+        this.state.StandardBountiesv0.getNumFulfillments(bountyId, (err, numFul)=>{
+          this.state.StandardBountiesv0.getBountyData(bountyId, (err, data)=> {
+            console.log('data', data);
+            ipfs.catJSON(data, (err, result)=> {
+              console.log("err", data, err, result);
+              var stage;
+              var max = new BN(8640000000000000);
+              if (parseInt(succ[4], 10) === 0){
+                stage = "Draft";
+              } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
+                stage = "Completed";
+              } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
+                stage = "Expired";
+              } else if (parseInt(succ[4], 10) === 1){
+                stage = "Active";
+              }  else {
+                stage = "Dead";
               }
-            } else {
-              this.state.StandardBounties.getBountyToken(bountyId, (err, address)=> {
-                var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
-                HumanStandardToken.symbol((err, symbol)=> {
-                  HumanStandardToken.decimals((err, dec)=> {
+              var intDate = parseInt(succ[1], 10);
+              var newDate;
+              var dateString;
+              if ((succ[1].times(1000)).greaterThan(max)){
+                newDate = new Date(parseInt(max, 10));
+                dateString = this.dateToString(8640000000000000);
+              } else {
+                newDate = new Date(parseInt(succ[1], 10)*1000);
+                dateString = this.dateToString(parseInt(succ[1], 10)*1000);
+              }
 
-                    var decimals = parseInt(dec, 10);
-                    var newAmount = succ[2];
-                    var decimalToMult = new BN(10, 10);
-                    var decimalUnits = new BN(decimals, 10);
-                    decimalToMult = decimalToMult.pow(decimalUnits);
-                    newAmount = newAmount.div(decimalToMult);
 
-                    var balance = succ[5];
-                    balance = balance.div(decimalToMult);
+              if (!succ[3]){
+                var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
+                var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
+                bounties.push({
+                  bountyId: bountyId,
+                  issuer: succ[0],
+                  deadline: newDate.toUTCString(),
+                  dateNum: newDate.getTime(),
+                  value: value,
+                  paysTokens: succ[3],
+                  stage: stage,
+                  balance: balance,
+                  bountyData: result,
+                  symbol: "ETH",
+                  dateString: dateString,
+                  numFul: parseInt(numFul, 10),
+                  version: 0
+                });
+                if (bounties.length === total){
+                  this.setState({bountiesv0: bounties, loading: false});
+                }
+              } else {
+                this.state.StandardBountiesv0.getBountyToken(bountyId, (err, address)=> {
+                  var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
+                  HumanStandardToken.symbol((err, symbol)=> {
+                    HumanStandardToken.decimals((err, dec)=> {
 
-                    bounties.push({
-                      bountyId: bountyId,
-                      issuer: succ[0],
-                      deadline: newDate.toUTCString(),
-                      dateNum: newDate.getTime(),
-                      value: parseInt(newAmount, 10),
-                      paysTokens: succ[3],
-                      stage: stage,
-                      owedAmount: parseInt(succ[5], 10),
-                      balance: parseInt(balance, 10),
-                      bountyData: result,
-                      dateString: dateString,
-                      symbol: symbol,
-                      numFul: parseInt(numFul, 10)
+                      var decimals = parseInt(dec, 10);
+                      var newAmount = succ[2];
+                      var decimalToMult = new BN(10, 10);
+                      var decimalUnits = new BN(decimals, 10);
+                      decimalToMult = decimalToMult.pow(decimalUnits);
+                      newAmount = newAmount.div(decimalToMult);
+
+                      var balance = succ[5];
+                      balance = balance.div(decimalToMult);
+
+                      bounties.push({
+                        bountyId: bountyId,
+                        issuer: succ[0],
+                        deadline: newDate.toUTCString(),
+                        dateNum: newDate.getTime(),
+                        value: parseInt(newAmount, 10),
+                        paysTokens: succ[3],
+                        stage: stage,
+                        owedAmount: parseInt(succ[5], 10),
+                        balance: parseInt(balance, 10),
+                        bountyData: result,
+                        dateString: dateString,
+                        symbol: symbol,
+                        numFul: parseInt(numFul, 10),
+                        version: 0
+                      });
+                      if (bounties.length === total){
+                        this.setState({bountiesv0: bounties, loading: false});
+                      }
                     });
-                    if (bounties.length === total){
-                      this.setState({bounties: bounties, loading: false});
-                    }
                   });
+
                 });
 
-              });
+              }
 
-            }
+            });
 
           });
-
         });
+
+
       });
 
+    } else if (version == 1){
 
-    });
+      this.state.StandardBounties.getBounty(bountyId, (err, succ)=> {
+        this.state.StandardBounties.getNumFulfillments(bountyId, (err, numFul)=>{
+          this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
+            ipfs.catJSON(data, (err, result)=> {
+              var stage;
+              var max = new BN(8640000000000000);
+              if (parseInt(succ[4], 10) === 0){
+                stage = "Draft";
+              } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
+                stage = "Completed";
+              } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
+                stage = "Expired";
+              } else if (parseInt(succ[4], 10) === 1){
+                stage = "Active";
+              }  else {
+                stage = "Dead";
+              }
+              var intDate = parseInt(succ[1], 10);
+              var newDate;
+              var dateString;
+              if ((succ[1].times(1000)).greaterThan(max)){
+                newDate = new Date(parseInt(max, 10));
+                dateString = this.dateToString(8640000000000000);
+              } else {
+                newDate = new Date(parseInt(succ[1], 10)*1000);
+                dateString = this.dateToString(parseInt(succ[1], 10)*1000);
+              }
+
+
+              if (!succ[3]){
+                var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
+                var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
+                bounties.push({
+                  bountyId: bountyId,
+                  issuer: succ[0],
+                  deadline: newDate.toUTCString(),
+                  dateNum: newDate.getTime(),
+                  value: value,
+                  paysTokens: succ[3],
+                  stage: stage,
+                  balance: balance,
+                  bountyData: result,
+                  symbol: "ETH",
+                  dateString: dateString,
+                  numFul: parseInt(numFul, 10),
+                  version: 1
+                });
+                if (bounties.length === total){
+                  this.setState({bounties: bounties, loading: false});
+                }
+              } else {
+                this.state.StandardBounties.getBountyToken(bountyId, (err, address)=> {
+                  var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
+                  HumanStandardToken.symbol((err, symbol)=> {
+                    HumanStandardToken.decimals((err, dec)=> {
+
+                      var decimals = parseInt(dec, 10);
+                      var newAmount = succ[2];
+                      var decimalToMult = new BN(10, 10);
+                      var decimalUnits = new BN(decimals, 10);
+                      decimalToMult = decimalToMult.pow(decimalUnits);
+                      newAmount = newAmount.div(decimalToMult);
+
+                      var balance = succ[5];
+                      balance = balance.div(decimalToMult);
+
+                      bounties.push({
+                        bountyId: bountyId,
+                        issuer: succ[0],
+                        deadline: newDate.toUTCString(),
+                        dateNum: newDate.getTime(),
+                        value: parseInt(newAmount, 10),
+                        paysTokens: succ[3],
+                        stage: stage,
+                        owedAmount: parseInt(succ[5], 10),
+                        balance: parseInt(balance, 10),
+                        bountyData: result,
+                        dateString: dateString,
+                        symbol: symbol,
+                        numFul: parseInt(numFul, 10),
+                        version: 1
+                      });
+                      if (bounties.length === total){
+                        this.setState({bounties: bounties, loading: false});
+                      }
+                    });
+                  });
+
+                });
+
+              }
+
+            });
+
+          });
+        });
+
+
+      });
+
+    }
+
 
   }
   getPrices(){
@@ -583,28 +731,29 @@ handleToggleLightMode(){
     var completedMe = 0;
     var deadMe = 0;
     var expiredMe = 0;
-    for (var i = 0; i < this.state.bounties.length; i++){
-      if (this.state.bounties[i].issuer === this.state.accounts[0]){
-        newList.push(this.state.bounties[i]);
+    var totalBounties = this.state.bounties.concat(this.state.bountiesv0);
+    for (var i = 0; i < totalBounties.length; i++){
+      if (totalBounties[i].issuer === this.state.accounts[0]){
+        newList.push(totalBounties[i]);
         totalMe++;
-        if (this.state.bounties[i].stage === "Active"){
+        if (totalBounties[i].stage === "Active"){
           activeMe++;
         }
-        if (this.state.bounties[i].stage === "Draft"){
+        if (totalBounties[i].stage === "Draft"){
           draftMe++;
         }
-        if (this.state.bounties[i].stage === "Dead"){
+        if (totalBounties[i].stage === "Dead"){
           deadMe++;
         }
-        if (this.state.bounties[i].stage === "Expired"){
+        if (totalBounties[i].stage === "Expired"){
           expiredMe++;
         }
-        if (this.state.bounties[i].stage === "Completed"){
+        if (totalBounties[i].stage === "Completed"){
           completedMe++;
         }
       }
         var isInSelectedCategories = false;
-        var newCategories = this.state.bounties[i].bountyData.categories.filter((n)=> { return this.state.optionsList.includes(n)});
+        var newCategories = totalBounties[i].bountyData.categories.filter((n)=> { return this.state.optionsList.includes(n)});
         if (newCategories.length > 0 || this.state.optionsList[0] === "" || this.state.optionsList.length === 0){
           isInSelectedCategories = true;
         }
@@ -625,22 +774,18 @@ handleToggleLightMode(){
       }
 */
       if (isInSelectedCategories){
-        if (this.state.bounties[i].stage === this.state.selectedStage || this.state.selectedStage === "ANY"){
+        if (totalBounties[i].stage === this.state.selectedStage || this.state.selectedStage === "ANY"){
           if (this.state.selectedMine === "ANY"){
-            activeList.push(this.state.bounties[i]);
-          } else if (this.state.selectedMine === "MINE" && this.state.bounties[i].issuer === this.state.accounts[0]){
-            activeList.push(this.state.bounties[i]);
-          } else if (this.state.selectedMine === "NOT MINE" && this.state.bounties[i].issuer !== this.state.accounts[0]){
-            activeList.push(this.state.bounties[i]);
+            activeList.push(totalBounties[i]);
+          } else if (this.state.selectedMine === "MINE" && totalBounties[i].issuer === this.state.accounts[0]){
+            activeList.push(totalBounties[i]);
+          } else if (this.state.selectedMine === "NOT MINE" && totalBounties[i].issuer !== this.state.accounts[0]){
+            activeList.push(totalBounties[i]);
           }
         }
       }
 
 
-    }
-    var recentList = [];
-    for (var j = 0; j < 3 && j < this.state.bounties.length; j++){
-        recentList.push(this.state.bounties[j]);
     }
     const modalActions = [
     <FlatButton

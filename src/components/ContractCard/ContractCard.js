@@ -45,7 +45,7 @@ class ContractCard extends Component {
     }
 
     var reward = "" + this.props.value;
-    var url = ("/bounty/" + this.props.bountyId);
+    var url = ("/bounty/v"+ this.props.version+"/"+ this.props.bountyId);
 console.log("stage", this.props.stage);//
     return (
       <div style={{float: "left", display: "block", width: "630px", marginBottom: "15px", display: "flex"}}>

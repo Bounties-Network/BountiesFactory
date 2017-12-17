@@ -103,7 +103,11 @@ class BountyPage extends Component {
     if (!stored){
       providerLink = "https://mainnet.infura.io";
       requiredNetwork = 1;
-      standardBountiesAddress = json.mainNet.standardBountiesAddress;
+      if (this.props.version === "v0"){
+        standardBountiesAddress = json.mainNet.standardBountiesAddress.v0;
+      } else {
+        standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
+      }
       userCommentsAddress = json.mainNet.userCommentsAddress;
       networkName = "Main Network";
       localStorage.setItem('ethereumNetwork', "MainNet");
@@ -111,7 +115,11 @@ class BountyPage extends Component {
       if (stored === "MainNet"){
         providerLink = "https://mainnet.infura.io";
         requiredNetwork = 1;
-        standardBountiesAddress = json.mainNet.standardBountiesAddress;
+        if (this.props.version === "v0"){
+          standardBountiesAddress = json.mainNet.standardBountiesAddress.v0;
+        } else {
+          standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
+        }
         userCommentsAddress = json.mainNet.userCommentsAddress;
         networkName = "Main Network";
 
@@ -119,7 +127,11 @@ class BountyPage extends Component {
       } else if (stored === "Rinkeby"){
         providerLink = "https://rinkeby.infura.io";
         requiredNetwork = 4;
-        standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+        if (this.props.version === "v0"){
+          standardBountiesAddress = json.rinkeby.standardBountiesAddress.v0;
+        } else {
+          standardBountiesAddress = json.rinkeby.standardBountiesAddress.v1;
+        }
         userCommentsAddress = json.rinkeby.userCommentsAddress;
         networkName = "Rinkeby Network";
       }
@@ -193,6 +205,7 @@ class BountyPage extends Component {
         StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
         lightMode:  localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
+        version: this.props.params.version
 
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
@@ -447,17 +460,32 @@ class BountyPage extends Component {
 
       web3.version.getNetwork((err, netId) => {
         if (netId === "1"){
-          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress),
-                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
-                         selectedNetwork: netId});
+          if (this.state.version === "v0"){
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
+                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+                           selectedNetwork: netId});
+          } else if (this.state.version === "v1"){
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
+                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+                           selectedNetwork: netId});
+          }
+
         } else if (netId === "4"){
-          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress),
-                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
-                         selectedNetwork: netId});
+          if (this.state.version == "v0"){
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
+                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
+                           selectedNetwork: netId});
+          } else if (this.state.version == "v1"){
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
+                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
+                           selectedNetwork: netId});
+          }
+
         } else {
           this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
         }
         console.log("got network", netId);
+        console.log("version", this.state.version);
 
 
         setInterval(function() {
@@ -489,6 +517,8 @@ class BountyPage extends Component {
             });
 
             this.setState({accounts: accs});
+            console.log("bounty", this.state.StandardBounties);
+
             this.state.StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
               this.state.StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
                 if (data){

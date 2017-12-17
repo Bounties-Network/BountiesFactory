@@ -41,6 +41,7 @@ import Halogen from 'halogen';
 const CATEGORIES = [
   { label: 'Code', value: 'Code' },
   { label: 'Bugs', value: 'Bugs' },
+  { label: 'Space Travel', value: 'Space Travel' },
   { label: 'Questions', value: 'Questions' },
   { label: 'Graphic Design', value: 'Graphic Design' },
   { label: 'Social Media', value: 'Social Media' },
@@ -61,10 +62,11 @@ class NewBounty extends Component {
     var networkName = "";
     var providerLink = "";
     var stored = localStorage.getItem('ethereumNetwork');
+
     if (!stored){
       providerLink = "https://mainnet.infura.io";
       requiredNetwork = 1;
-      standardBountiesAddress = json.mainNet.standardBountiesAddress;
+      standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
       userCommentsAddress = json.mainNet.userCommentsAddress;
       networkName = "Main Network";
       localStorage.setItem('ethereumNetwork', "MainNet");
@@ -72,7 +74,7 @@ class NewBounty extends Component {
       if (stored === "MainNet"){
         providerLink = "https://mainnet.infura.io";
         requiredNetwork = 1;
-        standardBountiesAddress = json.mainNet.standardBountiesAddress;
+        standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
         userCommentsAddress = json.mainNet.userCommentsAddress;
         networkName = "Main Network";
 
@@ -80,13 +82,14 @@ class NewBounty extends Component {
       } else if (stored === "Rinkeby"){
         providerLink = "https://rinkeby.infura.io";
         requiredNetwork = 4;
-        standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+        standardBountiesAddress = json.rinkeby.standardBountiesAddress.v1;
         userCommentsAddress = json.rinkeby.userCommentsAddress;
         networkName = "Rinkeby Network";
       }
 
     }
     web3.setProvider(new Web3.providers.HttpProvider(providerLink));
+    console.log("json.rinkeby.standardBountiesAddress.v1", json.rinkeby.standardBountiesAddress.v1);
 
     console.log("localStorage.getItem('lightMode')", localStorage.getItem('lightMode'));
     this.state = {
@@ -224,11 +227,11 @@ class NewBounty extends Component {
       web3.version.getNetwork((err, netId) => {
 
         if (netId === "1"){
-          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress),
+          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
                          selectedNetwork: netId});
         } else if (netId ===  "4"){
-          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress),
+          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                          selectedNetwork: netId});
         } else {

@@ -19,7 +19,7 @@ import './index.css'
     <MuiThemeProvider>
       <Router history={browserHistory}>
         <Route path="/" component={App} />
-        <Route path="/bounty/:id" component={BountyPage} />
+        <Route path="/bounty/:version/:id" component={BountyPage} />
         <Route path="/user/:address" component={UserPage} />
         <Route path="/allBounties/" component={AllBountiesPage} />
         <Route path="/privacyPolicy/" component={PrivacyPolicy} />

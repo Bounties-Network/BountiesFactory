@@ -68,16 +68,25 @@ this.setState({sortByCreated: sortByCreated,
 
     var givenList = this.props.list;
     console.log("given list", givenList);
+    givenList.sort(function(b1, b2){
+      return (b1.version - b2.version);
+    });
     var prices = this.props.prices;
 
 
     if (this.state.sortByCreated){
       if (this.state.createdDescending){
         givenList.sort(function(b1, b2){
+          if (b2.version !== b1.version){
+            return (b2.version - b1.version);
+          }
           return (b2.bountyId - b1.bountyId);
         });
       } else {
         givenList.sort(function(b1, b2){
+          if (b2.version !== b1.version){
+            return (b1.version - b2.version);
+          }
           return (b1.bountyId - b2.bountyId);
         });
       }
@@ -137,6 +146,7 @@ this.setState({sortByCreated: sortByCreated,
                       price={prices[contract.symbol]}
                       lightMode={lightMode}
                       stage={contract.stage}
+                      version={contract.version}
                       />
         );
       });
