@@ -57,7 +57,7 @@ class AppContainer extends Component {
       providerLink = "https://mainnet.infura.io";
       requiredNetwork = 1;
       standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
-      standardBountiesAddress = json.mainNet.standardBountiesAddress.v0;
+      standardBountiesAddressv0 = json.mainNet.standardBountiesAddress.v0;
 
       userCommentsAddress = json.mainNet.userCommentsAddress;
       networkName = "Main Network";
@@ -67,7 +67,7 @@ class AppContainer extends Component {
         providerLink = "https://mainnet.infura.io";
         requiredNetwork = 1;
         standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
-        standardBountiesAddress = json.mainNet.standardBountiesAddress.v0;
+        standardBountiesAddressv0 = json.mainNet.standardBountiesAddress.v0;
 
         userCommentsAddress = json.mainNet.userCommentsAddress;
         networkName = "Main Network";
@@ -77,7 +77,7 @@ class AppContainer extends Component {
         providerLink = "https://rinkeby.infura.io";
         requiredNetwork = 4;
         standardBountiesAddress = json.rinkeby.standardBountiesAddress.v1;
-        standardBountiesAddress = json.rinkeby.standardBountiesAddress.v0;
+        standardBountiesAddressv0 = json.rinkeby.standardBountiesAddress.v0;
 
         userCommentsAddress = json.rinkeby.userCommentsAddress;
         networkName = "Rinkeby Network";
@@ -108,7 +108,7 @@ class AppContainer extends Component {
       standardBountiesAddress: standardBountiesAddress,
       userCommentsAddress: userCommentsAddress,
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
-      StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
+      StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddressv0),
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
       lightMode:   localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
     }
@@ -424,11 +424,10 @@ class AppContainer extends Component {
   getBounty(bountyId, bounties, total, version){
     if (version == 0){
       this.state.StandardBountiesv0.getBounty(bountyId, (err, succ)=> {
-        this.state.StandardBountiesv0.getNumFulfillments(bountyId, (err, numFul)=>{
-          this.state.StandardBountiesv0.getBountyData(bountyId, (err, data)=> {
-            console.log('data', data);
+      this.state.StandardBountiesv0.getNumFulfillments(bountyId, (err, numFul)=>{
+        this.state.StandardBountiesv0.getBountyData(bountyId, (err, data)=> {
+          if (data.length > 0){
             ipfs.catJSON(data, (err, result)=> {
-              console.log("err", data, err, result);
               var stage;
               var max = new BN(8640000000000000);
               if (parseInt(succ[4], 10) === 0){
@@ -518,18 +517,45 @@ class AppContainer extends Component {
               }
 
             });
+          } else {
 
-          });
+            bounties.push({
+              bountyId: bountyId,
+              issuer: succ[0],
+              deadline: 0,
+              dateNum: 0,
+              value: 0,
+              paysTokens: succ[3],
+              stage: "Draft",
+              owedAmount: parseInt(succ[5], 10),
+              balance: 0,
+              bountyData: {categories:[]},
+              dateString: "date",
+              symbol: "",
+              numFul: parseInt(numFul, 10),
+              version: 0
+            });
+            if (bounties.length === total){
+              this.setState({bountiesv0: bounties, loading: false});
+            }
+
+
+          }
+
+
         });
-
-
       });
+
+
+    });
+
 
     } else if (version == 1){
 
       this.state.StandardBounties.getBounty(bountyId, (err, succ)=> {
-        this.state.StandardBounties.getNumFulfillments(bountyId, (err, numFul)=>{
-          this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
+      this.state.StandardBounties.getNumFulfillments(bountyId, (err, numFul)=>{
+        this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
+          if (data.length > 0){
             ipfs.catJSON(data, (err, result)=> {
               var stage;
               var max = new BN(8640000000000000);
@@ -620,12 +646,37 @@ class AppContainer extends Component {
               }
 
             });
+          } else {
 
-          });
+            bounties.push({
+              bountyId: bountyId,
+              issuer: succ[0],
+              deadline: 0,
+              dateNum: 0,
+              value: 0,
+              paysTokens: succ[3],
+              stage: "Draft",
+              owedAmount: parseInt(succ[5], 10),
+              balance: 0,
+              bountyData: {categories:[]},
+              dateString: "date",
+              symbol: "",
+              numFul: parseInt(numFul, 10),
+              version: 0,
+            });
+            if (bounties.length === total){
+              this.setState({bounties: bounties, loading: false});
+            }
+
+
+          }
+
+
         });
-
-
       });
+
+
+    });
 
     }
 
