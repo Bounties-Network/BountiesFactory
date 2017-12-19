@@ -99,7 +99,7 @@ class AppContainer extends Component {
       totalMe: 0,
       loading: true,
       myBountiesLoading: true,
-      selectedStage: "ANY",
+      selectedStage: "Active",
       selectedMine: "ANY",
       requiredNetwork: requiredNetwork,
       networkName: networkName,
