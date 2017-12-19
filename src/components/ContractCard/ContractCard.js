@@ -46,7 +46,6 @@ class ContractCard extends Component {
 
     var reward = "" + this.props.value;
     var url = ("/bounty/v"+ this.props.version+"/"+ this.props.bountyId);
-console.log("stage", this.props.stage);//
     return (
       <div style={{float: "left", display: "block", width: "630px", marginBottom: "15px", display: "flex"}}>
         <div style={{width: "560px", marginBottom: "0px",boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: this.props.lightMode? "rgb(249, 249, 249)":"#12293f", color: "white", borderLeft: this.props.lightMode? "1px solid rgb(56, 90, 116)":"1px solid #16e5cd", borderWidth: "0px 0px 0px 1px", display: "flex", justifyContent: "center", alignItems: "center"}} className="ContractCard">

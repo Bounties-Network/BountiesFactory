@@ -67,7 +67,6 @@ this.setState({sortByCreated: sortByCreated,
   render() {
 
     var givenList = this.props.list;
-    console.log("given list", givenList);
     givenList.sort(function(b1, b2){
       return (b1.version - b2.version);
     });

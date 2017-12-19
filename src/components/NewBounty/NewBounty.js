@@ -685,7 +685,7 @@ class NewBounty extends Component {
             <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
 
           </div>
-            <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: this.state.lightMode? "rgb(249,249,249)":"rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #16e5cd", color:this.state.lightMode? "rgb(25, 55, 83)":"white"}} className="ContractCard">
+            <div style={{display: "block", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: this.state.lightMode? "rgb(249,249,249)":"rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #16e5cd", color:this.state.lightMode? "rgb(25, 55, 83)":"white"}} className="ContractCard">
               <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "1000px", fontWeight: "600", fontSize: "28px"}}>Create a New Bounty</h3>
               <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: this.state.lightMode? "rgb(25, 55, 83)":"white"}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
@@ -769,7 +769,7 @@ class NewBounty extends Component {
                 <div style={{display: "inline-block"}}>
                   <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}} className={this.state.lightMode? "LightMode":""}>
                     <label style={{fontSize: "12px"}} >Bounty Category</label>
-                    <Select multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select task categories" options={CATEGORIES} onChange={this.handleSelectChange} />
+                    <Select.Creatable multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select task categories" options={CATEGORIES} onChange={this.handleSelectChange} />
                     <p style={{fontSize: "12px", color: this.state.lightMode? "rgba(25, 55, 83,0.5)":"rgba(265,265,265, 0.55)", marginTop: "5px", marginBottom: "15px"}}>the types of tasks being bountied</p>
                   </div>
                   {this.state.activateNow === "now" && (

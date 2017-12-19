@@ -484,8 +484,7 @@ class BountyPage extends Component {
         } else {
           this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
         }
-        console.log("got network", netId);
-        console.log("version", this.state.version);
+
 
 
         setInterval(function() {
@@ -517,12 +516,10 @@ class BountyPage extends Component {
             });
 
             this.setState({accounts: accs});
-            console.log("bounty", this.state.StandardBounties);
 
             this.state.StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
               this.state.StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
                 if (data){
-                  console.log("data", data);
 
                   ipfs.catJSON(data, (err, result)=> {
                     var stage;
@@ -555,7 +552,6 @@ class BountyPage extends Component {
                     if (!succ[3]){
                       var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
                       var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
-                      console.log("balance: ", value, balance);
                       this.setState({contract: {
                         issuer: succ[0],
                         deadline: newDate.toUTCString(),
@@ -635,7 +631,6 @@ class BountyPage extends Component {
             });
             this.state.StandardBounties.getNumFulfillments(this.state.bountyId, (err, succ)=> {
               var total = parseInt(succ, 10);
-              console.log("total", total);
               var fulfillments = [];
               for (var j = 0; j < total; j++){
                 this.getFulfillment(j, fulfillments, total);
@@ -656,7 +651,6 @@ class BountyPage extends Component {
       this.state.StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
         this.state.StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
           if (data){
-            console.log("data", data);
 
             ipfs.catJSON(data, (err, result)=> {
               var stage;
@@ -688,7 +682,6 @@ class BountyPage extends Component {
               if (!succ[3]){
                 var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
                 var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
-                console.log("balance: ", value, balance);
                 this.setState({contract: {
                   issuer: succ[0],
                   deadline: newDate.toUTCString(),
@@ -766,7 +759,6 @@ class BountyPage extends Component {
       });
       this.state.StandardBounties.getNumFulfillments(this.state.bountyId, (err, succ)=> {
         var total = parseInt(succ, 10);
-        console.log("total", total);
         var fulfillments = [];
         for (var j = 0; j < total; j++){
           this.getFulfillment(j, fulfillments, total);
@@ -782,9 +774,7 @@ class BountyPage extends Component {
   }
   getFulfillment(fulId, fulfillments, total){
     this.state.StandardBounties.getFulfillment(this.state.bountyId, fulId, (err, succ)=> {
-      console.log("Jth fulfillmnet", fulId);
       ipfs.catJSON(succ[2], (err, result)=> {
-        console.log("err, succ", err, result);
         fulfillments.push({
           fulfillmentId: fulId,
           accepted: succ[0],
@@ -808,7 +798,6 @@ class BountyPage extends Component {
       var total = parseInt(succ, 10);
       var comments = [];
 
-      console.log("total comments: ", total);
       for (var i = 0; i < total; i++){
         this.state.UserCommentsContract.getComment( i, (err, succ)=> {
           var from = succ[1];
@@ -877,7 +866,6 @@ class BountyPage extends Component {
         ipfs.addJSON({description: data, sourceFileName: this.state.sourceFileName, sourceDirectoryHash: this.state.sourceDirectoryHash, sourceFileHash: this.state.sourceFileHash, contact: contact}, (err, succ)=> {
           this.setState({txLoadingAmount: 40});
 
-          console.log("about to fulfill", this.state.bountyId, succ);
           this.state.StandardBounties.fulfillBounty(this.state.bountyId, succ, {from: this.state.accounts[0]}, (err, succ)=> {
             if (err){
               console.log("err", err);
@@ -956,8 +944,6 @@ class BountyPage extends Component {
           var decimalUnits = new BN(this.state.contract.decimals, 10);
           decimalToMult = decimalToMult.pow(decimalUnits);
           newAmount = newAmount.mul(decimalToMult);
-
-          console.log("newAmount", this.state.StandardBounties.address);
 
           this.state.contract.tokenContract.approve(this.state.StandardBounties.address, parseInt(newAmount, 10), {from: this.state.accounts[0]}, (err, succ)=> {
             if (err){
@@ -2267,7 +2253,7 @@ handleToggleLightMode(){
               </div>
             </a>
             <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-
+<FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > New Bounty </FlatButton>
           </div>
 
           <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px", display: "block"}}>

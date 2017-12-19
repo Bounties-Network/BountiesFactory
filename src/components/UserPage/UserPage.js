@@ -92,7 +92,6 @@ class UserPage extends Component {
 
     }
     web3.setProvider(new Web3.providers.HttpProvider(providerLink));
-    console.log("localStorage.getItem('lightMode')", localStorage.getItem('lightMode') == "true");
     this.state = {
       modalError: "",
       balance: 0,
@@ -365,7 +364,6 @@ class UserPage extends Component {
         var commentsAbout = [];
 
 
-        console.log("total comments: ", total);
         for (var i = 0; i < total; i++){
           this.state.UserCommentsContract.getComment( i, (err, succ)=> {
             var from = succ[1];
@@ -386,7 +384,6 @@ class UserPage extends Component {
             }
 
             ipfs.catJSON(succ[0], (err, result)=> {
-              console.log("error", err);
               if (to == this.state.userAddress){
                 commentsAbout.push({title: result.title,
                               from: from,
@@ -479,7 +476,7 @@ class UserPage extends Component {
                     this.getBountyComments();
                 }
               } else {
-                this.state.StandardBounties.getBountyToken(bountyId, (err, address)=> {
+                this.state.StandardBountiesv0.getBountyToken(bountyId, (err, address)=> {
                   var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
                   HumanStandardToken.symbol((err, symbol)=> {
                     HumanStandardToken.decimals((err, dec)=> {
@@ -789,7 +786,6 @@ class UserPage extends Component {
           web3.eth.getBalance(this.state.userAddress, (err, succ)=> {
 
             var balance = parseFloat(web3.fromWei(parseInt(succ, 10), "ether")).toFixed(2);
-            console.log("balance", balance);
 
             this.setState({balance: balance});
           });
@@ -1030,11 +1026,9 @@ handleToggleLightMode(){
   var acceptanceRate = 0;
   if (myFul.length !== 0){
     acceptanceRate = (numAccepted*100 / myFul.length).toFixed(0);
-    console.log("myFul", numAccepted, myFul.length);
   }
   var myAcceptanceRate = 0;
   if (mySubs !== 0){
-    console.log("mysubs", myNumAccepted, mySubs);
 
     myAcceptanceRate = (myNumAccepted*100 / mySubs).toFixed(0);
   }
@@ -1116,7 +1110,6 @@ handleToggleLightMode(){
     </div>
   );
 
-  console.log("this", this.state.bounties);
   const modalActions3 = [
   <FlatButton
     label="Close"
@@ -1157,7 +1150,7 @@ handleToggleLightMode(){
             </div>
           </a>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-
+<FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > New Bounty </FlatButton>
         </div>
           <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px"}}>
           <div style={{float: "left", margin: "15px 15px 15px 15px", width: "960px", display: "inline-block", backgroundColor: this.state.lightMode? "rgb(249, 249, 249)" :"rgba(10, 22, 40, 0.5)", padding: "30px", color: this.state.lightMode? "rgb(25, 55, 83)" :"white"}}>
