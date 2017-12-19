@@ -7,14 +7,6 @@ body {
   color: #fff;
   font-family: "Open Sans";
   /*background: #0F1E33; /* For browsers that do not support gradients */
-  background-color: #28252b;
-  background: -webkit-linear-gradient(#2A4558, #0F1E33); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(#2A4558, #0F1E33); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(#2A4558, #0F1E33); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(#2A4558, #0F1E33); /* Standard syntax */
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-
 }
 
 body {
@@ -41,7 +33,7 @@ thead {
   width: 100%;
 }
 
-#colourBody {
+#colourBodyDark {
   background-color: #0F1E33;
   background: -webkit-linear-gradient(#2A4558, #0F1E33); /* For Safari 5.1 to 6.0 */
   background: -o-linear-gradient(#2A4558, #0F1E33); /* For Opera 11.1 to 12.0 */
@@ -50,15 +42,25 @@ thead {
   background-repeat: no-repeat;
     background-attachment: fixed;
 }
+#colourBodyLight {
+  background-color: #d2d2d2;
+  background: -webkit-linear-gradient(#f1f1f1, #d2d2d2); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(#f1f1f1, #d2d2d2); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(#f1f1f1, #d2d2d2); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(#f1f1f1, #d2d2d2); /* Standard syntax */
+  background-repeat: no-repeat;
+    background-attachment: fixed;
+}
 .gitter-open-chat-button {
-  border: 1px solid rgb(22, 229, 205);
-  border-width: 1px 1px 0px 1px;
-  background-color: rgba(0,0,0,0);
   border-radius: 0px;
-  color: rgb(22, 229, 205) !important;
   right: 30px;
 }
 .gitter-open-chat-button:hover {
   background-color: #275d7a;
   border-radius: 0px;
+}
+.inputWhite{
+  -webkit-box-shadow: inset 0px 0px 50px 0px rgba(0,0,0,0.1);
+-moz-box-shadow: inset 0px 0px 50px 0px rgba(0,0,0,0.1);
+box-shadow: inset 0px 0px 50px 0px rgba(0,0,0,0.1);
 }

@@ -16,6 +16,10 @@ const BN = require(`bn.js`);
 const utf8 = require('utf8');
 
 import logo from './images/logo.svg';
+import logoDark from './images/logoDark.svg';
+import darkMoon from '../AppContainer/images/DarkMoon.png';
+import lightMoon from '../AppContainer/images/LightMoon.png';
+
 import FlatButton from 'material-ui/FlatButton';
 import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
 
@@ -43,6 +47,8 @@ class AppContainer extends Component {
 
     var requiredNetwork = 0;
     var standardBountiesAddress = "";
+    var standardBountiesAddressv0 = "";
+
     var userCommentsAddress = "";
     var networkName = "";
     var providerLink = "";
@@ -50,7 +56,9 @@ class AppContainer extends Component {
     if (!stored){
       providerLink = "https://mainnet.infura.io";
       requiredNetwork = 1;
-      standardBountiesAddress = json.mainNet.standardBountiesAddress;
+      standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
+      standardBountiesAddressv0 = json.mainNet.standardBountiesAddress.v0;
+
       userCommentsAddress = json.mainNet.userCommentsAddress;
       networkName = "Main Network";
       localStorage.setItem('ethereumNetwork', "MainNet");
@@ -58,7 +66,9 @@ class AppContainer extends Component {
       if (stored === "MainNet"){
         providerLink = "https://mainnet.infura.io";
         requiredNetwork = 1;
-        standardBountiesAddress = json.mainNet.standardBountiesAddress;
+        standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
+        standardBountiesAddressv0 = json.mainNet.standardBountiesAddress.v0;
+
         userCommentsAddress = json.mainNet.userCommentsAddress;
         networkName = "Main Network";
 
@@ -66,7 +76,9 @@ class AppContainer extends Component {
       } else if (stored === "Rinkeby"){
         providerLink = "https://rinkeby.infura.io";
         requiredNetwork = 4;
-        standardBountiesAddress = json.rinkeby.standardBountiesAddress;
+        standardBountiesAddress = json.rinkeby.standardBountiesAddress.v1;
+        standardBountiesAddressv0 = json.rinkeby.standardBountiesAddress.v0;
+
         userCommentsAddress = json.rinkeby.userCommentsAddress;
         networkName = "Rinkeby Network";
       }
@@ -81,6 +93,7 @@ class AppContainer extends Component {
       accounts: [],
       contracts: [],
       bounties: [],
+      bountiesv0: [],
       optionsList: [],
       total: 0,
       totalMe: 0,
@@ -94,10 +107,10 @@ class AppContainer extends Component {
       standardBountiesAddress: standardBountiesAddress,
       userCommentsAddress: userCommentsAddress,
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
-      UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
-
+      StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddressv0),
+      UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
+      lightMode:   localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
     }
-
 
     this.getInitialData = this.getInitialData.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
@@ -113,6 +126,8 @@ class AppContainer extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
 
     this.getPrices = this.getPrices.bind(this);
+
+    this.handleToggleLightMode = this.handleToggleLightMode.bind(this);
 
   }
 
@@ -289,11 +304,13 @@ class AppContainer extends Component {
 
         web3.version.getNetwork((err, netId) => {
           if (netId === "1"){
-            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress),
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
+                           StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
                            selectedNetwork: netId});
           } else if (netId === "4"){
-            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress),
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
+                           StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                            selectedNetwork: netId});
           } else {
@@ -335,7 +352,21 @@ class AppContainer extends Component {
 
                 this.setState({total: total});
                 for (var i = 0; i < total; i++){
-                  this.getBounty(i, bounties, total);
+                  this.getBounty(i, bounties, total, 1);
+
+                }
+                if (total === 0){
+                  this.setState({loading: false});
+                }
+
+              });
+              var bountiesv0 = [];
+              this.state.StandardBountiesv0.getNumBounties((err, succ)=> {
+                var total = parseInt(succ, 10);
+
+                this.setState({total: this.state.total+total});
+                for (var i = 0; i < total; i++){
+                  this.getBounty(i, bountiesv0, total, 0);
 
                 }
                 if (total === 0){
@@ -355,7 +386,20 @@ class AppContainer extends Component {
         var total = parseInt(succ, 10);
         this.setState({total: total});
         for (var i = 0; i < total; i++){
-          this.getBounty(i, bounties, total);
+          this.getBounty(i, bounties, total,1);
+
+        }
+        if (total === 0){
+          this.setState({loading: false});
+        }
+
+      });
+      var bountiesv0 = [];
+      this.state.StandardBountiesv0.getNumBounties((err, succ)=> {
+        var total = parseInt(succ, 10);
+        this.setState({total: this.state.total+total});
+        for (var i = 0; i < total; i++){
+          this.getBounty(i, bountiesv0, total, 0);
 
         }
         if (total === 0){
@@ -376,8 +420,138 @@ class AppContainer extends Component {
       */
     }
   }
-  getBounty(bountyId, bounties, total){
-    this.state.StandardBounties.getBounty(bountyId, (err, succ)=> {
+  getBounty(bountyId, bounties, total, version){
+    if (version == 0){
+      this.state.StandardBountiesv0.getBounty(bountyId, (err, succ)=> {
+      this.state.StandardBountiesv0.getNumFulfillments(bountyId, (err, numFul)=>{
+        this.state.StandardBountiesv0.getBountyData(bountyId, (err, data)=> {
+          if (data.length > 0){
+            ipfs.catJSON(data, (err, result)=> {
+              var stage;
+              var max = new BN(8640000000000000);
+              if (parseInt(succ[4], 10) === 0){
+                stage = "Draft";
+              } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
+                stage = "Completed";
+              } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
+                stage = "Expired";
+              } else if (parseInt(succ[4], 10) === 1){
+                stage = "Active";
+              }  else {
+                stage = "Dead";
+              }
+              var intDate = parseInt(succ[1], 10);
+              var newDate;
+              var dateString;
+              if ((succ[1].times(1000)).greaterThan(max)){
+                newDate = new Date(parseInt(max, 10));
+                dateString = this.dateToString(8640000000000000);
+              } else {
+                newDate = new Date(parseInt(succ[1], 10)*1000);
+                dateString = this.dateToString(parseInt(succ[1], 10)*1000);
+              }
+
+
+              if (!succ[3]){
+                var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
+                var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
+                bounties.push({
+                  bountyId: bountyId,
+                  issuer: succ[0],
+                  deadline: newDate.toUTCString(),
+                  dateNum: newDate.getTime(),
+                  value: value,
+                  paysTokens: succ[3],
+                  stage: stage,
+                  balance: balance,
+                  bountyData: result,
+                  symbol: "ETH",
+                  dateString: dateString,
+                  numFul: parseInt(numFul, 10),
+                  version: 0
+                });
+                if (bounties.length === total){
+                  this.setState({bountiesv0: bounties, loading: false});
+                }
+              } else {
+                this.state.StandardBountiesv0.getBountyToken(bountyId, (err, address)=> {
+                  var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
+                  HumanStandardToken.symbol((err, symbol)=> {
+                    HumanStandardToken.decimals((err, dec)=> {
+
+                      var decimals = parseInt(dec, 10);
+                      var newAmount = succ[2];
+                      var decimalToMult = new BN(10, 10);
+                      var decimalUnits = new BN(decimals, 10);
+                      decimalToMult = decimalToMult.pow(decimalUnits);
+                      newAmount = newAmount.div(decimalToMult);
+
+                      var balance = succ[5];
+                      balance = balance.div(decimalToMult);
+
+                      bounties.push({
+                        bountyId: bountyId,
+                        issuer: succ[0],
+                        deadline: newDate.toUTCString(),
+                        dateNum: newDate.getTime(),
+                        value: parseInt(newAmount, 10),
+                        paysTokens: succ[3],
+                        stage: stage,
+                        owedAmount: parseInt(succ[5], 10),
+                        balance: parseInt(balance, 10),
+                        bountyData: result,
+                        dateString: dateString,
+                        symbol: symbol,
+                        numFul: parseInt(numFul, 10),
+                        version: 0
+                      });
+                      if (bounties.length === total){
+                        this.setState({bountiesv0: bounties, loading: false});
+                      }
+                    });
+                  });
+
+                });
+
+              }
+
+            });
+          } else {
+
+            bounties.push({
+              bountyId: bountyId,
+              issuer: succ[0],
+              deadline: 0,
+              dateNum: 0,
+              value: 0,
+              paysTokens: succ[3],
+              stage: "Draft",
+              owedAmount: parseInt(succ[5], 10),
+              balance: 0,
+              bountyData: {categories:[]},
+              dateString: "date",
+              symbol: "",
+              numFul: parseInt(numFul, 10),
+              version: 0
+            });
+            if (bounties.length === total){
+              this.setState({bountiesv0: bounties, loading: false});
+            }
+
+
+          }
+
+
+        });
+      });
+
+
+    });
+
+
+    } else if (version == 1){
+
+      this.state.StandardBounties.getBounty(bountyId, (err, succ)=> {
       this.state.StandardBounties.getNumFulfillments(bountyId, (err, numFul)=>{
         this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
           if (data.length > 0){
@@ -422,7 +596,8 @@ class AppContainer extends Component {
                   bountyData: result,
                   symbol: "ETH",
                   dateString: dateString,
-                  numFul: parseInt(numFul, 10)
+                  numFul: parseInt(numFul, 10),
+                  version: 1
                 });
                 if (bounties.length === total){
                   this.setState({bounties: bounties, loading: false});
@@ -456,7 +631,8 @@ class AppContainer extends Component {
                         bountyData: result,
                         dateString: dateString,
                         symbol: symbol,
-                        numFul: parseInt(numFul, 10)
+                        numFul: parseInt(numFul, 10),
+                        version: 1
                       });
                       if (bounties.length === total){
                         this.setState({bounties: bounties, loading: false});
@@ -484,7 +660,8 @@ class AppContainer extends Component {
               bountyData: {categories:[]},
               dateString: "date",
               symbol: "",
-              numFul: parseInt(numFul, 10)
+              numFul: parseInt(numFul, 10),
+              version: 0,
             });
             if (bounties.length === total){
               this.setState({bounties: bounties, loading: false});
@@ -500,6 +677,9 @@ class AppContainer extends Component {
 
     });
 
+    }
+
+
   }
   getPrices(){
 
@@ -512,7 +692,6 @@ class AppContainer extends Component {
     for (var i = 0; i < response.length; i++){
       prices[response[i].symbol] = response[i].price_usd;
     }
-    console.log("prices", prices);
     this.setState({prices: prices});
 
 
@@ -586,7 +765,12 @@ class AppContainer extends Component {
     optionsList.push(item);
     this.setState({optionsList: optionsList, value: item});
   }
+handleToggleLightMode(){
+  var lightMode = !this.state.lightMode;
+  this.setState({lightMode: lightMode});
+  localStorage.setItem('lightMode', lightMode);
 
+}
   render() {
     var newList = [];
     var totalMe = 0;;
@@ -596,28 +780,29 @@ class AppContainer extends Component {
     var completedMe = 0;
     var deadMe = 0;
     var expiredMe = 0;
-    for (var i = 0; i < this.state.bounties.length; i++){
-      if (this.state.bounties[i].issuer === this.state.accounts[0]){
-        newList.push(this.state.bounties[i]);
+    var totalBounties = this.state.bounties.concat(this.state.bountiesv0);
+    for (var i = 0; i < totalBounties.length; i++){
+      if (totalBounties[i].issuer === this.state.accounts[0]){
+        newList.push(totalBounties[i]);
         totalMe++;
-        if (this.state.bounties[i].stage === "Active"){
+        if (totalBounties[i].stage === "Active"){
           activeMe++;
         }
-        if (this.state.bounties[i].stage === "Draft"){
+        if (totalBounties[i].stage === "Draft"){
           draftMe++;
         }
-        if (this.state.bounties[i].stage === "Dead"){
+        if (totalBounties[i].stage === "Dead"){
           deadMe++;
         }
-        if (this.state.bounties[i].stage === "Expired"){
+        if (totalBounties[i].stage === "Expired"){
           expiredMe++;
         }
-        if (this.state.bounties[i].stage === "Completed"){
+        if (totalBounties[i].stage === "Completed"){
           completedMe++;
         }
       }
         var isInSelectedCategories = false;
-        var newCategories = this.state.bounties[i].bountyData.categories.filter((n)=> { return this.state.optionsList.includes(n)});
+        var newCategories = totalBounties[i].bountyData.categories.filter((n)=> { return this.state.optionsList.includes(n)});
         if (newCategories.length > 0 || this.state.optionsList[0] === "" || this.state.optionsList.length === 0){
           isInSelectedCategories = true;
         }
@@ -638,22 +823,18 @@ class AppContainer extends Component {
       }
 */
       if (isInSelectedCategories){
-        if (this.state.bounties[i].stage === this.state.selectedStage || this.state.selectedStage === "ANY"){
+        if (totalBounties[i].stage === this.state.selectedStage || this.state.selectedStage === "ANY"){
           if (this.state.selectedMine === "ANY"){
-            activeList.push(this.state.bounties[i]);
-          } else if (this.state.selectedMine === "MINE" && this.state.bounties[i].issuer === this.state.accounts[0]){
-            activeList.push(this.state.bounties[i]);
-          } else if (this.state.selectedMine === "NOT MINE" && this.state.bounties[i].issuer !== this.state.accounts[0]){
-            activeList.push(this.state.bounties[i]);
+            activeList.push(totalBounties[i]);
+          } else if (this.state.selectedMine === "MINE" && totalBounties[i].issuer === this.state.accounts[0]){
+            activeList.push(totalBounties[i]);
+          } else if (this.state.selectedMine === "NOT MINE" && totalBounties[i].issuer !== this.state.accounts[0]){
+            activeList.push(totalBounties[i]);
           }
         }
       }
 
 
-    }
-    var recentList = [];
-    for (var j = 0; j < 3 && j < this.state.bounties.length; j++){
-        recentList.push(this.state.bounties[j]);
     }
     const modalActions = [
     <FlatButton
@@ -669,6 +850,7 @@ class AppContainer extends Component {
 
     return (
       <div>
+
       <Dialog
          title=""
          actions={modalActions}
@@ -678,54 +860,56 @@ class AppContainer extends Component {
        >
          {this.state.modalError}
        </Dialog>
-      <div id="colourBody" style={{minHeight: "100vh", position: "relative"}}>
-
-        <div style={{overflow: "hidden"}}>
-          <a href="/" style={{width: "276px", overflow: "hidden", display: "inline-block", float: "left", padding: "1.25em 0em 0em 0em"}}>
-            <div style={{backgroundImage: `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "45px"}}>
+      <div id={this.state.lightMode? "colourBodyLight": "colourBodyDark"} style={{minHeight: "100vh", position: "relative"}}>
+      <div style={{position: "fixed", bottom: "15px", left: "15px", display: "block", overflow: "hidden", width: "100px"}} className="CornerEmoji">
+      <div onClick={this.handleToggleLightMode} style={{backgroundImage:  this.state.lightMode? `url(${darkMoon})`:`url(${lightMoon})`, height: "28px", width: "28px", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
+      </div>
+      </div>
+        <div style={{overflow: "hidden"}} className="navBar">
+          <a href="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
+            <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
             </div>
           </a>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-          <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border:"1px solid #16e5cd", color: "#16e5cd", width: "150px", marginTop: '30px', float: "right", height: "30px", lineHeight: "30px", marginRight: "30px"}} > New Bounty </FlatButton>
-
+<FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > New Bounty </FlatButton>
         </div>
         <div style={{ display: "block", overflow: "hidden", width: "1100px", margin: "0 auto", paddingBottom: "120px"}}>
 
           <div style={{width: "245px", float: "left", display: "block", marginRight: "15px"}}>
-            <h3 style={{fontFamily: "Open Sans", marginTop: "40px", marginBottom: "17px", textAlign: "center", color: "white", width: "100%", fontWeight: "600", fontSize: "16px"}}>PROFILE</h3>
-            <div style={{display: "block", width: "215px", backgroundColor: "rgba(10, 22, 40, 0.5)", overflow: "hidden", marginTop: "15px", padding: "15px", minHeight: "237px"}}>
+            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color: this.state.lightMode? "rgb(25, 55, 83)" :"white", width: "100%", fontWeight: "600", fontSize: "16px"}}>PROFILE</h3>
+            <div style={{display: "block", width: "215px", backgroundColor: this.state.lightMode? "rgb(249, 249, 249)" :"rgba(10, 22, 40, 0.5)", overflow: "hidden", marginTop: "15px", padding: "15px", minHeight: "237px"}}>
 
             {this.state.accounts.length > 0 &&
               <div>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "500", textAlign: "center", lineHeight: "24px"}}>You have posted  <b style={{color: "#16e5cd", fontSize: "24px"}}>{totalMe}</b> bounties</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: this.state.lightMode? "#193753":"white", width: "100%", fontWeight: "500", textAlign: "center", lineHeight: "24px"}}>You have posted  <b style={{color: "#16e5cd", fontSize: "24px"}}>{totalMe}</b> bounties</h5>
               <div style={{marginBottom: "15px", borderBottom: "1px solid #16e5cd", display: "block", overflow: "hidden"}}>
 
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "white", width: "100%", fontWeight: "500", lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{ fontSize: "24px"}}>{draftMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753": "white", width: "100%", fontWeight: "500", lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{ fontSize: "24px"}}>{draftMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 186, 20)", width: "100%", fontWeight: "500" }}>DRAFT</h5>
 
                 </div>
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "white", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{activeMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753": "white", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{activeMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(140, 226, 88)" , width: "100%", fontWeight: "500" }}>ACTIVE</h5>
 
 
                 </div>
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "white", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{deadMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753":"white", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{deadMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "#ff6846", width: "100%", fontWeight: "500"}}>DEAD</h5>
 
                 </div>
 
 
                 <div style={{width: "50%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "white", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{expiredMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753":"white", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{expiredMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(104, 166, 166)" , width: "100%", fontWeight: "500" }}>EXPIRED</h5>
 
 
                 </div>
                 <div style={{width: "50%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "white", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{completedMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753":"white", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{completedMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 222, 70)", width: "100%", fontWeight: "500"}}>COMPLETED</h5>
 
                 </div>
@@ -733,20 +917,13 @@ class AppContainer extends Component {
 
               </div>
 
-              <FlatButton
-                label="New Bounty"
-                primary={true}
-                labelPosition="before"
-                href={"/newBounty/"}
-                style={{color: "white", width: "100%", backgroundColor: "#16e5cd", color: "#152639"}}
-                icon={<SvgArrow style={{ border:"0px", color: "#152639", fontSize: "44px"}}/>}
-              />
+
               <FlatButton
                 label="My Profile"
                 primary={true}
                 labelPosition="before"
                 href={"/user/" + this.state.accounts[0]}
-                style={{color: "white", width: "100%", backgroundColor: "rgba(256, 256, 256, 0.05)", marginTop: "15px"}}
+                style={{color:  this.state.lightMode? "#193753":"white", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
                 icon={<SvgArrow style={{color: "#16e5cd", fontSize: "44px"}}/>}
               />
               <FlatButton
@@ -754,7 +931,7 @@ class AppContainer extends Component {
                 primary={true}
                 labelPosition="before"
                 onClick={this.handleChangeToMine}
-                style={{color: "white", width: "100%", backgroundColor: "rgba(256, 256, 256, 0.05)", marginTop: "15px"}}
+                style={{color:  this.state.lightMode? "#193753":"white", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
                 icon={<SvgArrow style={{color: "#16e5cd", fontSize: "44px"}}/>}
               />
 
@@ -762,16 +939,16 @@ class AppContainer extends Component {
           }
           {this.state.accounts.length === 0 &&
             <div>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "700", textAlign: "center", fontSize: "18px"}}>You have no account!</h5>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px"}}>{"This is likely because you're not using a web3 enabled browser."}</h5>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px", paddingTop: "15px", borderTop: "1px solid #16e5cd"}}>{"You can download the "}<a href="https://metamask.io" target="_blank" style={{color: "#16e5cd", fontWeight: "700"}}> Metamask </a>{" extension to begin posting bounties."}</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: this.state.lightMode? "#8a8a8a" :"white", width: "100%", fontWeight: "700", textAlign: "center", fontSize: "18px"}}>You have no account!</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: this.state.lightMode? "#8a8a8a" :"white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px"}}>{"This is likely because you're not using a web3 enabled browser."}</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: this.state.lightMode? "#8a8a8a" :"white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px", paddingTop: "15px", borderTop: "1px solid #16e5cd"}}>{"You can download the "}<a href="https://metamask.io" target="_blank" style={{color: "#16e5cd", fontWeight: "700"}}> Metamask </a>{" extension to begin posting bounties."}</h5>
 
             </div>
           }
 
             </div>
             <div id="mc_embed_signup">
-            <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "rgb(208,208,208)", width: "100%", fontWeight: "600", textAlign: "center", fontSize: "14px"}}>SIGN UP TO RECEIVE <br/> BOUNTIES NOTIFICATIONS</h5>
+            <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: this.state.lightMode? "rgb(25, 55, 83)" :"rgb(208,208,208)", width: "100%", fontWeight: "600", textAlign: "center", fontSize: "14px"}}>SIGN UP TO RECEIVE <br/> BOUNTIES NOTIFICATIONS</h5>
 
               <form action="//network.us16.list-manage.com/subscribe/post?u=03351ad14a86e9637146ada2a&amp;id=96ba00fd12" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" className="validate" target="_blank" >
                   <div id="mc_embed_signup_scroll">
@@ -782,20 +959,20 @@ class AppContainer extends Component {
                   <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
                     <input type="text" name="b_03351ad14a86e9637146ada2a_96ba00fd12" tabIndex="-1" value=""/>
                     </div>
-                      <input type="submit" value="SIGN UP" name="subscribe" id="mc-embedded-subscribe" className="button" style={{boxShadow: "none", padding: "0px 18px", fontFamily: "Open Sans", backgroundColor: "#183653", width: "17.4em", color: "rgb(208, 208, 208)", border: "0px", padding: "5px 15px", fontWeight: "600"}}/>
+                      <input type="submit" value="SIGN UP" name="subscribe" id="mc-embedded-subscribe" className="button" style={{boxShadow: "none", padding: "0px 18px", fontFamily: "Open Sans", backgroundColor: "#183653", width: "17.4em", color: "rgb(208, 208, 208)", border: "0px", padding: "5px 15px", fontWeight: "600", border: "0px solid rgba(0,0,0,0)"}}/>
                   </div>
               </form>
             </div>
 
           </div>
           <div style={{width: "630px", float: "left", display: "block"}}>
-            <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} prices={this.state.prices}/>
+            <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} prices={this.state.prices} lightMode={this.state.lightMode}/>
           </div>
-          <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className="FilterBar">
-            <h3 style={{fontFamily: "Open Sans", marginTop: "40px", marginBottom: "17px", textAlign: "center", color: "white", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>
+          <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className={this.state.lightMode?"FilterBarLight":"FilterBar"}>
+            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color: this.state.lightMode? "rgb(25, 55, 83)" :"white", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>
 
-            <div style={{display: "block", width: "100%", backgroundColor: "rgba(10, 22, 40, 0.5)", overflow: "hidden"}}>
-              <select onChange={this.handleChangeStage} value={this.state.selectedStage} style={{fontSize: "14px",backgroundColor: "rgba(10, 22, 40, 0)", border: "0px",color: "white", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
+            <div style={{display: "block", width: "100%", backgroundColor: this.state.lightMode? "rgba(1, 1, 1, 0.05)" :"rgba(10, 22, 40, 0.5)", overflow: "hidden"}}>
+              <select onChange={this.handleChangeStage} value={this.state.selectedStage} style={{fontSize: "14px", backgroundColor: "rgba(10, 22, 40, 0)", border: "0px",color: this.state.lightMode? "rgb(25, 55, 83)" : "white", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="Draft">Draft Bounties</option>
                 <option value="Active">Active Bounties</option>
                 <option value="Completed">Completed Bounties</option>
@@ -804,8 +981,8 @@ class AppContainer extends Component {
                 <option value="ANY">Any Stage</option>
               </select>
             </div>
-            <div style={{display: "block", width: "100%", backgroundColor: "rgba(10, 22, 40, 0.5)", overflow: "hidden", marginTop: "15px"}}>
-              <select onChange={this.handleMineChange} value={this.state.selectedMine} style={{fontSize: "14px",backgroundColor: "rgba(10, 22, 40, 0)" , border: "0px", color: "white", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
+            <div style={{display: "block", width: "100%", backgroundColor: this.state.lightMode? "rgba(1, 1, 1, 0.05)" :"rgba(10, 22, 40, 0.5)", overflow: "hidden", marginTop: "15px"}}>
+              <select onChange={this.handleMineChange} value={this.state.selectedMine} style={{fontSize: "14px",backgroundColor: "rgba(10, 22, 40, 0)" , border: "0px", color: this.state.lightMode? "rgb(25, 55, 83)" : "white", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="ANY" selected="selected">{"Anyone's Bounties"}</option>
                 <option value="MINE">My Bounties</option>
                 <option value="NOT MINE">Not My Bounties</option>
@@ -819,8 +996,9 @@ class AppContainer extends Component {
 
           </div>
         </div>
-        <p style={{textAlign: "center", fontSize: "10px", padding: "15px", color: "rgba(256,256,256,0.75)", width: "100vw", display: "block", bottom: "0", position: "absolute"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}>ConsenSys</a> Formation <br/>
-        This software provided without any guarantees. <b> Use at your own risk</b> while it is in public beta.</p>
+        <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: this.state.lightMode? "rgb(25, 55, 83)":"#16e5cd"}}>ConsenSys</a> Formation <br/>
+         <a href="/privacyPolicy/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Terms of Service</a>
+         </p>
 
       </div>
 

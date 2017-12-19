@@ -71,6 +71,13 @@ Canvas.identicon{
 .SideArrow:hover{
   background-color: #275d7a;
 }
+.SideArrowLight{
+  background-color: #dadddf;
+}
+
+.SideArrowLight:hover{
+  background-color: rgb(22, 229, 205);
+}
 .Chip:hover{
   color: rgb(22, 229, 205) !important;
 }
