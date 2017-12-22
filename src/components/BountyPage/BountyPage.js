@@ -459,7 +459,18 @@ class BountyPage extends Component {
       web3.setProvider(window.web3.currentProvider);
 
       web3.version.getNetwork((err, netId) => {
-        if (netId === "1"){
+        if (parseInt(netId, 10) > 10000){
+          if (this.state.version === "v0"){
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.localhost.standardBountiesAddress.v0),
+                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.localhost.userCommentsAddress),
+                           selectedNetwork: netId});
+          } else if (this.state.version === "v1"){
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.localhost.standardBountiesAddress.v1),
+                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.localhost.userCommentsAddress),
+                           selectedNetwork: netId});
+          }
+
+        } else if (netId === "1"){
           if (this.state.version === "v0"){
             this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
