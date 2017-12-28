@@ -329,7 +329,7 @@ class AppContainer extends Component {
                 window.location.reload();
               }
             });
-          });
+          }, 2000);
 
 
 
@@ -349,7 +349,7 @@ class AppContainer extends Component {
                     window.location.reload();
                   }
                 });
-              });
+              }, 2000);
               this.setState({accounts: accs});
 
               var bounties = [];

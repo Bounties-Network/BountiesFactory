@@ -249,7 +249,7 @@ class NewBounty extends Component {
               window.location.reload();
             }
           });
-        });
+        }, 2000);
         web3.eth.getAccounts(function(err, accs){
           if (err){
             console.log ('error fetching accounts', err);
@@ -266,7 +266,7 @@ class NewBounty extends Component {
                     window.location.reload();
                   }
                 });
-              });
+              }, 2000);
               this.setState({accounts: accs});
 
               console.log("about to get...");

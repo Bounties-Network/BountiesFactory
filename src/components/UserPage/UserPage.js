@@ -736,7 +736,7 @@ class UserPage extends Component {
               window.location.reload();
             }
           });
-        });
+        }, 2000);
 
 
       web3.eth.getAccounts(function(err, accs){
@@ -757,7 +757,7 @@ class UserPage extends Component {
                 window.location.reload();
               }
             });
-          });
+          }, 2000);
 
           this.setState({accounts: accs});
           var bounties = [];

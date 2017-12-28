@@ -504,7 +504,7 @@ class BountyPage extends Component {
               window.location.reload();
             }
           });
-        });
+        }, 2000);
 
         web3.eth.getAccounts(function(err, accs){
           if (err){
@@ -524,7 +524,7 @@ class BountyPage extends Component {
                   window.location.reload();
                 }
               });
-            });
+            }, 2000);
 
             this.setState({accounts: accs});
 
