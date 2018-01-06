@@ -387,7 +387,7 @@ class BountyPage extends Component {
   getPrices(){
 
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "https://api.coinmarketcap.com/v1/ticker/?convert=USD&limit=0", false);
+    xhttp.open("GET", "https://api.coinmarketcap.com/v1/ticker/?convert=USD&limit=100", false);
     //xhttp.setRequestHeader("Content-type", "application/json");
     xhttp.send();
     var response = JSON.parse(xhttp.responseText);
