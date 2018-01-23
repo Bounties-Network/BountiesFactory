@@ -433,6 +433,26 @@ class AppContainer extends Component {
         this.state.StandardBountiesv0.getBountyData(bountyId, (err, data)=> {
           if (data.length > 0){
             ipfs.catJSON(data, (err, result)=> {
+              var bountyDataResult;
+              if (!result || !result.meta || result.meta == "undefined"){
+                bountyDataResult = result;
+              } else {
+                console.log("meta", result);
+                if (result.meta.schemaVersion == "0.1"){
+                  bountyDataResult = {
+                    title: result.payload.title,
+                    description: result.payload.description,
+                    sourceFileName: result.payload.sourceFileName,
+                    sourceFileHash: result.payload.sourceFileHash,
+                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
+                    contact: result.payload.issuer.email,
+                    categories: result.payload.categories,
+                    githubLink: result.payload.webReferenceURL
+                  }
+                }
+              }
+
+
               var stage;
               var max = new BN(8640000000000000);
               if (parseInt(succ[4], 10) === 0){
@@ -470,7 +490,7 @@ class AppContainer extends Component {
                   paysTokens: succ[3],
                   stage: stage,
                   balance: balance,
-                  bountyData: result,
+                  bountyData: bountyDataResult,
                   symbol: "ETH",
                   dateString: dateString,
                   numFul: parseInt(numFul, 10),
@@ -505,7 +525,7 @@ class AppContainer extends Component {
                         stage: stage,
                         owedAmount: parseInt(succ[5], 10),
                         balance: parseInt(balance, 10),
-                        bountyData: result,
+                        bountyData: bountyDataResult,
                         dateString: dateString,
                         symbol: symbol,
                         numFul: parseInt(numFul, 10),
@@ -562,6 +582,24 @@ class AppContainer extends Component {
         this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
           if (data.length > 0){
             ipfs.catJSON(data, (err, result)=> {
+              var bountyDataResult;
+              if (!result || !result.meta || result.meta == "undefined"){
+                bountyDataResult = result;
+              } else {
+                if (result.meta.schemaVersion == "0.1"){
+                  bountyDataResult = {
+                    title: result.payload.title,
+                    description: result.payload.description,
+                    sourceFileName: result.payload.sourceFileName,
+                    sourceFileHash: result.payload.sourceFileHash,
+                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
+                    contact: result.payload.issuer.email,
+                    categories: result.payload.categories,
+                    githubLink: result.payload.webReferenceURL
+                  }
+                }
+              }
+
               var stage;
               var max = new BN(8640000000000000);
               if (parseInt(succ[4], 10) === 0){
@@ -599,7 +637,7 @@ class AppContainer extends Component {
                   paysTokens: succ[3],
                   stage: stage,
                   balance: balance,
-                  bountyData: result,
+                  bountyData: bountyDataResult,
                   symbol: "ETH",
                   dateString: dateString,
                   numFul: parseInt(numFul, 10),
@@ -634,7 +672,7 @@ class AppContainer extends Component {
                         stage: stage,
                         owedAmount: parseInt(succ[5], 10),
                         balance: parseInt(balance, 10),
-                        bountyData: result,
+                        bountyData: bountyDataResult,
                         dateString: dateString,
                         symbol: symbol,
                         numFul: parseInt(numFul, 10),

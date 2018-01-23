@@ -533,6 +533,23 @@ class BountyPage extends Component {
                 if (data){
 
                   ipfs.catJSON(data, (err, result)=> {
+                    var bountyDataResult;
+                    if (!result || !result.meta || result.meta == "undefined"){
+                      bountyDataResult = result;
+                    } else {
+                      if (result.meta.schemaVersion == "0.1"){
+                        bountyDataResult = {
+                          title: result.payload.title,
+                          description: result.payload.description,
+                          sourceFileName: result.payload.sourceFileName,
+                          sourceFileHash: result.payload.sourceFileHash,
+                          sourceDirectoryHash: result.payload.sourceDirectoryHash,
+                          contact: result.payload.issuer.email,
+                          categories: result.payload.categories,
+                          githubLink: result.payload.webReferenceURL
+                        }
+                      }
+                    }
                     var stage;
                     var max = new BN(8640000000000000);
 
@@ -571,19 +588,19 @@ class BountyPage extends Component {
                         paysTokens: succ[3],
                         stage: stage,
                         balance: balance,
-                        bountyData: result,
+                        bountyData: bountyDataResult,
                         dateString: newDate.toISOString().slice(0,19),
                         dateNum: parseInt(succ[1], 10)*1000,
                         symbol: "ETH",
                         mine: (succ[0] === this.state.accounts[0])
                       },
                       loading: false,
-                      selectedValue: result.categories.join(","),
-                      editSourceFileName: result.sourceFileName,
-                      editSourceFileHash: result.sourceFileHash,
-                      editSourceDirectoryHash: result.sourceDirectoryHash,
-                      optionsList: result.categories,
-                      containsCode: (result.categories.includes("Code") || result.categories.includes("Bugs"))
+                      selectedValue: bountyDataResult.categories.join(","),
+                      editSourceFileName: bountyDataResult.sourceFileName,
+                      editSourceFileHash: bountyDataResult.sourceFileHash,
+                      editSourceDirectoryHash: bountyDataResult.sourceDirectoryHash,
+                      optionsList: bountyDataResult.categories,
+                      containsCode: (bountyDataResult.categories.includes("Code") || bountyDataResult.categories.includes("Bugs"))
                     });
                       this.getComments();
                     } else {
@@ -611,7 +628,7 @@ class BountyPage extends Component {
                               paysTokens: succ[3],
                               stage: stage,
                               balance: parseInt(balance, 10),
-                              bountyData: result,
+                              bountyData: bountyDataResult,
                               dateString: newDate.toISOString().slice(0,19),
                               pdateNum: parseInt(succ[1], 10)*1000,
                               symbol: symbol,
@@ -620,12 +637,12 @@ class BountyPage extends Component {
                               tokenContract: HumanStandardToken,
                             },
                             loading: false,
-                            selectedValue: result.categories.join(","),
-                            editSourceFileName: result.sourceFileName,
-                            editSourceFileHash: result.sourceFileHash,
-                            editSourceDirectoryHash: result.sourceDirectoryHash,
-                            optionsList: result.categories,
-                            containsCode: (result.categories.includes("Code") || result.categories.includes("Bugs"))});
+                            selectedValue: bountyDataResult.categories.join(","),
+                            editSourceFileName: bountyDataResult.sourceFileName,
+                            editSourceFileHash: bountyDataResult.sourceFileHash,
+                            editSourceDirectoryHash: bountyDataResult.sourceDirectoryHash,
+                            optionsList: bountyDataResult.categories,
+                            containsCode: (bountyDataResult.categories.includes("Code") || bountyDataResult.categories.includes("Bugs"))});
                             this.getComments();
 
                           });
@@ -664,6 +681,26 @@ class BountyPage extends Component {
           if (data){
 
             ipfs.catJSON(data, (err, result)=> {
+
+              var bountyDataResult;
+              if (!result || !result.meta || result.meta == "undefined"){
+                bountyDataResult = result;
+              } else {
+                console.log("meta", result);
+                if (result.meta.schemaVersion == "0.1"){
+                  bountyDataResult = {
+                    title: result.payload.title,
+                    description: result.payload.description,
+                    sourceFileName: result.payload.sourceFileName,
+                    sourceFileHash: result.payload.sourceFileHash,
+                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
+                    contact: result.payload.issuer.email,
+                    categories: [].push(result.payload.categories),
+                    githubLink: result.payload.webReferenceURL
+                  }
+                }
+              }
+
               var stage;
               var max = new BN(8640000000000000);
 
@@ -702,16 +739,16 @@ class BountyPage extends Component {
                   stage: stage,
                   balance: balance,
                   dateString: dateString,
-                  bountyData: result,
+                  bountyData: bountyDataResult,
                   symbol: "ETH",
                   mine: (succ[0] === this.state.accounts[0])
                 },
                 loading: false,
-                selectedValue: result.categories.join(","),
-                editSourceFileName: result.sourceFileName,
-                editSourceFileHash: result.sourceFileHash,
-                editSourceDirectoryHash: result.sourceDirectoryHash,
-                optionsList: result.categories});
+                selectedValue: bountyDataResult.categories.join(","),
+                editSourceFileName: bountyDataResult.sourceFileName,
+                editSourceFileHash: bountyDataResult.sourceFileHash,
+                editSourceDirectoryHash: bountyDataResult.sourceDirectoryHash,
+                optionsList: bountyDataResult.categories});
                 this.getComments();
               } else {
                 this.state.StandardBounties.getBountyToken(this.state.bountyId, (err, address)=> {
@@ -738,7 +775,7 @@ class BountyPage extends Component {
                         paysTokens: succ[3],
                         stage: stage,
                         balance: parseInt(balance, 10),
-                        bountyData: result,
+                        bountyData: bountyDataResult,
                         dateString: dateString,
                         symbol: symbol,
                         mine: (succ[0] === this.state.accounts[0]),
@@ -746,11 +783,11 @@ class BountyPage extends Component {
                         tokenContract: HumanStandardToken,
                       },
                       loading: false,
-                      selectedValue: result.categories.join(","),
-                      editSourceFileName: result.sourceFileName,
-                      editSourceFileHash: result.sourceFileHash,
-                      editSourceDirectoryHash: result.sourceDirectoryHash,
-                      optionsList: result.categories});
+                      selectedValue: bountyDataResult.categories.join(","),
+                      editSourceFileName: bountyDataResult.sourceFileName,
+                      editSourceFileHash: bountyDataResult.sourceFileHash,
+                      editSourceDirectoryHash: bountyDataResult.sourceDirectoryHash,
+                      optionsList: bountyDataResult.categories});
                       this.getComments();
 
                     });
@@ -2110,7 +2147,7 @@ handleToggleLightMode(){
                               </div>
 
                             }
-                            <span style={{float: "right", marginRight: "30px"}}> {fileName} </span>
+                            <span style={{float: "right", marginRight: "30px", color: this.state.lightMode?"rgb(25, 55, 83)":"white"}}> {fileName} </span>
                           </div>
                           <p style={{fontSize: "12px", color: "rgba(25,55,83, 0.55)", marginTop: "5px"}}>any file associated with your submission</p>
                         </div>
@@ -2120,7 +2157,7 @@ handleToggleLightMode(){
 
                       <div style={{width: "100%", display: "block", overflow: "hidden", float: "left", marginRight: "0"}}>
                         <label htmlFor='deposit_amount' style={{fontSize: "12px", display: "block", width: "100%"}}>Submission Description and Comments</label>
-                        <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px", padding: "15px"}}></textarea>
+                        <textarea id='bug_description' cols="60" rows="5" className='ContractCode' type='text' style={{width: "920px", border: "0px", padding: "15px", fontSize: "12px"}}></textarea>
                         {this.state.fulfillmentError &&
                           <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
                       </div>

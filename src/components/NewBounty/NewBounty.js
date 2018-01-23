@@ -289,13 +289,14 @@ class NewBounty extends Component {
 
 
   handleSubmitContract(evt){
+
     evt.preventDefault();
     var info = evt.target.contact_info.value;
     var description = evt.target.contract_description.value;
     var title = evt.target.contract_title.value;
     var oldDeadline = evt.target.bounty_deadline.value;
     var fulfillmentAmount = evt.target.fulfillmentAmount.value;
-    var tokenAddress = "0x0";
+    var tokenAddress = "0x0000000000000000000000000000000000000000";
     if (evt.target.token_address){
       tokenAddress = evt.target.token_address.value;
     }
@@ -344,6 +345,8 @@ class NewBounty extends Component {
       this.setState({contactError: ""});
     }
 
+
+
     var deadline = new Date(oldDeadline + "z");
     var date = deadline.getTime()/1000|0;
     date +=  "";
@@ -365,170 +368,54 @@ class NewBounty extends Component {
         this.setState({valueError: ""});
       }
     }
+
     if (!foundError){
-      this.setState({submitting: true, loadingAmount: 10});
-      var stringAmount = 0;
-      var stringValue = 0;
-      if (this.state.payoutMethod === "ETH"){
-        stringAmount = web3.toWei(fulfillmentAmount ,'ether');
-        stringValue = web3.toWei(value, 'ether');
+      var tokenContract = web3.eth.contract(json.interfaces.HumanStandardToken).at(tokenAddress);
 
-        var submit = {
-          title: title,
-          description: description,
-          sourceFileHash: this.state.sourceFileHash,
-          sourceDirectoryHash: this.state.sourceDirectoryHash,
-          sourceFileName: this.state.sourceFileName,
-          contact: info,
-          categories: this.state.optionsList,
-          githubLink: githubLink
-        };
-          this.setState({loadingAmount: 15});
-
-        ipfs.addJSON(submit, (err, result)=> {
-          this.setState({loadingAmount: 50});
-          if (this.state.activateNow === "now"){
-            this.setState({loadingString: "Please confirm the Ethereum transaction to issue and activate your bounty"});
-
-            this.state.StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, stringValue, {from: this.state.accounts[0], value: stringValue}, (cerr, succ)=> {
-              if (err){
-                console.log("cerr", err);
-                this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
-
-              } else {
-                console.log("tx success", succ);
-                this.setState({loadingAmount: 80, loadingString: "Waiting for your transaction to be confirmed on the blockchain..."});
-                var hasSucceeded = false;
-                setInterval(function() {
-                  if (!hasSucceeded){
-                    web3.eth.getTransaction(succ, (err, succ)=> {
-                      if (succ.blockNumber){
-                        this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
-                        hasSucceeded = true;
-                        setTimeout(function(){
-                            browserHistory.push('/');
-
-                        }, 3000);
-                      }
-                    });
-                  }
-                }.bind(this), 100);
-              }
-              //browserHistory.push('/');
-            });
-          } else {
-            this.setState({loadingString: "Please confirm the Ethereum transaction to issue your bounty"});
-            this.state.StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, {from: this.state.accounts[0]}, (err, succ)=> {
-              if (err){
-                console.log("cerr", err);
-                this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
-
-              } else {
-                console.log("tx success", succ);
-                this.setState({loadingAmount: 80, loadingString: "Waiting for your transaction to be confirmed on the blockchain..."});
-                var hasSucceeded = false;
-                setInterval(function() {
-                  if (!hasSucceeded){
-                    web3.eth.getTransaction(succ, (err, succ)=> {
-                      if (succ.blockNumber){
-                        this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
-                        hasSucceeded = true;
-                        setTimeout(function(){
-                            browserHistory.push('/');
-
-                        }, 3000);
-                      }
-                    });
-                  }
-                }.bind(this), 100);
-              }
-
-
-              //browserHistory.push('/');
-            });
-
-          }
-        });
-
-      } else {
-
-        var tokenContract = web3.eth.contract(json.interfaces.HumanStandardToken).at(tokenAddress);
-        console.log("tokenContract", tokenContract);
-        tokenContract.decimals((err, succ)=>{
-          let decimals = parseInt(succ, 10);
-          var padding = Array(decimals+1).join("0");
-          stringAmount = "" + fulfillmentAmount + padding;
-          stringValue = "" + value + padding;
+      tokenContract.symbol((err, symbol)=> {
+        this.setState({submitting: true, loadingAmount: 10});
+        var stringAmount = 0;
+        var stringValue = 0;
+        if (this.state.payoutMethod === "ETH"){
+          stringAmount = web3.toWei(fulfillmentAmount ,'ether');
+          stringValue = web3.toWei(value, 'ether');
 
           var submit = {
-            title: title,
-            description: description,
-            sourceFileHash: this.state.sourceFileHash,
-            sourceDirectoryHash: this.state.sourceDirectoryHash,
-            sourceFileName: this.state.sourceFileName,
-            contact: info,
-            categories: this.state.optionsList
+            payload: {
+              title: title,
+              description: description,
+              sourceFileHash: this.state.sourceFileHash,
+              sourceDirectoryHash: this.state.sourceDirectoryHash,
+              sourceFileName: this.state.sourceFileName,
+              webReferenceURL: githubLink,
+              categories: this.state.optionsList,
+              created: new Date().getTime()/1000|0,
+              tokenAddress: tokenAddress,
+              symbol: 'ETH',
+              issuer: {
+                address: this.state.accounts[0],
+                email: info
+              },
+              funders: [{
+                address: this.state.accounts[0],
+                email: info
+              }]
+            },
+            meta: {
+              platform: 'bounties-network',
+              schemaVersion: '0.1',
+              schemaName: 'standardSchema'
+            }
+
           };
-          this.setState({loadingAmount: 15});
+            this.setState({loadingAmount: 15});
+
           ipfs.addJSON(submit, (err, result)=> {
-            this.setState({loadingAmount: 40});
+            this.setState({loadingAmount: 50});
             if (this.state.activateNow === "now"){
-              this.setState({loadingString: "Please confirm the Ethereum transaction to transfer the tokens for the new bounty"});
+              this.setState({loadingString: "Please confirm the Ethereum transaction to issue and activate your bounty"});
 
-              tokenContract.approve(this.state.StandardBounties.address, stringValue, {from: this.state.accounts[0]}, (err, succ)=> {
-                if (err){
-                  console.log("cerr", err);
-                  this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
-
-                } else {
-                  console.log("tx success", succ);
-                  this.setState({loadingAmount: 60, loadingString: "Waiting for your token transfer transaction to be confirmed on the blockchain..."});
-                  var hasSucceeded = false;
-                  setInterval(function() {
-                    if (!hasSucceeded){
-                      web3.eth.getTransaction(succ, (err, succ)=> {
-                        if (succ.blockNumber){
-                          hasSucceeded = true;
-                          this.setState({loadingString: "Please confirm the Ethereum transaction to issue and activate your new bounty", loadingAmount: 80});
-                          this.state.StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, stringValue, {from: this.state.accounts[0]}, (cerr, succ)=> {
-                            if (err){
-                              console.log("cerr", err);
-                              this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
-
-                            } else {
-                              console.log("tx success", succ);
-                              this.setState({loadingAmount: 90, loadingString: "Waiting for your new bounty transaction to be confirmed on the blockchain..."});
-                              var hasSucceeded = false;
-                              setInterval(function() {
-                                if (!hasSucceeded){
-                                  web3.eth.getTransaction(succ, (err, succ)=> {
-                                    if (succ.blockNumber){
-                                      this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
-                                      hasSucceeded = true;
-                                      setTimeout(function(){
-                                          browserHistory.push('/');
-
-                                      }, 3000);
-                                    }
-                                  });
-                                }
-                              }.bind(this), 100);
-                            }
-                            //browserHistory.push('/');
-                          });
-
-                        }
-                      });
-                    }
-                  }.bind(this), 100);
-                }
-
-              });
-
-            } else {
-              this.setState({loadingString: "Please confirm the Ethereum transaction to issue your bounty"});
-
-              this.state.StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, {from: this.state.accounts[0]}, (cerr, succ)=> {
+              this.state.StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, stringValue, {from: this.state.accounts[0], value: stringValue}, (cerr, succ)=> {
                 if (err){
                   console.log("cerr", err);
                   this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
@@ -554,13 +441,172 @@ class NewBounty extends Component {
                 }
                 //browserHistory.push('/');
               });
+            } else {
+              this.setState({loadingString: "Please confirm the Ethereum transaction to issue your bounty"});
+              this.state.StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, false, 0x0, {from: this.state.accounts[0]}, (err, succ)=> {
+                if (err){
+                  console.log("cerr", err);
+                  this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
+
+                } else {
+                  console.log("tx success", succ);
+                  this.setState({loadingAmount: 80, loadingString: "Waiting for your transaction to be confirmed on the blockchain..."});
+                  var hasSucceeded = false;
+                  setInterval(function() {
+                    if (!hasSucceeded){
+                      web3.eth.getTransaction(succ, (err, transaction)=> {
+                        if (transaction.blockNumber){
+                          this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
+                          hasSucceeded = true;
+                          setTimeout(function(){
+                              browserHistory.push('/');
+
+                          }, 3000);
+                        }
+                      });
+                    }
+                  }.bind(this), 100);
+                }
+
+
+                //browserHistory.push('/');
+              });
+
             }
           });
 
+        } else {
 
-        });
-      }
+          console.log("tokenContract", tokenContract);
+          tokenContract.decimals((err, succ)=>{
+            let decimals = parseInt(succ, 10);
+            var padding = Array(decimals+1).join("0");
+            stringAmount = "" + fulfillmentAmount + padding;
+            stringValue = "" + value + padding;
+
+            var submit = {
+              payload: {
+                title: title,
+                description: description,
+                sourceFileHash: this.state.sourceFileHash,
+                sourceDirectoryHash: this.state.sourceDirectoryHash,
+                sourceFileName: this.state.sourceFileName,
+                webReferenceURL: githubLink,
+                categories: this.state.optionsList,
+                created: new Date().getTime()/1000|0,
+                tokenAddress: tokenAddress,
+                symbol: symbol,
+                issuer: {
+                  address: this.state.accounts[0],
+                  email: info
+                },
+                funders: [{
+                  address: this.state.accounts[0],
+                  email: info
+                }]
+              },
+              meta: {
+                platform: 'bounties-network',
+                schemaVersion: '0.1',
+                schemaName: 'standardSchema'
+              }
+
+            };
+            this.setState({loadingAmount: 15});
+            ipfs.addJSON(submit, (err, result)=> {
+              this.setState({loadingAmount: 40});
+              if (this.state.activateNow === "now"){
+                this.setState({loadingString: "Please confirm the Ethereum transaction to transfer the tokens for the new bounty"});
+
+                tokenContract.approve(this.state.StandardBounties.address, stringValue, {from: this.state.accounts[0]}, (err, succ)=> {
+                  if (err){
+                    console.log("cerr", err);
+                    this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
+
+                  } else {
+                    console.log("tx success", succ);
+                    this.setState({loadingAmount: 60, loadingString: "Waiting for your token transfer transaction to be confirmed on the blockchain..."});
+                    var hasSucceeded = false;
+                    setInterval(function() {
+                      if (!hasSucceeded){
+                        web3.eth.getTransaction(succ, (err, succ)=> {
+                          if (succ.blockNumber){
+                            hasSucceeded = true;
+                            this.setState({loadingString: "Please confirm the Ethereum transaction to issue and activate your new bounty", loadingAmount: 80});
+                            this.state.StandardBounties.issueAndActivateBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, stringValue, {from: this.state.accounts[0]}, (cerr, succ)=> {
+                              if (err){
+                                console.log("cerr", err);
+                                this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
+
+                              } else {
+                                console.log("tx success", succ);
+                                this.setState({loadingAmount: 90, loadingString: "Waiting for your new bounty transaction to be confirmed on the blockchain..."});
+                                var hasSucceeded = false;
+                                setInterval(function() {
+                                  if (!hasSucceeded){
+                                    web3.eth.getTransaction(succ, (err, succ)=> {
+                                      if (succ.blockNumber){
+                                        this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
+                                        hasSucceeded = true;
+                                        setTimeout(function(){
+                                            browserHistory.push('/');
+
+                                        }, 3000);
+                                      }
+                                    });
+                                  }
+                                }.bind(this), 100);
+                              }
+                              //browserHistory.push('/');
+                            });
+
+                          }
+                        });
+                      }
+                    }.bind(this), 100);
+                  }
+
+                });
+
+              } else {
+                this.setState({loadingString: "Please confirm the Ethereum transaction to issue your bounty"});
+
+                this.state.StandardBounties.issueBounty(this.state.accounts[0], date, result, stringAmount, 0x0, true, tokenAddress, {from: this.state.accounts[0]}, (cerr, succ)=> {
+                  if (err){
+                    console.log("cerr", err);
+                    this.setState({loadingString: "An error occurred. Please refresh the page and try again."});
+
+                  } else {
+                    console.log("tx success", succ);
+                    this.setState({loadingAmount: 80, loadingString: "Waiting for your transaction to be confirmed on the blockchain..."});
+                    var hasSucceeded = false;
+                    setInterval(function() {
+                      if (!hasSucceeded){
+                        web3.eth.getTransaction(succ, (err, succ)=> {
+                          if (succ.blockNumber){
+                            this.setState({loadingString: "Transaction confirmed!", loadingAmount: 100});
+                            hasSucceeded = true;
+                            setTimeout(function(){
+                                browserHistory.push('/');
+
+                            }, 3000);
+                          }
+                        });
+                      }
+                    }.bind(this), 100);
+                  }
+                  //browserHistory.push('/');
+                });
+              }
+            });
+
+
+          });
+        }
+      });
+
     }
+
   }
   handlecaptureFile (event) {
     event.stopPropagation()
