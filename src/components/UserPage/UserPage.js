@@ -309,10 +309,27 @@ class UserPage extends Component {
         for (var j = 0; j < total; j++){
           this.state.StandardBountiesv0.getFulfillment(bountyId, j, (err, succ)=> {
             ipfs.catJSON(succ[2], (err, result)=> {
+              var bountyDataResult;
+              if (!result || !result.meta || result.meta == "undefined"){
+                bountyDataResult = result;
+              } else {
+                if (result.meta.schemaVersion == "0.1"){
+                  bountyDataResult = {
+                    title: result.payload.title,
+                    description: result.payload.description,
+                    sourceFileName: result.payload.sourceFileName,
+                    sourceFileHash: result.payload.sourceFileHash,
+                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
+                    contact: result.payload.fulfiller.email,
+                    categories: [].push(result.payload.categories),
+                    githubLink: result.payload.webReferenceURL
+                  }
+                }
+              }
               fulfillments.push({
                 accepted:succ[0],
                 fulfiller:succ[1],
-                data: result
+                data: bountyDataResult
               });
               if (fulfillments.length == total){
                 var bounties = this.state.bountiesv0;
@@ -337,10 +354,28 @@ class UserPage extends Component {
         for (var j = 0; j < total; j++){
           this.state.StandardBounties.getFulfillment(bountyId, j, (err, succ)=> {
             ipfs.catJSON(succ[2], (err, result)=> {
+              var bountyDataResult;
+              if (!result || !result.meta || result.meta == "undefined"){
+                bountyDataResult = result;
+              } else {
+                if (result.meta.schemaVersion == "0.1"){
+                  bountyDataResult = {
+                    title: result.payload.title,
+                    description: result.payload.description,
+                    sourceFileName: result.payload.sourceFileName,
+                    sourceFileHash: result.payload.sourceFileHash,
+                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
+                    contact: result.payload.issuer.email,
+                    categories: [].push(result.payload.categories),
+                    githubLink: result.payload.webReferenceURL
+                  }
+                }
+              }
+
               fulfillments.push({
                 accepted:succ[0],
                 fulfiller:succ[1],
-                data: result
+                data: bountyDataResult
               });
               if (fulfillments.length == total){
                 var bounties = this.state.bounties;

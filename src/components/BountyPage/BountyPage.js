@@ -823,11 +823,30 @@ class BountyPage extends Component {
   getFulfillment(fulId, fulfillments, total){
     this.state.StandardBounties.getFulfillment(this.state.bountyId, fulId, (err, succ)=> {
       ipfs.catJSON(succ[2], (err, result)=> {
+
+        var bountyDataResult;
+        if (!result || !result.meta || result.meta == "undefined"){
+          bountyDataResult = result;
+        } else {
+          if (result.meta.schemaVersion == "0.1"){
+            bountyDataResult = {
+              title: result.payload.title,
+              description: result.payload.description,
+              sourceFileName: result.payload.sourceFileName,
+              sourceFileHash: result.payload.sourceFileHash,
+              sourceDirectoryHash: result.payload.sourceDirectoryHash,
+              contact: result.payload.fulfiller.email,
+              categories: [].push(result.payload.categories),
+              githubLink: result.payload.webReferenceURL
+            }
+          }
+        }
+
         fulfillments.push({
           fulfillmentId: fulId,
           accepted: succ[0],
           fulfiller: succ[1],
-          data: result,
+          data: bountyDataResult,
           commentsOpen: false,
           comments: [],
         });
@@ -911,7 +930,23 @@ class BountyPage extends Component {
         this.setState({txModalOpen: true, txLoadingAmount: 10});
         this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to fulfill the bounty"});
 
-        ipfs.addJSON({description: data, sourceFileName: this.state.sourceFileName, sourceDirectoryHash: this.state.sourceDirectoryHash, sourceFileHash: this.state.sourceFileHash, contact: contact}, (err, succ)=> {
+        ipfs.addJSON({
+          payload: {
+            description: data,
+            sourceFileName: this.state.sourceFileName,
+            sourceDirectoryHash: this.state.sourceDirectoryHash,
+            sourceFileHash: this.state.sourceFileHash,
+            fulfiller: {
+              email: contact,
+              address: this.state.accounts[0]
+            }
+          },
+          meta: {
+            platform: 'bounties-network',
+            schemaVersion: '0.1',
+            schemaName: 'standardSchema'
+          }
+        }, (err, succ)=> {
           this.setState({txLoadingAmount: 40});
 
           this.state.StandardBounties.fulfillBounty(this.state.bountyId, succ, {from: this.state.accounts[0]}, (err, succ)=> {
