@@ -321,7 +321,7 @@ class UserPage extends Component {
                     sourceFileHash: result.payload.sourceFileHash,
                     sourceDirectoryHash: result.payload.sourceDirectoryHash,
                     contact: result.payload.fulfiller.email,
-                    categories: [].push(result.payload.categories),
+                    categories: result.payload.categories,
                     githubLink: result.payload.webReferenceURL
                   }
                 }

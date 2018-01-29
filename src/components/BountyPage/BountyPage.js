@@ -695,11 +695,12 @@ class BountyPage extends Component {
                     sourceFileHash: result.payload.sourceFileHash,
                     sourceDirectoryHash: result.payload.sourceDirectoryHash,
                     contact: result.payload.issuer.email,
-                    categories: [].push(result.payload.categories),
+                    categories: result.payload.categories,
                     githubLink: result.payload.webReferenceURL
                   }
                 }
               }
+              console.log("bountyData", bountyDataResult);
 
               var stage;
               var max = new BN(8640000000000000);
