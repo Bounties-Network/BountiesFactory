@@ -513,7 +513,7 @@ class NewBounty extends Component {
 
             };
             this.setState({loadingAmount: 15});
-            ipfs.addJSON(submit, (err, result)=> {
+            ipfs.addJSON(submit, {pin: true}, (err, result)=> {
               this.setState({loadingAmount: 40});
               if (this.state.activateNow === "now"){
                 this.setState({loadingString: "Please confirm the Ethereum transaction to transfer the tokens for the new bounty"});

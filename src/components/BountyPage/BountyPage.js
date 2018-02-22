@@ -531,7 +531,7 @@ class BountyPage extends Component {
             this.state.StandardBounties.getBounty(this.state.bountyId, (err, succ)=> {
               this.state.StandardBounties.getBountyData(this.state.bountyId, (err, data)=> {
                 if (data){
-
+                  console.log("data", data);
                   ipfs.catJSON(data, (err, result)=> {
                     var bountyDataResult;
                     if (!result || !result.meta || result.meta == "undefined"){
@@ -895,18 +895,21 @@ class BountyPage extends Component {
                           date: newDate.toUTCString(),
                           dateString: dateString,
                           aboutFulfillment: result.aboutFulfillment,
-                          fulfillmentId: result.fulfillmentId});
+                          fulfillmentId: result.fulfillmentId,
+                          version: result.version || "v0" });
 
             if (comments.length === total){
               var myComments = [];
               this.setState({comments: comments});
               for (i = 0; i < this.state.comments.length; i++){
-                if (this.state.comments[i].aboutBounty && this.state.comments[i].bountyId == this.state.bountyId && this.state.comments[i].aboutFulfillment !== true){
-                  myComments.push(this.state.comments[i]);
-                }
-                if (this.state.comments[i].aboutBounty && this.state.comments[i].bountyId == this.state.bountyId && this.state.comments[i].aboutFulfillment === true){
-                  var fulfillments = this.state.fulfillments;
-                  fulfillments[this.state.comments[i].fulfillmentId].comments.push(this.state.comments[i]);
+                if (this.state.comments[i].version == this.state.version){
+                  if (this.state.comments[i].aboutBounty && this.state.comments[i].bountyId == this.state.bountyId && this.state.comments[i].aboutFulfillment !== true){
+                    myComments.push(this.state.comments[i]);
+                  }
+                  if (this.state.comments[i].aboutBounty && this.state.comments[i].bountyId == this.state.bountyId && this.state.comments[i].aboutFulfillment === true){
+                    var fulfillments = this.state.fulfillments;
+                    fulfillments[this.state.comments[i].fulfillmentId].comments.push(this.state.comments[i]);
+                  }
                 }
               }
               this.setState({myComments: myComments});
@@ -1290,7 +1293,7 @@ isChecksumAddress(address) {
       this.setState({commentError: ""});
       this.setState({txModalOpen: true, txLoadingAmount: 10});
       this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to comment on the bounty"});
-      ipfs.addJSON({title: title, description: description}, (err, succ)=> {
+      ipfs.addJSON({title: title, description: description, version: this.state.version}, (err, succ)=> {
         this.setState({txLoadingAmount: 40});
         this.state.UserCommentsContract.addComment(succ, 0x0, true, this.state.bountyId, {from: this.state.accounts[0]}, (err, succ)=> {
           if (err){
