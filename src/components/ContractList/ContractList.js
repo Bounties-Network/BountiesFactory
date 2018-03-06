@@ -115,7 +115,6 @@ this.setState({sortByCreated: sortByCreated,
     var acc = this.props.acc;
     if (this.props.list){
       var handleAddCategory = this.props.handleAddCategory;
-      var lightMode = this.props.lightMode;
       contractsList = givenList.map(function (contract, i){
 
         return (
@@ -143,7 +142,6 @@ this.setState({sortByCreated: sortByCreated,
                       dateString={contract.dateString}
                       handleAddCategory={handleAddCategory}
                       price={prices[contract.symbol]}
-                      lightMode={lightMode}
                       stage={contract.stage}
                       version={contract.version}
                       />
@@ -163,7 +161,7 @@ this.setState({sortByCreated: sortByCreated,
                   fontWeight: "600",
                   marginTop: "1px",
                   marginBottom: "5px",
-                  color: this.props.lightMode? "rgba(36,61,81, 1)":"rgb(140, 152, 153)",
+                  color: "rgba(36,61,81, 1)",
                   marginLeft: "15px"}}> SORT BY: </p>
       <p onClick={this.handleToggleSort.bind(this, "Value")}
       style={{display: "inline-block",
@@ -172,20 +170,20 @@ this.setState({sortByCreated: sortByCreated,
                 fontWeight: "600",
                 marginTop: "0px",
                 marginBottom: "5px",
-                color: this.props.lightMode? (this.state.sortByValue? "rgb(243, 243, 243)": "rgba(36,61,81, 1)") : (this.state.sortByValue? "rgba(36,61,81, 1)" : "rgb(208, 208, 208)"),
+                color: (this.state.sortByValue? "rgb(243, 243, 243)": "rgba(36,61,81, 1)") ,
                 marginLeft: "15px",
                 border: "1px solid",
                 padding: "0px 10px",
                 borderRadius: "4px",
                 cursor: "pointer",
-                borderColor: this.props.lightMode? (this.state.sortByValue?  "rgba(36,61,81, 1)" : "rgba(36,61,81, 1)") : (this.state.sortByValue?  "rgba(36,61,81, 1)" : "rgba(140, 152, 153, 0.5)"),
-                backgroundColor: this.props.lightMode? (this.state.sortByValue?  "rgba(36,61,81, 1)" : "rgba(140, 152, 153, 0)"):(this.state.sortByValue?  "rgb(208, 208, 208)" : "rgba(140, 152, 153, 0)"),
+                borderColor: (this.state.sortByValue?  "rgba(36,61,81, 1)" : "rgba(36,61,81, 1)"),
+                backgroundColor: (this.state.sortByValue?  "rgba(36,61,81, 1)" : "rgba(140, 152, 153, 0)"),
                 position: "relative",
                 paddingRight: this.state.sortByValue?  "20px" : "10px"}}> Value
                 {
 
-                  this.state.valueDescending? <SvgDown style={{color: this.props.lightMode? "rgba(243,243,243, 1)" : "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !this.state.sortByValue?  "none" : ""}}/>:
-                                              <SvgUp style={{color: this.props.lightMode? "rgba(243,243,243, 1)" : "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !this.state.sortByValue?  "none" : ""}}/>
+                  this.state.valueDescending? <SvgDown style={{color: "rgba(243,243,243, 1)" , float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !this.state.sortByValue?  "none" : ""}}/>:
+                                              <SvgUp style={{color: "rgba(243,243,243, 1)" , float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !this.state.sortByValue?  "none" : ""}}/>
 
                 }</p>
       <p onClick={this.handleToggleSort.bind(this, "Created")}
@@ -196,19 +194,19 @@ this.setState({sortByCreated: sortByCreated,
                 marginTop: "0px",
                 marginBottom: "5px",
                 cursor: "pointer",
-                color: this.props.lightMode? (this.state.sortByCreated? "rgb(243, 243, 243)": "rgba(36,61,81, 1)") : (this.state.sortByCreated? "rgba(36,61,81, 1)" : "rgb(208, 208, 208)"),
+                color: (this.state.sortByCreated? "rgb(243, 243, 243)": "rgba(36,61,81, 1)") ,
                 marginLeft: "15px",
                 border: "1px solid",
                 padding: "0px 10px",
                 borderRadius: "4px",
-                borderColor: this.props.lightMode? (this.state.sortByCreated?  "rgba(36,61,81, 1)" : "rgba(36,61,81, 1)") : (this.state.sortByCreated?  "rgba(36,61,81, 1)" : "rgba(140, 152, 153, 0.5)"),
-                backgroundColor: this.props.lightMode? (this.state.sortByCreated?  "rgba(36,61,81, 1)" : "rgba(140, 152, 153, 0)"):(this.state.sortByCreated?  "rgb(208, 208, 208)" : "rgba(140, 152, 153, 0)"),
+                borderColor: (this.state.sortByCreated?  "rgba(36,61,81, 1)" : "rgba(36,61,81, 1)") ,
+                backgroundColor: (this.state.sortByCreated?  "rgba(36,61,81, 1)" : "rgba(140, 152, 153, 0)"),
                 position: "relative",
                 paddingRight: this.state.sortByCreated?  "20px" : "10px"}}> Creation
                 {
 
-                  this.state.createdDescending? <SvgDown style={{color: this.props.lightMode? "rgba(243,243,243, 1)" : "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !this.state.sortByCreated?  "none" : ""}}/>:
-                                              <SvgUp style={{color: this.props.lightMode? "rgba(243,243,243, 1)" : "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !this.state.sortByCreated?  "none" : ""}}/>
+                  this.state.createdDescending? <SvgDown style={{color: "rgba(243,243,243, 1)" , float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !this.state.sortByCreated?  "none" : ""}}/>:
+                                              <SvgUp style={{color: "rgba(243,243,243, 1)" , float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !this.state.sortByCreated?  "none" : ""}}/>
 
                 }</p>
       <p onClick={this.handleToggleSort.bind(this, "Expiry")}
@@ -218,20 +216,20 @@ this.setState({sortByCreated: sortByCreated,
                 fontWeight: "600",
                 marginTop: "0px",
                 marginBottom: "5px",
-                color: this.props.lightMode? (this.state.sortByExpiry? "rgb(243, 243, 243)": "rgba(36,61,81, 1)") : (this.state.sortByExpiry? "rgba(36,61,81, 1)" : "rgb(208, 208, 208)"),
+                color: (this.state.sortByExpiry? "rgb(243, 243, 243)": "rgba(36,61,81, 1)"),
                 marginLeft: "15px",
                 cursor: "pointer",
                 border: "1px solid",
                 padding: "0px 10px",
                 borderRadius: "4px",
-                borderColor: this.props.lightMode? (this.state.sortByExpiry?  "rgba(36,61,81, 1)" : "rgba(36,61,81, 1)") : (this.state.sortByExpiry?  "rgba(36,61,81, 1)" : "rgba(140, 152, 153, 0.5)"),
-                backgroundColor: this.props.lightMode? (this.state.sortByExpiry?  "rgba(36,61,81, 1)" : "rgba(140, 152, 153, 0)"):(this.state.sortByExpiry?  "rgb(208, 208, 208)" : "rgba(140, 152, 153, 0)"),
+                borderColor: (this.state.sortByExpiry?  "rgba(36,61,81, 1)" : "rgba(36,61,81, 1)") ,
+                backgroundColor: (this.state.sortByExpiry?  "rgba(36,61,81, 1)" : "rgba(140, 152, 153, 0)"),
                 position: "relative",
                 paddingRight: this.state.sortByExpiry?  "20px" : "10px"}}> Expiry
                 {
 
-                  this.state.expiryDescending? <SvgDown style={{color: this.props.lightMode? "rgba(243,243,243, 1)" : "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !this.state.sortByExpiry?  "none" : ""}}/>:
-                                              <SvgUp style={{color: this.props.lightMode? "rgba(243,243,243, 1)" : "rgba(36,61,81, 1)", float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !this.state.sortByExpiry?  "none" : ""}}/>
+                  this.state.expiryDescending? <SvgDown style={{color: "rgba(243,243,243, 1)" , float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !this.state.sortByExpiry?  "none" : ""}}/>:
+                                              <SvgUp style={{color: "rgba(243,243,243, 1)" , float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !this.state.sortByExpiry?  "none" : ""}}/>
 
                 }</p>
 

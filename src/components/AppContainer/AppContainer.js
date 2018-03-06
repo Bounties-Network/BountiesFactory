@@ -109,7 +109,6 @@ class AppContainer extends Component {
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
       StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddressv0),
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
-      lightMode:   localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
       totalPayouts: 0
     }
 
@@ -127,8 +126,6 @@ class AppContainer extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
 
     this.getPrices = this.getPrices.bind(this);
-
-    this.handleToggleLightMode = this.handleToggleLightMode.bind(this);
 
   }
 
@@ -293,8 +290,20 @@ class AppContainer extends Component {
       return "now";
     }
   }
+  callback(response){
+    console.log("response", JSON.parse(response));
+  }
 
   getInitialData(){
+
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", "http://0.0.0.0:8000/bounty/?limit=25", true); // true for asynchronous
+    xmlHttp.send(null);
+
     window.loaded = true;
 
 
@@ -818,12 +827,6 @@ class AppContainer extends Component {
     optionsList.push(item);
     this.setState({optionsList: optionsList, value: item});
   }
-handleToggleLightMode(){
-  var lightMode = !this.state.lightMode;
-  this.setState({lightMode: lightMode});
-  localStorage.setItem('lightMode', lightMode);
-
-}
   render() {
     var newList = [];
     var totalMe = 0;;
@@ -917,9 +920,8 @@ handleToggleLightMode(){
        >
          {this.state.modalError}
        </Dialog>
-      <div id={this.state.lightMode? "colourBodyLight": "colourBodyDark"} style={{minHeight: "100vh", position: "relative"}}>
+      <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative"}}>
       <div style={{position: "fixed", bottom: "15px", left: "15px", display: "block", overflow: "hidden", width: "100px"}} className="CornerEmoji">
-      <div onClick={this.handleToggleLightMode} style={{backgroundImage:  this.state.lightMode? `url(${darkMoon})`:`url(${lightMoon})`, height: "28px", width: "28px", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
       </div>
       </div>
         <div style={{overflow: "hidden"}} className="navBar">
@@ -933,40 +935,40 @@ handleToggleLightMode(){
         <div style={{ display: "block", overflow: "hidden", width: "1100px", margin: "0 auto", paddingBottom: "120px"}}>
 
           <div style={{width: "245px", float: "left", display: "block", marginRight: "15px"}}>
-            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color: this.state.lightMode? "rgb(25, 55, 83)" :"white", width: "100%", fontWeight: "600", fontSize: "16px"}}>PROFILE</h3>
-            <div style={{display: "block", width: "215px", backgroundColor: this.state.lightMode? "rgb(249, 249, 249)" :"rgba(10, 22, 40, 0.5)", overflow: "hidden", marginTop: "15px", padding: "15px", minHeight: "237px"}}>
+            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color: "rgb(25, 55, 83)", width: "100%", fontWeight: "600", fontSize: "16px"}}>PROFILE</h3>
+            <div style={{display: "block", width: "215px", backgroundColor: "rgb(249, 249, 249)" , overflow: "hidden", marginTop: "15px", padding: "15px", minHeight: "237px"}}>
 
             {this.state.accounts.length > 0 &&
               <div>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: this.state.lightMode? "#193753":"white", width: "100%", fontWeight: "500", textAlign: "center", lineHeight: "24px"}}>You have posted  <b style={{color: "#16e5cd", fontSize: "24px"}}>{totalMe}</b> bounties</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#193753", width: "100%", fontWeight: "500", textAlign: "center", lineHeight: "24px"}}>You have posted  <b style={{color: "#16e5cd", fontSize: "24px"}}>{totalMe}</b> bounties</h5>
               <div style={{marginBottom: "15px", borderBottom: "1px solid #16e5cd", display: "block", overflow: "hidden"}}>
 
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753": "white", width: "100%", fontWeight: "500", lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{ fontSize: "24px"}}>{draftMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{ fontSize: "24px"}}>{draftMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 186, 20)", width: "100%", fontWeight: "500" }}>DRAFT</h5>
 
                 </div>
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753": "white", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{activeMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{activeMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(140, 226, 88)" , width: "100%", fontWeight: "500" }}>ACTIVE</h5>
 
 
                 </div>
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753":"white", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{deadMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{deadMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "#ff6846", width: "100%", fontWeight: "500"}}>DEAD</h5>
 
                 </div>
 
 
                 <div style={{width: "50%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753":"white", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{expiredMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{expiredMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(104, 166, 166)" , width: "100%", fontWeight: "500" }}>EXPIRED</h5>
 
 
                 </div>
                 <div style={{width: "50%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: this.state.lightMode? "#193753":"white", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{completedMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{completedMe}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 222, 70)", width: "100%", fontWeight: "500"}}>COMPLETED</h5>
 
                 </div>
@@ -980,7 +982,7 @@ handleToggleLightMode(){
                 primary={true}
                 labelPosition="before"
                 href={"/user/" + this.state.accounts[0]}
-                style={{color:  this.state.lightMode? "#193753":"white", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
+                style={{color:  "#193753", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
                 icon={<SvgArrow style={{color: "#16e5cd", fontSize: "44px"}}/>}
               />
               <FlatButton
@@ -988,7 +990,7 @@ handleToggleLightMode(){
                 primary={true}
                 labelPosition="before"
                 onClick={this.handleChangeToMine}
-                style={{color:  this.state.lightMode? "#193753":"white", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
+                style={{color: "#193753", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
                 icon={<SvgArrow style={{color: "#16e5cd", fontSize: "44px"}}/>}
               />
 
@@ -996,16 +998,16 @@ handleToggleLightMode(){
           }
           {this.state.accounts.length === 0 &&
             <div>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: this.state.lightMode? "#8a8a8a" :"white", width: "100%", fontWeight: "700", textAlign: "center", fontSize: "18px"}}>You have no account!</h5>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: this.state.lightMode? "#8a8a8a" :"white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px"}}>{"This is likely because you're not using a web3 enabled browser."}</h5>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: this.state.lightMode? "#8a8a8a" :"white", width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px", paddingTop: "15px", borderTop: "1px solid #16e5cd"}}>{"You can download the "}<a href="https://metamask.io" target="_blank" style={{color: "#16e5cd", fontWeight: "700"}}> Metamask </a>{" extension to begin posting bounties."}</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "#8a8a8a" , width: "100%", fontWeight: "700", textAlign: "center", fontSize: "18px"}}>You have no account!</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#8a8a8a" , width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px"}}>{"This is likely because you're not using a web3 enabled browser."}</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#8a8a8a" , width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px", paddingTop: "15px", borderTop: "1px solid #16e5cd"}}>{"You can download the "}<a href="https://metamask.io" target="_blank" style={{color: "#16e5cd", fontWeight: "700"}}> Metamask </a>{" extension to begin posting bounties."}</h5>
 
             </div>
           }
 
             </div>
             <div id="mc_embed_signup">
-            <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: this.state.lightMode? "rgb(25, 55, 83)" :"rgb(208,208,208)", width: "100%", fontWeight: "600", textAlign: "center", fontSize: "14px"}}>SIGN UP TO RECEIVE <br/> BOUNTIES NOTIFICATIONS</h5>
+            <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "rgb(25, 55, 83)" , width: "100%", fontWeight: "600", textAlign: "center", fontSize: "14px"}}>SIGN UP TO RECEIVE <br/> BOUNTIES NOTIFICATIONS</h5>
 
               <form action="//network.us16.list-manage.com/subscribe/post?u=03351ad14a86e9637146ada2a&amp;id=96ba00fd12" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" className="validate" target="_blank" >
                   <div id="mc_embed_signup_scroll">
@@ -1023,13 +1025,13 @@ handleToggleLightMode(){
 
           </div>
           <div style={{width: "630px", float: "left", display: "block"}}>
-            <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} prices={this.state.prices} lightMode={this.state.lightMode}/>
+            <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} prices={this.state.prices}/>
           </div>
-          <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className={this.state.lightMode?"FilterBarLight":"FilterBar"}>
-            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color: this.state.lightMode? "rgb(25, 55, 83)" :"white", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>
+          <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className={"FilterBarLight"}>
+            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color:"rgb(25, 55, 83)", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>
 
-            <div style={{display: "block", width: "100%", backgroundColor: this.state.lightMode? "rgba(1, 1, 1, 0.05)" :"rgba(10, 22, 40, 0.5)", overflow: "hidden"}}>
-              <select onChange={this.handleChangeStage} value={this.state.selectedStage} style={{fontSize: "14px", backgroundColor: "rgba(10, 22, 40, 0)", border: "0px",color: this.state.lightMode? "rgb(25, 55, 83)" : "white", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
+            <div style={{display: "block", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", overflow: "hidden"}}>
+              <select onChange={this.handleChangeStage} value={this.state.selectedStage} style={{fontSize: "14px", backgroundColor: "rgba(10, 22, 40, 0)", border: "0px",color: "rgb(25, 55, 83)" , width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="Draft">Draft Bounties</option>
                 <option value="Active">Active Bounties</option>
                 <option value="Completed">Completed Bounties</option>
@@ -1038,8 +1040,8 @@ handleToggleLightMode(){
                 <option value="ANY">Any Stage</option>
               </select>
             </div>
-            <div style={{display: "block", width: "100%", backgroundColor: this.state.lightMode? "rgba(1, 1, 1, 0.05)" :"rgba(10, 22, 40, 0.5)", overflow: "hidden", marginTop: "15px"}}>
-              <select onChange={this.handleMineChange} value={this.state.selectedMine} style={{fontSize: "14px",backgroundColor: "rgba(10, 22, 40, 0)" , border: "0px", color: this.state.lightMode? "rgb(25, 55, 83)" : "white", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
+            <div style={{display: "block", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", overflow: "hidden", marginTop: "15px"}}>
+              <select onChange={this.handleMineChange} value={this.state.selectedMine} style={{fontSize: "14px",backgroundColor: "rgba(10, 22, 40, 0)" , border: "0px", color: "rgb(25, 55, 83)", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="ANY" selected="selected">{"Anyone's Bounties"}</option>
                 <option value="MINE">My Bounties</option>
                 <option value="NOT MINE">Not My Bounties</option>
@@ -1053,8 +1055,8 @@ handleToggleLightMode(){
 
           </div>
         </div>
-        <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: this.state.lightMode? "rgb(25, 55, 83)":"#16e5cd"}}>ConsenSys</a> Formation <br/>
-         <a href="/privacyPolicy/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Terms of Service</a>
+        <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: "rgb(25, 55, 83)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "rgb(25, 55, 83)"}}>ConsenSys</a> Formation <br/>
+         <a href="/privacyPolicy/" target="_blank" style={{color:"rgb(25, 55, 83)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: "rgb(25, 55, 83)"}}>Terms of Service</a>
          </p>
 
       </div>
