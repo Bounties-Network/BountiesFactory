@@ -35,6 +35,8 @@ import TransferOwnershipForm from 'components/TransferOwnershipForm/TransferOwne
 import ExtendDeadlineForm from 'components/ExtendDeadlineForm/ExtendDeadlineForm';
 import KillBountyForm from 'components/KillBountyForm/KillBountyForm';
 import IncreasePayoutForm from 'components/IncreasePayoutForm/IncreasePayoutForm';
+import ChangePayoutForm from 'components/ChangePayoutForm/ChangePayoutForm';
+
 
 import FlatButton from 'material-ui/FlatButton';
 import Chip from 'material-ui/Chip';
@@ -182,6 +184,7 @@ class BountyPage extends Component {
         transferError: "",
         deadlineError: "",
         increasePayoutError: "",
+        changePayoutError: "",
         descriptionError: "",
         editDescription: false,
         titleError: "",
@@ -229,6 +232,7 @@ class BountyPage extends Component {
 
 
     this.handleIncreasePayout = this.handleIncreasePayout.bind(this);
+    this.handleChangePayout = this.handleChangePayout.bind(this);
     this.handlecaptureFile = this.handlecaptureFile.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
     this.handleTabsChange = this.handleTabsChange.bind(this);
@@ -1691,6 +1695,63 @@ handleIncreasePayout(evt){
 
 }
 
+handleChangePayout(evt){
+  evt.preventDefault();
+
+  var newPayout = evt.target.newPayout.value;
+  if (newPayout === "" || newPayout === "0"){
+    this.setState({changePayoutError: "The new payout cannot be 0 or empty"});
+  } else {
+    this.setState({changePayoutError: ""});
+    var finalPayout = web3.toWei(newPayout, 'ether');
+
+    if (this.state.contract.paysTokens){
+      var newAmount = new BN(newPayout, 10);
+      var decimalToMult = new BN(10, 10);
+      var decimalUnits = new BN(this.state.contract.decimals, 10);
+      decimalToMult = decimalToMult.pow(decimalUnits);
+      newAmount = newAmount.mul(decimalToMult);
+      finalPayout = parseInt(newAmount, 10);
+    }
+
+    // TODO: calculate right token padding
+
+    this.setState({txModalOpen: true, txLoadingAmount: 10});
+    this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to change the reward of the bounty"});
+    console.log("changing payout: ", this.state.bountyId, finalPayout);
+    this.state.StandardBounties.changeBountyFulfillmentAmount(this.state.bountyId, finalPayout, {from: this.state.accounts[0]}, (err, succ)=> {
+      if (err){
+        console.log("err", err);
+        this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
+
+      } else {
+        console.log("tx success", succ);
+        this.setState({txLoadingAmount: 80, txLoadingMessage: "Waiting for your transaction to be confirmed on the blockchain..."});
+        var hasSucceeded = false;
+        setInterval(function() {
+          if (!hasSucceeded){
+            web3.eth.getTransaction(succ, (err, succ)=> {
+              if (succ.blockNumber){
+                this.setState({txLoadingMessage: "Transaction confirmed!", txLoadingAmount: 100});
+                hasSucceeded = true;
+                setTimeout(function(){
+                    window.location.reload();
+
+                }, 3000);
+              }
+            });
+          }
+        }.bind(this), 100);
+      }
+    });
+
+
+  }
+
+
+
+}
+
 handleDeadline(evt){
   evt.preventDefault();
 
@@ -1947,8 +2008,8 @@ handleToggleLightMode(){
             <Tab label="Transfer Ownership" value={3} style={{color: this.state.tabValue === 3? (this.state.lightMode? "rgb(25, 55, 83)":"#fff") : "#16e5cd"}}>
               <TransferOwnershipForm onhandleTransfer={this.handleTransfer} transferError={this.state.transferError} />
             </Tab>
-            <Tab label="Increase Prize" value={4} style={{color: this.state.tabValue === 4? (this.state.lightMode? "rgb(25, 55, 83)":"#fff") : "#16e5cd"}}>
-              <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.contract.symbol}/>
+            <Tab label="Change Prize" value={4} style={{color: this.state.tabValue === 4? (this.state.lightMode? "rgb(25, 55, 83)":"#fff") : "#16e5cd"}}>
+              <ChangePayoutForm onhandleChange={this.handleChangePayout} changePayoutError={this.state.changePayoutError} symbol={this.state.contract.symbol}/>
             </Tab>
           </Tabs>
           </div>
@@ -2365,7 +2426,7 @@ handleToggleLightMode(){
 
                   <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "0px", color: this.state.lightMode?"rgb(25, 55, 83)":"white", fontSize: "32px", fontWeight: "600"}}>{this.state.contract.value}<b style={{color: this.state.lightMode? "rgb(255, 184, 21)":"#FFDE46", fontWeight: "200", lineHeight: "28px"}}>{this.state.contract.symbol? this.state.contract.symbol : 'ETH'}</b></h5>
 
-                  <h5 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: this.state.lightMode?"rgb(25, 55, 83)":"white", marginBottom: "15px", fontSize: "16px", fontWeight: "200"}}><b style={{color: this.state.lightMode? "rgb(255, 184, 21)":"#FFDE46", fontWeight: "500"}}>$</b>{numberWithCommas(parseInt((this.state.contract.value* this.state.prices[this.state.contract.symbol])))}</h5>
+                  <h5 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: this.state.lightMode?"rgb(25, 55, 83)":"white", marginBottom: "15px", fontSize: "16px", fontWeight: "200"}}><b style={{color: this.state.lightMode? "rgb(255, 184, 21)":"#FFDE46", fontWeight: "500"}}>$</b>{numberWithCommas(parseInt((this.state.contract.value* (this.state.prices[this.state.contract.symbol] || 0))))}</h5>
 
                     <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center", marginBottom: "7.5px", color: this.state.lightMode?"#8C9899":"#d0d0d0"}}>Total Balance: {this.state.contract.balance + " " + this.state.contract.symbol}</p>
                   </div>

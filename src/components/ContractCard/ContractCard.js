@@ -80,7 +80,7 @@ class ContractCard extends Component {
             <div style={{overflow: "hidden", display: "block",  width: "120px",}}>
             <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
 
-            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color:  this.props.lightMode? "rgb(25, 55, 83)":"white", fontSize: "24px", fontWeight: "600"}}><b style={{color: "#FFDE46", fontWeight: "200", lineHeight: "28px"}}>$</b>{numberWithCommas(parseInt((reward* this.props.price)))}</h5>
+            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color:  this.props.lightMode? "rgb(25, 55, 83)":"white", fontSize: "24px", fontWeight: "600"}}><b style={{color: "#FFDE46", fontWeight: "200", lineHeight: "28px"}}>$</b>{numberWithCommas(parseInt((reward* (this.props.price || 0))))}</h5>
 
             <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: this.props.lightMode? "#8C9899":"#d0d0d0", fontSize: "12px", fontWeight: "200"}}>{reward} {this.props.symbol? this.props.symbol : 'ETH'}</h1>
 

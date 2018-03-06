@@ -102,11 +102,11 @@ this.setState({sortByCreated: sortByCreated,
     } else if (this.state.sortByValue){
       if (this.state.valueDescending){
         givenList.sort(function(b1, b2){
-          return (prices[b2.symbol]*b2.value - prices[b1.symbol]*b1.value);
+          return ((prices[b2.symbol] || 0)*b2.value - (prices[b1.symbol] || 0)*b1.value);
         });
       } else {
         givenList.sort(function(b1, b2){
-          return (prices[b1.symbol]*b1.value - prices[b2.symbol]*b2.value);
+          return ((prices[b1.symbol] || 0)*b1.value - (prices[b2.symbol] || 0)*b2.value);
         });
       }
     }

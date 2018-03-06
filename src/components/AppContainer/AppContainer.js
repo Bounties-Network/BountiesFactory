@@ -110,6 +110,7 @@ class AppContainer extends Component {
       StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddressv0),
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
       lightMode:   localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
+      totalPayouts: 0
     }
 
     this.getInitialData = this.getInitialData.bind(this);
@@ -481,6 +482,7 @@ class AppContainer extends Component {
               if (!succ[3]){
                 var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
                 var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
+                this.setState({totalPayouts: (this.state.totalPayouts+parseInt(balance, 10))});
                 bounties.push({
                   bountyId: bountyId,
                   issuer: succ[0],
@@ -498,6 +500,7 @@ class AppContainer extends Component {
                 });
                 if (bounties.length === total){
                   this.setState({bountiesv0: bounties, loading: false});
+                  console.log("numBounties: ", bounties.length);
                 }
               } else {
                 this.state.StandardBountiesv0.getBountyToken(bountyId, (err, address)=> {
@@ -533,6 +536,7 @@ class AppContainer extends Component {
                       });
                       if (bounties.length === total){
                         this.setState({bountiesv0: bounties, loading: false});
+                        console.log("numBounties: ", bounties.length);
                       }
                     });
                   });
@@ -562,6 +566,7 @@ class AppContainer extends Component {
             });
             if (bounties.length === total){
               this.setState({bountiesv0: bounties, loading: false});
+              console.log("numBounties: ", bounties.length);
             }
 
 
@@ -580,13 +585,14 @@ class AppContainer extends Component {
       this.state.StandardBounties.getBounty(bountyId, (err, succ)=> {
       this.state.StandardBounties.getNumFulfillments(bountyId, (err, numFul)=>{
         this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
-          if (data.length > 0){
+
+          if (data.length > 0 && data !== "0x0000000000000000000000000000000000000000"){
             ipfs.catJSON(data, (err, result)=> {
               var bountyDataResult;
               if (!result || !result.meta || result.meta == "undefined"){
                 bountyDataResult = result;
               } else {
-                if (result.meta.schemaVersion == "0.1"){
+                if (result.meta.schemaVersion == "0.1" || result.meta.schemaVersion == "0.0.1"){
                   bountyDataResult = {
                     title: result.payload.title,
                     description: result.payload.description,
@@ -645,6 +651,7 @@ class AppContainer extends Component {
                 });
                 if (bounties.length === total){
                   this.setState({bounties: bounties, loading: false});
+                  console.log("numBounties: ", bounties.length);
                 }
               } else {
                 this.state.StandardBounties.getBountyToken(bountyId, (err, address)=> {
@@ -680,6 +687,7 @@ class AppContainer extends Component {
                       });
                       if (bounties.length === total){
                         this.setState({bounties: bounties, loading: false});
+                        console.log("numBounties: ", bounties.length);
                       }
                     });
                   });
@@ -709,6 +717,7 @@ class AppContainer extends Component {
             });
             if (bounties.length === total){
               this.setState({bounties: bounties, loading: false});
+              console.log("numBounties: ", bounties.length);
             }
 
 
@@ -846,6 +855,9 @@ handleToggleLightMode(){
         }
       }
         var isInSelectedCategories = false;
+        if (!totalBounties[i].bountyData){
+          console.log("bad bounty, ", totalBounties[i], i);
+        }
         var newCategories = totalBounties[i].bountyData.categories.filter((n)=> { return this.state.optionsList.includes(n)});
         if (newCategories.length > 0 || this.state.optionsList[0] === "" || this.state.optionsList.length === 0){
           isInSelectedCategories = true;
@@ -880,6 +892,7 @@ handleToggleLightMode(){
 
 
     }
+    console.log("total payouts", this.state.totalPayouts);
     const modalActions = [
     <FlatButton
       label="Retry"
