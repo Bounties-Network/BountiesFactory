@@ -30,28 +30,33 @@ class ContractCard extends Component {
         <b style={{fontWeight: "500"}}>{this.props.numFul}</b><b style={{color:  "rgb(25, 55, 83)", fontWeight: "200", marginLeft: "5px"}}>{this.props.numFul===1? " SUBMISSION":" SUBMISSIONS"}</b>
       </Chip>
     );
-    if (this.props.data.categories){
-      for (var i = 0; i < this.props.data.categories.length; i++){
+    if (this.props.categories){
+      for (var i = 0; i < this.props.categories.length; i++){
         categories.push(
           <Chip style={{margin: "4px 9px 0px 0px", float: "left", border: "1px solid rgba(25, 55, 83,0.5)", backgroundColor: "rgba(0, 126, 255, 0)", height: "20px"}}
                 labelStyle={{color:  "rgb(25, 55, 83)", fontSize: "11px", marginTop: "-6px"}}
-                key={this.props.data.categories[i]}
-                onClick={this.props.handleAddCategory.bind(this, this.props.data.categories[i])}
+                key={this.props.categories[i]}
+                onClick={this.props.handleAddCategory.bind(this, this.props.categories[i])}
                 className="Chip">
-            <b className="Chip" style={{fontWeight: "300", }}>{this.props.data.categories[i]}</b>
+            <b className="Chip" style={{fontWeight: "300", }}>{this.props.categories[i]}</b>
           </Chip>
         );
       }
     }
 
-    var reward = "" + this.props.value;
-    var url = ("/bounty/v"+ this.props.version+"/"+ this.props.bountyId);
+    var reward;
+
+    if (this.props.symbol.length == 0 || this.props.symbol == "ETH"){
+      reward = web3.fromWei(parseInt(this.props.value, 10), 'ether')
+    }
+
+    var url = ("/bounty/v1/"+ this.props.bountyId);
     return (
       <div style={{float: "left", display: "block", width: "630px", marginBottom: "15px", display: "flex"}}>
         <div style={{width: "560px", marginBottom: "0px",boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgb(249, 249, 249)", color: "white", borderLeft: "1px solid rgb(56, 90, 116)", borderWidth: "0px 0px 0px 1px", display: "flex", justifyContent: "center", alignItems: "center"}} className="ContractCard">
 
           <div style={{float: "left", display: "inline-block", width: "430px", padding: "5px"}}>
-            <a style={{color: "rgb(25, 55, 83)", textDecoration: "none"}} href={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px", fontWeight: "600"}}> {this.props.data.title}</h4></a>
+            <a style={{color: "rgb(25, 55, 83)", textDecoration: "none"}} href={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px", fontWeight: "600"}}> {this.props.title}</h4></a>
             <div style={{display: "block", width: "440px", overflow: "hidden"}}>
             <p style={{ fontSize: "12px", margin: "6px 0px", float: "left", display: "inline-block"}}>
               <b style={{color: "rgb(56, 89, 115)", fontWeight: "500"}}>By:  </b>

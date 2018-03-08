@@ -4,6 +4,7 @@ import './AppContainer.css'
 import Web3 from 'web3';
 import Select from 'react-select';
 
+import 'whatwg-fetch';
 
 const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
 const json = require('../../../contracts.json');
@@ -101,6 +102,8 @@ class AppContainer extends Component {
       myBountiesLoading: true,
       selectedStage: "Active",
       selectedMine: "ANY",
+      sortBy: "Created",
+      descending: true,
       requiredNetwork: requiredNetwork,
       networkName: networkName,
       prices: {},
@@ -109,13 +112,21 @@ class AppContainer extends Component {
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
       StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddressv0),
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
-      totalPayouts: 0
+      totalPayouts: 0,
+      nextUrl: "",
+      categories: CATEGORIES,
+      optionsUnseparated: "",
+      myDraft: 0,
+      myActive: 0,
+      myCompleted: 0,
+      myDead: 0,
+      myExpired: 0,
+      myTotal: 0
     }
 
     this.getInitialData = this.getInitialData.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
     this.handleClose = this.handleClose.bind(this);
-    this.getBounty = this.getBounty.bind(this);
     this.handleChangeStage = this.handleChangeStage.bind(this);
     this.handleMineChange = this.handleMineChange.bind(this);
     this.handleChangeToMine = this.handleChangeToMine.bind(this);
@@ -124,8 +135,13 @@ class AppContainer extends Component {
     this.handleChangeNetwork = this.handleChangeNetwork.bind(this);
 
     this.handleSelectChange = this.handleSelectChange.bind(this);
+    this.handleToggleSort = this.handleToggleSort.bind(this);
 
     this.getPrices = this.getPrices.bind(this);
+    this.getBounties = this.getBounties.bind(this);
+    this.getCategories = this.getCategories.bind(this);
+    this.getMyBounties = this.getMyBounties.bind(this);
+
 
   }
 
@@ -290,19 +306,149 @@ class AppContainer extends Component {
       return "now";
     }
   }
-  callback(response){
-    console.log("response", JSON.parse(response));
+  getBounties(){
+
+    var urlBase = 'http://0.0.0.0:8000/bounty/?limit=1000';
+
+    var selectedStageUrl = "";
+
+    console.log('current stage:', this.state.selectedStage);
+
+    if (this.state.selectedStage === "Draft"){
+      selectedStageUrl = "&bountyStage=0";
+    } else if (this.state.selectedStage === "Active"){
+      selectedStageUrl = "&bountyStage=1";
+    } else if (this.state.selectedStage === "Dead"){
+      selectedStageUrl = "&bountyStage=2";
+    } else if (this.state.selectedStage === "Completed"){
+      selectedStageUrl = "&bountyStage=3";
+    } else if (this.state.selectedStage === "Expired"){
+      selectedStageUrl = "&bountyStage=4";
+    }
+
+    //selectedMine: "ANY",
+    urlBase+=selectedStageUrl;
+
+    var selectedAddressUrl = "";
+
+    if (this.state.selectedMine !== "ANY"){
+      selectedAddressUrl = "&issuer="+this.state.accounts[0];
+    }
+
+    urlBase+=selectedAddressUrl;
+
+
+    var sortByUrl = "";
+    if (this.state.sortBy == "Created"){
+      if (this.state.descending){
+        sortByUrl = "&ordering=-bounty_created"
+      } else {
+        sortByUrl = "&ordering=bounty_created"
+      }
+    } else if (this.state.sortBy == "Value"){
+      if (this.state.descending){
+        sortByUrl = "&ordering=-fulfillmentAmount"
+      } else {
+        sortByUrl = "&ordering=fulfillmentAmount"
+      }
+    } else if (this.state.sortBy == "Expiry"){
+      if (this.state.descending){
+        sortByUrl = "&ordering=-deadline"
+      } else {
+        sortByUrl = "&ordering=deadline"
+      }
+    }
+
+    urlBase+=sortByUrl;
+
+    var urlCategories = "&categories__normalized_name__in="+this.state.optionsUnseparated
+
+    urlBase+=urlCategories;
+
+    fetch(urlBase)
+      .then(function(response) {
+        return response.json();
+
+      }.bind(this)).then(function(json) {
+        console.log('parsed json', json)
+
+        this.setState({bounties: json.results, loading: false});
+
+
+
+      }.bind(this)).catch(function(ex) {
+        console.log('parsing failed', ex)
+      });
+  }
+
+  getCategories(){
+    fetch("http://0.0.0.0:8000/category/?limit=1000")
+      .then(function(response) {
+        return response.json();
+
+      }.bind(this)).then(function(json) {
+        console.log('parsed json', json);
+        var categories = [];
+
+        for (var i = 0; i < json.results.length; i++){
+          categories.push({label: json.results[i].name, value: json.results[i].normalized_name});
+        }
+
+        this.setState({categories: categories});
+
+
+
+      }.bind(this)).catch(function(ex) {
+        console.log('parsing failed', ex)
+      });
+  }
+
+  getMyBounties(){
+    fetch("http://0.0.0.0:8000/bounty/?limit=1000&issuer="+this.state.accounts[0])
+      .then(function(response) {
+        return response.json();
+
+      }.bind(this)).then(function(json) {
+        console.log('parsed json', json);
+        var myDraft = 0;
+        var myActive = 0;
+        var myCompleted = 0;
+        var myDead = 0;
+        var myExpired = 0;
+        var myTotal = 0;
+
+        for (var i = 0; i < json.results.length; i++){
+          if (json.results[i].bountyStage === 0){
+            myDraft++;
+          } else if (json.results[i].bountyStage === 1){
+            myActive++;
+          } else if (json.results[i].bountyStage === 2){
+            myDead++;
+          } else if (json.results[i].bountyStage === 3){
+            myCompleted++;
+          } else if (json.results[i].bountyStage === 4){
+            myExpired++;
+          }
+          myTotal ++;
+        }
+
+        this.setState({myDraft: myDraft,
+                      myActive: myActive,
+                      myCompleted: myCompleted,
+                      myDead: myDead,
+                      myExpired: myExpired,
+                      myTotal: myTotal});
+
+
+
+      }.bind(this)).catch(function(ex) {
+        console.log('parsing failed', ex)
+      });
   }
 
   getInitialData(){
 
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", "http://0.0.0.0:8000/bounty/?limit=25", true); // true for asynchronous
-    xmlHttp.send(null);
+
 
     window.loaded = true;
 
@@ -362,386 +508,20 @@ class AppContainer extends Component {
               }, 2000);
               this.setState({accounts: accs});
 
-              var bounties = [];
-              this.state.StandardBounties.getNumBounties((err, succ)=> {
-                var total = parseInt(succ, 10);
-
-                this.setState({total: total});
-                for (var i = 0; i < total; i++){
-                  this.getBounty(i, bounties, total, 1);
-
-                }
-                if (total === 0){
-                  this.setState({loading: false});
-                }
-
-              });
-              var bountiesv0 = [];
-              this.state.StandardBountiesv0.getNumBounties((err, succ)=> {
-                var total = parseInt(succ, 10);
-
-                this.setState({total: this.state.total+total});
-                for (var i = 0; i < total; i++){
-                  this.getBounty(i, bountiesv0, total, 0);
-
-                }
-                if (total === 0){
-                  this.setState({loading: false});
-                }
-
-              });
-
+              this.getBounties();
+              this.getCategories();
+              this.getMyBounties();
             }
           }
           }.bind(this));
 
       });
     } else {
-      var bounties = [];
-      this.state.StandardBounties.getNumBounties((err, succ)=> {
-        var total = parseInt(succ, 10);
-        this.setState({total: total});
-        for (var i = 0; i < total; i++){
-          this.getBounty(i, bounties, total,1);
-
-        }
-        if (total === 0){
-          this.setState({loading: false});
-        }
-
-      });
-      var bountiesv0 = [];
-      this.state.StandardBountiesv0.getNumBounties((err, succ)=> {
-        var total = parseInt(succ, 10);
-        this.setState({total: this.state.total+total});
-        for (var i = 0; i < total; i++){
-          this.getBounty(i, bountiesv0, total, 0);
-
-        }
-        if (total === 0){
-          this.setState({loading: false});
-        }
-
-      });
-      /*
-
-      this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
-      setInterval(function() {
-        if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
-          this.getInitialData();
-        } else {
-          console.log("window", window.web3);
-        }
-      }, 100);
-      */
-    }
-  }
-  getBounty(bountyId, bounties, total, version){
-    if (version == 0){
-      this.state.StandardBountiesv0.getBounty(bountyId, (err, succ)=> {
-      this.state.StandardBountiesv0.getNumFulfillments(bountyId, (err, numFul)=>{
-        this.state.StandardBountiesv0.getBountyData(bountyId, (err, data)=> {
-          if (data.length > 0){
-            ipfs.catJSON(data, (err, result)=> {
-              var bountyDataResult;
-              if (!result || !result.meta || result.meta == "undefined"){
-                bountyDataResult = result;
-              } else {
-                console.log("meta", result);
-                if (result.meta.schemaVersion == "0.1"){
-                  bountyDataResult = {
-                    title: result.payload.title,
-                    description: result.payload.description,
-                    sourceFileName: result.payload.sourceFileName,
-                    sourceFileHash: result.payload.sourceFileHash,
-                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
-                    contact: result.payload.issuer.email,
-                    categories: result.payload.categories,
-                    githubLink: result.payload.webReferenceURL
-                  }
-                }
-              }
-
-
-              var stage;
-              var max = new BN(8640000000000000);
-              if (parseInt(succ[4], 10) === 0){
-                stage = "Draft";
-              } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
-                stage = "Completed";
-              } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
-                stage = "Expired";
-              } else if (parseInt(succ[4], 10) === 1){
-                stage = "Active";
-              }  else {
-                stage = "Dead";
-              }
-              var intDate = parseInt(succ[1], 10);
-              var newDate;
-              var dateString;
-              if ((succ[1].times(1000)).greaterThan(max)){
-                newDate = new Date(parseInt(max, 10));
-                dateString = this.dateToString(8640000000000000);
-              } else {
-                newDate = new Date(parseInt(succ[1], 10)*1000);
-                dateString = this.dateToString(parseInt(succ[1], 10)*1000);
-              }
-
-
-              if (!succ[3]){
-                var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
-                var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
-                this.setState({totalPayouts: (this.state.totalPayouts+parseInt(balance, 10))});
-                bounties.push({
-                  bountyId: bountyId,
-                  issuer: succ[0],
-                  deadline: newDate.toUTCString(),
-                  dateNum: newDate.getTime(),
-                  value: value,
-                  paysTokens: succ[3],
-                  stage: stage,
-                  balance: balance,
-                  bountyData: bountyDataResult,
-                  symbol: "ETH",
-                  dateString: dateString,
-                  numFul: parseInt(numFul, 10),
-                  version: 0
-                });
-                if (bounties.length === total){
-                  this.setState({bountiesv0: bounties, loading: false});
-                  console.log("numBounties: ", bounties.length);
-                }
-              } else {
-                this.state.StandardBountiesv0.getBountyToken(bountyId, (err, address)=> {
-                  var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
-                  HumanStandardToken.symbol((err, symbol)=> {
-                    HumanStandardToken.decimals((err, dec)=> {
-
-                      var decimals = parseInt(dec, 10);
-                      var newAmount = succ[2];
-                      var decimalToMult = new BN(10, 10);
-                      var decimalUnits = new BN(decimals, 10);
-                      decimalToMult = decimalToMult.pow(decimalUnits);
-                      newAmount = newAmount.div(decimalToMult);
-
-                      var balance = succ[5];
-                      balance = balance.div(decimalToMult);
-
-                      bounties.push({
-                        bountyId: bountyId,
-                        issuer: succ[0],
-                        deadline: newDate.toUTCString(),
-                        dateNum: newDate.getTime(),
-                        value: parseInt(newAmount, 10),
-                        paysTokens: succ[3],
-                        stage: stage,
-                        owedAmount: parseInt(succ[5], 10),
-                        balance: parseInt(balance, 10),
-                        bountyData: bountyDataResult,
-                        dateString: dateString,
-                        symbol: symbol,
-                        numFul: parseInt(numFul, 10),
-                        version: 0
-                      });
-                      if (bounties.length === total){
-                        this.setState({bountiesv0: bounties, loading: false});
-                        console.log("numBounties: ", bounties.length);
-                      }
-                    });
-                  });
-
-                });
-
-              }
-
-            });
-          } else {
-
-            bounties.push({
-              bountyId: bountyId,
-              issuer: succ[0],
-              deadline: 0,
-              dateNum: 0,
-              value: 0,
-              paysTokens: succ[3],
-              stage: "Draft",
-              owedAmount: parseInt(succ[5], 10),
-              balance: 0,
-              bountyData: {categories:[]},
-              dateString: "date",
-              symbol: "",
-              numFul: parseInt(numFul, 10),
-              version: 0
-            });
-            if (bounties.length === total){
-              this.setState({bountiesv0: bounties, loading: false});
-              console.log("numBounties: ", bounties.length);
-            }
-
-
-          }
-
-
-        });
-      });
-
-
-    });
-
-
-    } else if (version == 1){
-
-      this.state.StandardBounties.getBounty(bountyId, (err, succ)=> {
-      this.state.StandardBounties.getNumFulfillments(bountyId, (err, numFul)=>{
-        this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
-
-          if (data.length > 0 && data !== "0x0000000000000000000000000000000000000000"){
-            ipfs.catJSON(data, (err, result)=> {
-              var bountyDataResult;
-              if (!result || !result.meta || result.meta == "undefined"){
-                bountyDataResult = result;
-              } else {
-                if (result.meta.schemaVersion == "0.1" || result.meta.schemaVersion == "0.0.1"){
-                  bountyDataResult = {
-                    title: result.payload.title,
-                    description: result.payload.description,
-                    sourceFileName: result.payload.sourceFileName,
-                    sourceFileHash: result.payload.sourceFileHash,
-                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
-                    contact: result.payload.issuer.email,
-                    categories: result.payload.categories,
-                    githubLink: result.payload.webReferenceURL
-                  }
-                }
-              }
-
-              var stage;
-              var max = new BN(8640000000000000);
-              if (parseInt(succ[4], 10) === 0){
-                stage = "Draft";
-              } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
-                stage = "Completed";
-              } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
-                stage = "Expired";
-              } else if (parseInt(succ[4], 10) === 1){
-                stage = "Active";
-              }  else {
-                stage = "Dead";
-              }
-              var intDate = parseInt(succ[1], 10);
-              var newDate;
-              var dateString;
-              if ((succ[1].times(1000)).greaterThan(max)){
-                newDate = new Date(parseInt(max, 10));
-                dateString = this.dateToString(8640000000000000);
-              } else {
-                newDate = new Date(parseInt(succ[1], 10)*1000);
-                dateString = this.dateToString(parseInt(succ[1], 10)*1000);
-              }
-
-
-              if (!succ[3]){
-                var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
-                var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
-                bounties.push({
-                  bountyId: bountyId,
-                  issuer: succ[0],
-                  deadline: newDate.toUTCString(),
-                  dateNum: newDate.getTime(),
-                  value: value,
-                  paysTokens: succ[3],
-                  stage: stage,
-                  balance: balance,
-                  bountyData: bountyDataResult,
-                  symbol: "ETH",
-                  dateString: dateString,
-                  numFul: parseInt(numFul, 10),
-                  version: 1
-                });
-                if (bounties.length === total){
-                  this.setState({bounties: bounties, loading: false});
-                  console.log("numBounties: ", bounties.length);
-                }
-              } else {
-                this.state.StandardBounties.getBountyToken(bountyId, (err, address)=> {
-                  var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
-                  HumanStandardToken.symbol((err, symbol)=> {
-                    HumanStandardToken.decimals((err, dec)=> {
-
-                      var decimals = parseInt(dec, 10);
-                      var newAmount = succ[2];
-                      var decimalToMult = new BN(10, 10);
-                      var decimalUnits = new BN(decimals, 10);
-                      decimalToMult = decimalToMult.pow(decimalUnits);
-                      newAmount = newAmount.div(decimalToMult);
-
-                      var balance = succ[5];
-                      balance = balance.div(decimalToMult);
-
-                      bounties.push({
-                        bountyId: bountyId,
-                        issuer: succ[0],
-                        deadline: newDate.toUTCString(),
-                        dateNum: newDate.getTime(),
-                        value: parseInt(newAmount, 10),
-                        paysTokens: succ[3],
-                        stage: stage,
-                        owedAmount: parseInt(succ[5], 10),
-                        balance: parseInt(balance, 10),
-                        bountyData: bountyDataResult,
-                        dateString: dateString,
-                        symbol: symbol,
-                        numFul: parseInt(numFul, 10),
-                        version: 1
-                      });
-                      if (bounties.length === total){
-                        this.setState({bounties: bounties, loading: false});
-                        console.log("numBounties: ", bounties.length);
-                      }
-                    });
-                  });
-
-                });
-
-              }
-
-            });
-          } else {
-
-            bounties.push({
-              bountyId: bountyId,
-              issuer: succ[0],
-              deadline: 0,
-              dateNum: 0,
-              value: 0,
-              paysTokens: succ[3],
-              stage: "Draft",
-              owedAmount: parseInt(succ[5], 10),
-              balance: 0,
-              bountyData: {categories:[]},
-              dateString: "date",
-              symbol: "",
-              numFul: parseInt(numFul, 10),
-              version: 0,
-            });
-            if (bounties.length === total){
-              this.setState({bounties: bounties, loading: false});
-              console.log("numBounties: ", bounties.length);
-            }
-
-
-          }
-
-
-        });
-      });
-
-
-    });
+      this.setState({accounts: ['0x0000000000000000000000000000000000000000'], selectedNetwork: "1"});
+      this.getBounties();
+      this.getCategories();
 
     }
-
-
   }
   getPrices(){
 
@@ -761,17 +541,19 @@ class AppContainer extends Component {
   handleChangeStage(evt){
     evt.preventDefault();
     var selected = evt.target.value;
-    this.setState({selectedStage: selected});
+    this.setState({selectedStage: selected, loading: true, bounties: []}, this.getBounties);
   }
 
   handleMineChange(evt){
     evt.preventDefault();
     var selected = evt.target.value;
-    this.setState({selectedMine: selected});
+    this.setState({selectedMine: selected, loading: true, bounties: []}, this.getBounties);
+
   }
   handleChangeToMine(evt){
     evt.preventDefault();
-    this.setState({selectedMine: "MINE"});
+    this.setState({selectedMine: "MINE", loading: true, bounties: []}, this.getBounties);
+
   }
   handleChangeNetwork(evt){
     evt.preventDefault();
@@ -818,8 +600,7 @@ class AppContainer extends Component {
     if (optionsList.includes("Code") || optionsList.includes("Bugs")){
       containsCode = true;
     }
-    this.setState({ optionsList: optionsList, value: value, containsCode: containsCode});
-    this.forceUpdate();
+    this.setState({ optionsList: optionsList, value: value, containsCode: containsCode, optionsUnseparated: value, loading: true, bounties: []}, this.getBounties);
 
   }
   handleAddCategory(item){
@@ -827,6 +608,29 @@ class AppContainer extends Component {
     optionsList.push(item);
     this.setState({optionsList: optionsList, value: item});
   }
+  handleToggleSort(newSort){
+  var sortByCreated = false;
+  var sortByValue = false;
+  var sortByExpiry = false;
+  var createdDescending = true;
+  var valueDescending =  true;
+  var expiryDescending = true;
+
+  if (newSort === "Created" && this.state.sortBy === "Created"){
+    this.setState({descending: !this.state.descending, loading: true, bounties: []}, this.getBounties)
+  } else if (newSort === "Value" && this.state.sortBy === "Value"){
+    this.setState({descending: !this.state.descending, loading: true, bounties: []}, this.getBounties)
+  } else if (newSort === "Expiry" && this.state.sortBy === "Expiry"){
+    this.setState({descending: !this.state.descending, loading: true, bounties: []}, this.getBounties)
+  } else if (newSort === "Created"){
+    this.setState({sortBy: "Created", descending: !true, loading: true, bounties: []}, this.getBounties)
+  } else if (newSort === "Value"){
+    this.setState({sortBy: "Value", descending: !true, loading: true, bounties: []}, this.getBounties)
+  } else if (newSort === "Expiry"){
+    this.setState({sortBy: "Expiry", descending: !true, loading: true, bounties: []}, this.getBounties)
+  }
+  }
+
   render() {
     var newList = [];
     var totalMe = 0;;
@@ -837,65 +641,9 @@ class AppContainer extends Component {
     var deadMe = 0;
     var expiredMe = 0;
     var totalBounties = this.state.bounties.concat(this.state.bountiesv0);
-    for (var i = 0; i < totalBounties.length; i++){
-      if (totalBounties[i].issuer === this.state.accounts[0]){
-        newList.push(totalBounties[i]);
-        totalMe++;
-        if (totalBounties[i].stage === "Active"){
-          activeMe++;
-        }
-        if (totalBounties[i].stage === "Draft"){
-          draftMe++;
-        }
-        if (totalBounties[i].stage === "Dead"){
-          deadMe++;
-        }
-        if (totalBounties[i].stage === "Expired"){
-          expiredMe++;
-        }
-        if (totalBounties[i].stage === "Completed"){
-          completedMe++;
-        }
-      }
-        var isInSelectedCategories = false;
-        if (!totalBounties[i].bountyData){
-          console.log("bad bounty, ", totalBounties[i], i);
-        }
-        var newCategories = totalBounties[i].bountyData.categories.filter((n)=> { return this.state.optionsList.includes(n)});
-        if (newCategories.length > 0 || this.state.optionsList[0] === "" || this.state.optionsList.length === 0){
-          isInSelectedCategories = true;
-        }
-      /*
 
 
-      for (var j = 0; j < this.state.bounties[i].bountyData.categories.length; i++){
-        console.log("categories: ", this.state.bounties[j]);
 
-        if (this.state.optionsList.indexOf(this.state.bounties[i].bountyData.categories[i]) >= 0){
-          isInSelectedCategories = true;
-        }
-
-      }
-
-      if (this.state.optionsList.length === 0){
-        isInSelectedCategories = true;
-      }
-*/
-      if (isInSelectedCategories){
-        if (totalBounties[i].stage === this.state.selectedStage || this.state.selectedStage === "ANY"){
-          if (this.state.selectedMine === "ANY"){
-            activeList.push(totalBounties[i]);
-          } else if (this.state.selectedMine === "MINE" && totalBounties[i].issuer === this.state.accounts[0]){
-            activeList.push(totalBounties[i]);
-          } else if (this.state.selectedMine === "NOT MINE" && totalBounties[i].issuer !== this.state.accounts[0]){
-            activeList.push(totalBounties[i]);
-          }
-        }
-      }
-
-
-    }
-    console.log("total payouts", this.state.totalPayouts);
     const modalActions = [
     <FlatButton
       label="Retry"
@@ -921,9 +669,6 @@ class AppContainer extends Component {
          {this.state.modalError}
        </Dialog>
       <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative"}}>
-      <div style={{position: "fixed", bottom: "15px", left: "15px", display: "block", overflow: "hidden", width: "100px"}} className="CornerEmoji">
-      </div>
-      </div>
         <div style={{overflow: "hidden"}} className="navBar">
           <a href="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
             <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
@@ -940,35 +685,35 @@ class AppContainer extends Component {
 
             {this.state.accounts.length > 0 &&
               <div>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#193753", width: "100%", fontWeight: "500", textAlign: "center", lineHeight: "24px"}}>You have posted  <b style={{color: "#16e5cd", fontSize: "24px"}}>{totalMe}</b> bounties</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#193753", width: "100%", fontWeight: "500", textAlign: "center", lineHeight: "24px"}}>You have posted  <b style={{color: "#16e5cd", fontSize: "24px"}}>{this.state.myTotal}</b> bounties</h5>
               <div style={{marginBottom: "15px", borderBottom: "1px solid #16e5cd", display: "block", overflow: "hidden"}}>
 
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{ fontSize: "24px"}}>{draftMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{ fontSize: "24px"}}>{this.state.myDraft}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 186, 20)", width: "100%", fontWeight: "500" }}>DRAFT</h5>
 
                 </div>
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{activeMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{this.state.myActive}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(140, 226, 88)" , width: "100%", fontWeight: "500" }}>ACTIVE</h5>
 
 
                 </div>
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{deadMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{this.state.myDead}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "#ff6846", width: "100%", fontWeight: "500"}}>DEAD</h5>
 
                 </div>
 
 
                 <div style={{width: "50%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{expiredMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{this.state.myExpired}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(104, 166, 166)" , width: "100%", fontWeight: "500" }}>EXPIRED</h5>
 
 
                 </div>
                 <div style={{width: "50%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{completedMe}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{this.state.myCompleted}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 222, 70)", width: "100%", fontWeight: "500"}}>COMPLETED</h5>
 
                 </div>
@@ -1025,7 +770,7 @@ class AppContainer extends Component {
 
           </div>
           <div style={{width: "630px", float: "left", display: "block"}}>
-            <ContractList list={activeList} acc={this.state.accounts[0]} loading={this.state.loading} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} prices={this.state.prices}/>
+            <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} prices={this.state.prices} sortBy={this.state.sortBy} descending={this.state.descending}/>
           </div>
           <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className={"FilterBarLight"}>
             <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color:"rgb(25, 55, 83)", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>
@@ -1044,11 +789,10 @@ class AppContainer extends Component {
               <select onChange={this.handleMineChange} value={this.state.selectedMine} style={{fontSize: "14px",backgroundColor: "rgba(10, 22, 40, 0)" , border: "0px", color: "rgb(25, 55, 83)", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="ANY" selected="selected">{"Anyone's Bounties"}</option>
                 <option value="MINE">My Bounties</option>
-                <option value="NOT MINE">Not My Bounties</option>
               </select>
             </div>
             <div style={{width: "100%", float: "left", display: "block", marginTop: "15px"}}>
-              <Select multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select Categories" options={CATEGORIES} onChange={this.handleSelectChange} />
+              <Select multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select Categories" options={this.state.categories} onChange={this.handleSelectChange} />
             </div>
 
 
