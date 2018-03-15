@@ -14,6 +14,7 @@ import SvgQuestion from 'material-ui/svg-icons/action/question-answer';
 import SvgSurvey from 'material-ui/svg-icons/editor/drag-handle';
 import SvgArrow from 'material-ui/svg-icons/hardware/keyboard-arrow-right';
 import Blockies from 'react-blockies';
+const BN = require(`bn.js`);
 
 
 function numberWithCommas(x) {
@@ -48,6 +49,15 @@ class ContractCard extends Component {
 
     if (this.props.symbol.length == 0 || this.props.symbol == "ETH"){
       reward = web3.fromWei(parseInt(this.props.value, 10), 'ether')
+    } else {
+
+      var decimals = parseInt(this.props.decimals, 10);
+      var newAmount = new BN(this.props.value, 10);
+      var decimalToMult = new BN(10, 10);
+      var decimalUnits = new BN(decimals, 10);
+      decimalToMult = decimalToMult.pow(decimalUnits);
+      newAmount = newAmount.div(decimalToMult);
+      reward = newAmount.toString();
     }
 
     var url = ("/bounty/v1/"+ this.props.bountyId);
@@ -85,7 +95,7 @@ class ContractCard extends Component {
             <div style={{overflow: "hidden", display: "block",  width: "120px",}}>
             <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
 
-            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "rgb(25, 55, 83)", fontSize: "24px", fontWeight: "600"}}><b style={{color: "#FFDE46", fontWeight: "200", lineHeight: "28px"}}>$</b>{numberWithCommas(parseInt((reward* (this.props.price || 0))))}</h5>
+            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "rgb(25, 55, 83)", fontSize: "24px", fontWeight: "600"}}><b style={{color: "#FFDE46", fontWeight: "200", lineHeight: "28px"}}>$</b>{numberWithCommas(parseInt(this.props.usdValue))}</h5>
 
             <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontSize: "12px", fontWeight: "200"}}>{reward} {this.props.symbol? this.props.symbol : 'ETH'}</h1>
 

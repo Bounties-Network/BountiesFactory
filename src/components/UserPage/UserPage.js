@@ -96,6 +96,9 @@ class UserPage extends Component {
       modalError: "",
       balance: 0,
       loadingInitial: true,
+      loadingStats: true,
+      loadingBounties: true,
+      loadingFulfillments: true,
       accounts: [],
       contracts: [],
       fulfillments: [],
@@ -116,7 +119,7 @@ class UserPage extends Component {
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
       StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
-      lightMode:  localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
+      baseURL: "http://a2e716ea2144911e898ed02122fce8e2-236283655.us-east-1.elb.amazonaws.com:83"
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
 
@@ -129,6 +132,8 @@ class UserPage extends Component {
     this.handleOpen = this.handleOpen.bind(this);
     this.handleChangeNetwork = this.handleChangeNetwork.bind(this);
     this.handleToggleLightMode = this.handleToggleLightMode.bind(this);
+
+    this.getBounties = this.getBounties.bind(this);
 
 
   }
@@ -280,115 +285,6 @@ class UserPage extends Component {
 
       return utf8.decode(str);
   }
-  getBountyFulfillments(version){
-    if (version == 0){
-      var fulfillments;
-      for (var i = 0; i < this.state.bountiesv0.length; i++){
-        this.getFulfillmentsForBounty(0,i);
-      }
-    } else if (version == 1){
-      var fulfillments;
-      for (var i = 0; i < this.state.bounties.length; i++){
-        this.getFulfillmentsForBounty(1,i);
-      }
-    }
-
-  }
-  getFulfillmentsForBounty(version,i){
-    if (version == 0){
-      var index = i;
-      var bountyId = this.state.bountiesv0[index].bountyId;
-      this.state.StandardBountiesv0.getNumFulfillments(bountyId, (err, succ)=> {
-        var total = parseInt(succ, 10);
-        var fulfillments = [];
-        if (total === 0){
-          var bounties = this.state.bountiesv0;
-          bounties[index].fulfillments = [];
-          this.setState({bountiesv0: bounties});
-        }
-        for (var j = 0; j < total; j++){
-          this.state.StandardBountiesv0.getFulfillment(bountyId, j, (err, succ)=> {
-            ipfs.catJSON(succ[2], (err, result)=> {
-              var bountyDataResult;
-              if (!result || !result.meta || result.meta == "undefined"){
-                bountyDataResult = result;
-              } else {
-                if (result.meta.schemaVersion == "0.1"){
-                  bountyDataResult = {
-                    title: result.payload.title,
-                    description: result.payload.description,
-                    sourceFileName: result.payload.sourceFileName,
-                    sourceFileHash: result.payload.sourceFileHash,
-                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
-                    contact: result.payload.fulfiller.email,
-                    categories: result.payload.categories,
-                    githubLink: result.payload.webReferenceURL
-                  }
-                }
-              }
-              fulfillments.push({
-                accepted:succ[0],
-                fulfiller:succ[1],
-                data: bountyDataResult
-              });
-              if (fulfillments.length == total){
-                var bounties = this.state.bountiesv0;
-                bounties[index].fulfillments = fulfillments;
-                this.setState({bountiesv0: bounties});
-              }
-            });
-          });
-        }
-      });
-    } else if (version == 1){
-      var index = i;
-      var bountyId = this.state.bounties[index].bountyId;
-      this.state.StandardBounties.getNumFulfillments(bountyId, (err, succ)=> {
-        var total = parseInt(succ, 10);
-        var fulfillments = [];
-        if (total === 0){
-          var bounties = this.state.bounties;
-          bounties[index].fulfillments = [];
-          this.setState({bounties: bounties});
-        }
-        for (var j = 0; j < total; j++){
-          this.state.StandardBounties.getFulfillment(bountyId, j, (err, succ)=> {
-            ipfs.catJSON(succ[2], (err, result)=> {
-              var bountyDataResult;
-              if (!result || !result.meta || result.meta == "undefined"){
-                bountyDataResult = result;
-              } else {
-                if (result.meta.schemaVersion == "0.1"){
-                  bountyDataResult = {
-                    title: result.payload.title,
-                    description: result.payload.description,
-                    sourceFileName: result.payload.sourceFileName,
-                    sourceFileHash: result.payload.sourceFileHash,
-                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
-                    contact: result.payload.issuer.email,
-                    categories: [].push(result.payload.categories),
-                    githubLink: result.payload.webReferenceURL
-                  }
-                }
-              }
-
-              fulfillments.push({
-                accepted:succ[0],
-                fulfiller:succ[1],
-                data: bountyDataResult
-              });
-              if (fulfillments.length == total){
-                var bounties = this.state.bounties;
-                bounties[index].fulfillments = fulfillments;
-                this.setState({bounties: bounties});
-              }
-            });
-          });
-        }
-      });
-    }
-
-  }
 
 
   getBountyComments(){
@@ -453,323 +349,57 @@ class UserPage extends Component {
 
   }
 
-  getBounty(bountyId, bounties, total, version){
-    if (version == 0){
-      this.state.StandardBountiesv0.getBounty(bountyId, (err, succ)=> {
-      this.state.StandardBountiesv0.getNumFulfillments(bountyId, (err, numFul)=>{
-        this.state.StandardBountiesv0.getBountyData(bountyId, (err, data)=> {
-          if (data.length > 0){
-            ipfs.catJSON(data, (err, result)=> {
-              var bountyDataResult;
-              if (!result || !result.meta || result.meta == "undefined"){
-                bountyDataResult = result;
-              } else {
-                if (result.meta.schemaVersion == "0.1"){
-                  bountyDataResult = {
-                    title: result.payload.title,
-                    description: result.payload.description,
-                    sourceFileName: result.payload.sourceFileName,
-                    sourceFileHash: result.payload.sourceFileHash,
-                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
-                    contact: result.payload.issuer.email,
-                    categories: result.payload.categories,
-                    githubLink: result.payload.webReferenceURL
-                  }
-                }
-              }
-              var stage;
-              var max = new BN(8640000000000000);
-              if (parseInt(succ[4], 10) === 0){
-                stage = "Draft";
-              } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
-                stage = "Completed";
-              } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
-                stage = "Expired";
-              } else if (parseInt(succ[4], 10) === 1){
-                stage = "Active";
-              }  else {
-                stage = "Dead";
-              }
-              var intDate = parseInt(succ[1], 10);
-              var newDate;
-              var dateString;
-              if ((succ[1].times(1000)).greaterThan(max)){
-                newDate = new Date(parseInt(max, 10));
-                dateString = this.dateToString(8640000000000000);
-              } else {
-                newDate = new Date(parseInt(succ[1], 10)*1000);
-                dateString = this.dateToString(parseInt(succ[1], 10)*1000);
-              }
+
+  getBounties(){
+    fetch(this.state.baseURL+"/bounty/?limit=1000&issuer="+this.state.userAddress)
+      .then(function(response) {
+        return response.json();
+
+      }.bind(this)).then(function(json) {
+        console.log('parsed json', json);
+
+        this.setState({bounties: json.results, loadingBounties: false});
 
 
-              if (!succ[3]){
-                var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
-                var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
-                bounties.push({
-                  bountyId: bountyId,
-                  issuer: succ[0],
-                  mine: succ[0].toLowerCase() === this.state.userAddress.toLowerCase(),
-                  deadline: newDate.toUTCString(),
-                  dateNum: newDate.getTime(),
-                  value: value,
-                  paysTokens: succ[3],
-                  stage: stage,
-                  balance: balance,
-                  bountyData: bountyDataResult,
-                  symbol: "ETH",
-                  dateString: dateString,
-                  numFul: parseInt(numFul, 10),
-                  version: 0,
-                  fulfillments: []
-                });
-                if (bounties.length === total){
-                  this.setState({bountiesv0: bounties, loading: false});
-                  this.getBountyFulfillments(0);
-                    this.getBountyComments();
-                }
-              } else {
-                this.state.StandardBountiesv0.getBountyToken(bountyId, (err, address)=> {
-                  var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
-                  HumanStandardToken.symbol((err, symbol)=> {
-                    HumanStandardToken.decimals((err, dec)=> {
 
-                      var decimals = parseInt(dec, 10);
-                      var newAmount = succ[2];
-                      var decimalToMult = new BN(10, 10);
-                      var decimalUnits = new BN(decimals, 10);
-                      decimalToMult = decimalToMult.pow(decimalUnits);
-                      newAmount = newAmount.div(decimalToMult);
-
-                      var balance = succ[5];
-                      balance = balance.div(decimalToMult);
-
-                      bounties.push({
-                        bountyId: bountyId,
-                        issuer: succ[0],
-                        mine: succ[0].toLowerCase() === this.state.userAddress.toLowerCase(),
-                        deadline: newDate.toUTCString(),
-                        dateNum: newDate.getTime(),
-                        value: parseInt(newAmount, 10),
-                        paysTokens: succ[3],
-                        stage: stage,
-                        owedAmount: parseInt(succ[5], 10),
-                        balance: parseInt(balance, 10),
-                        bountyData: bountyDataResult,
-                        dateString: dateString,
-                        symbol: symbol,
-                        numFul: parseInt(numFul, 10),
-                        version: 0,
-                        fulfillments: []
-                      });
-                      if (bounties.length === total){
-                        this.setState({bountiesv0: bounties, loading: false});
-                        this.getBountyFulfillments(0);
-                    this.getBountyComments();
-                      }
-                    });
-                  });
-
-                });
-
-              }
-
-            });
-          } else {
-
-            bounties.push({
-              bountyId: bountyId,
-              issuer: succ[0],
-              mine: succ[0].toLowerCase() === this.state.userAddress.toLowerCase(),
-              deadline: 0,
-              dateNum: 0,
-              value: 0,
-              paysTokens: succ[3],
-              stage: "Draft",
-              owedAmount: parseInt(succ[5], 10),
-              balance: 0,
-              bountyData: {categories:[]},
-              dateString: "date",
-              symbol: "",
-              numFul: parseInt(numFul, 10),
-              version: 0,
-              fulfillments: []
-            });
-            if (bounties.length === total){
-              this.setState({bountiesv0: bounties, loading: false});
-              this.getBountyFulfillments(0);
-                    this.getBountyComments();
-            }
-
-
-          }
-
-
-        });
+      }.bind(this)).catch(function(ex) {
+        console.log('parsing failed', ex)
       });
 
+      fetch(this.state.baseURL+"/stats/profile/"+this.state.userAddress+"/")
+        .then(function(response) {
+          return response.json();
 
-    });
+        }.bind(this)).then(function(json) {
+          console.log('parsed stats', json);
 
-
-    } else if (version == 1){
-
-      this.state.StandardBounties.getBounty(bountyId, (err, succ)=> {
-      this.state.StandardBounties.getNumFulfillments(bountyId, (err, numFul)=>{
-        this.state.StandardBounties.getBountyData(bountyId, (err, data)=> {
-          if (data.length > 0){
-            ipfs.catJSON(data, (err, result)=> {
-              var bountyDataResult;
-              if (!result || !result.meta || result.meta == "undefined"){
-                bountyDataResult = result;
-              } else {
-                if (result.meta.schemaVersion == "0.1"){
-                  bountyDataResult = {
-                    title: result.payload.title,
-                    description: result.payload.description,
-                    sourceFileName: result.payload.sourceFileName,
-                    sourceFileHash: result.payload.sourceFileHash,
-                    sourceDirectoryHash: result.payload.sourceDirectoryHash,
-                    contact: result.payload.issuer.email,
-                    categories: result.payload.categories,
-                    githubLink: result.payload.webReferenceURL
-                  }
-                }
-              }
-              var stage;
-              var max = new BN(8640000000000000);
-              if (parseInt(succ[4], 10) === 0){
-                stage = "Draft";
-              } else if (parseInt(succ[4], 10) === 1 && parseInt(succ[5], 10) < parseInt(succ[2], 10)){
-                stage = "Completed";
-              } else if (parseInt(succ[4], 10) === 1 && (!(succ[1].times(1000)).greaterThan(max) && (parseInt(succ[1], 10)*1000 - Date.now()) < 0)){
-                stage = "Expired";
-              } else if (parseInt(succ[4], 10) === 1){
-                stage = "Active";
-              }  else {
-                stage = "Dead";
-              }
-              var intDate = parseInt(succ[1], 10);
-              var newDate;
-              var dateString;
-              if ((succ[1].times(1000)).greaterThan(max)){
-                newDate = new Date(parseInt(max, 10));
-                dateString = this.dateToString(8640000000000000);
-              } else {
-                newDate = new Date(parseInt(succ[1], 10)*1000);
-                dateString = this.dateToString(parseInt(succ[1], 10)*1000);
-              }
+          this.setState({bountiesTotal: json.bounties,
+                        bountiesAccepted: json.bounties_accepted,
+                        bountiesRate: json.bounties_acceptance_rate,
+                        submissionsTotal: json.submissions,
+                        submissionsAccepted: json.submissions_accepted_count,
+                        submissionsRate: json.submissions_acceptance_rate,
+                        loadingStats: false});
 
 
-              if (!succ[3]){
-                var value = web3.fromWei(parseInt(succ[2], 10), 'ether');
-                var balance = web3.fromWei(parseInt(succ[5], 10), 'ether');
-                bounties.push({
-                  bountyId: bountyId,
-                  issuer: succ[0],
-                  mine: succ[0].toLowerCase() === this.state.userAddress.toLowerCase(),
-                  deadline: newDate.toUTCString(),
-                  dateNum: newDate.getTime(),
-                  value: value,
-                  paysTokens: succ[3],
-                  stage: stage,
-                  balance: balance,
-                  bountyData: bountyDataResult,
-                  symbol: "ETH",
-                  dateString: dateString,
-                  numFul: parseInt(numFul, 10),
-                  version: 1,
-                  fulfillments: []
-                });
-                if (bounties.length === total){
-                  this.setState({bounties: bounties, loading: false});
-                  this.getBountyFulfillments(1);
-                    this.getBountyComments();
-                }
-              } else {
-                this.state.StandardBounties.getBountyToken(bountyId, (err, address)=> {
-                  var HumanStandardToken = web3.eth.contract(json.interfaces.HumanStandardToken).at(address);
-                  HumanStandardToken.symbol((err, symbol)=> {
-                    HumanStandardToken.decimals((err, dec)=> {
 
-                      var decimals = parseInt(dec, 10);
-                      var newAmount = succ[2];
-                      var decimalToMult = new BN(10, 10);
-                      var decimalUnits = new BN(decimals, 10);
-                      decimalToMult = decimalToMult.pow(decimalUnits);
-                      newAmount = newAmount.div(decimalToMult);
-
-                      var balance = succ[5];
-                      balance = balance.div(decimalToMult);
-
-                      bounties.push({
-                        bountyId: bountyId,
-                        issuer: succ[0],
-                        mine: succ[0].toLowerCase() === this.state.userAddress.toLowerCase(),
-                        deadline: newDate.toUTCString(),
-                        dateNum: newDate.getTime(),
-                        value: parseInt(newAmount, 10),
-                        paysTokens: succ[3],
-                        stage: stage,
-                        owedAmount: parseInt(succ[5], 10),
-                        balance: parseInt(balance, 10),
-                        bountyData: bountyDataResult,
-                        dateString: dateString,
-                        symbol: symbol,
-                        numFul: parseInt(numFul, 10),
-                        version: 1,
-                        fulfillments: []
-                      });
-                      if (bounties.length === total){
-                        this.setState({bounties: bounties, loading: false});
-                        this.getBountyFulfillments(1);
-                    this.getBountyComments();
-                      }
-                    });
-                  });
-
-                });
-
-              }
-
-            });
-          } else {
-
-            bounties.push({
-              bountyId: bountyId,
-              issuer: succ[0],
-              deadline: 0,
-              dateNum: 0,
-              value: 0,
-              paysTokens: succ[3],
-              stage: "Draft",
-              owedAmount: parseInt(succ[5], 10),
-              balance: 0,
-              bountyData: {categories:[]},
-              dateString: "date",
-              symbol: "",
-              numFul: parseInt(numFul, 10),
-              version: 0,
-              fulfillments: []
-            });
-            if (bounties.length === total){
-              this.setState({bounties: bounties, loading: false});
-              this.getBountyFulfillments(1);
-              this.getBountyComments();
-            }
-
-
-          }
-
-
+        }.bind(this)).catch(function(ex) {
+          console.log('parsing failed', ex)
         });
-      });
+      fetch(this.state.baseURL+"/fulfillment/?limit=1000&fulfiller="+this.state.userAddress)
+        .then(function(response) {
+          return response.json();
+
+        }.bind(this)).then(function(json) {
+          console.log('parsed json ful', json);
+
+          this.setState({fulfillments: json.results, loadingFulfillments: false});
 
 
-    });
 
-    }
-
-
+        }.bind(this)).catch(function(ex) {
+          console.log('parsing failed', ex)
+        });
   }
 
   getInitialData(){
@@ -793,7 +423,8 @@ class UserPage extends Component {
           this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                          StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
-                         selectedNetwork: netId});
+                         selectedNetwork: netId,
+                         baseURL: "http://afb256214274611e898ed02122fce8e2-504516521.us-east-1.elb.amazonaws.com:83"});
         } else {
           this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
         }
@@ -829,34 +460,11 @@ class UserPage extends Component {
           }, 2000);
 
           this.setState({accounts: accs});
-          var bounties = [];
-          this.state.StandardBounties.getNumBounties((err, succ)=> {
-            var total = parseInt(succ, 10);
+          this.getBounties();
 
-            this.setState({total: total});
-            for (var i = 0; i < total; i++){
-              this.getBounty(i, bounties, total, 1);
 
-            }
-            if (total === 0){
-              this.setState({loading: false});
-            }
 
-          });
-          var bountiesv0 = [];
-          this.state.StandardBountiesv0.getNumBounties((err, succ)=> {
-            var total = parseInt(succ, 10);
 
-            this.setState({total: this.state.total+total});
-            for (var i = 0; i < total; i++){
-              this.getBounty(i, bountiesv0, total, 0);
-
-            }
-            if (total === 0){
-              this.setState({loading: false});
-            }
-
-          });
           web3.eth.getBalance(this.state.userAddress, (err, succ)=> {
 
             var balance = parseFloat(web3.fromWei(parseInt(succ, 10), "ether")).toFixed(2);
@@ -872,20 +480,9 @@ class UserPage extends Component {
     });
     } else {
 
-      var bounties = [];
+      this.getBounties();
 
-      this.state.StandardBounties.getNumBounties((err, succ)=> {
-        var total = parseInt(succ, 10);
-        this.setState({total: total});
-        for (var i = 0; i < total; i++){
-          this.getBounty(i, bounties, total);
 
-        }
-        if (total === 0){
-          this.setState({loading: false});
-        }
-
-      });
       /*
       this.setState({modalError: "You must use MetaMask if you would like to use the Bounties.network dapp", modalOpen: true});
       setInterval(function() {
@@ -990,7 +587,7 @@ handleToggleLightMode(){
     document.title = "Bounties Explorer | User " + this.state.userAddress;
 
 
-    var totalBounties = this.state.bounties.concat(this.state.bountiesv0);
+    var totalBounties = this.state.bounties;
 
     const modalActions = [
     <FlatButton
@@ -1004,8 +601,8 @@ handleToggleLightMode(){
   for (var i = 0; i < this.state.commentsAbout.length; i++){
     commentsArray.push(
       <div style={{display: "block", borderBottom: "0px solid #16e5cd", marginBottom: "15px", overflow: "hidden"}} key={"comment: "+i}>
-        <div style={{backgroundColor: this.state.lightMode? "rgb(249,249,249)":"rgba(10, 22, 40, 0.5)", display: "block", overflow: "hidden", padding: "15px", color: this.state.lightMode? "rgb(25, 55, 83)":"white"}}>
-            <h5 style={{margin: "5px 0px", color :this.state.lightMode? "rgb(25, 55, 83)":"rgb(255, 222, 70)"}}><b style={{fontSize: "16px"}}>{this.state.commentsAbout[i].title}</b></h5>
+        <div style={{backgroundColor: "rgb(249,249,249)", display: "block", overflow: "hidden", padding: "15px", color: "rgb(25, 55, 83)"}}>
+            <h5 style={{margin: "5px 0px", color :"rgb(25, 55, 83)"}}><b style={{fontSize: "16px"}}>{this.state.commentsAbout[i].title}</b></h5>
             <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#FFDE46", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.commentsAbout[i].description}</Text>
 
             <p style={{ fontSize: "12px", margin: "4px  10px 2.5px 0px", display: "inline-block", float: "left"}}><b style={{color: "#FFDE46"}}>By: </b></p>
@@ -1024,166 +621,109 @@ handleToggleLightMode(){
   }
   comments = (
     <div style={{paddingTop: "30px", display: "block"}}>
-      <h3 style={{fontFamily: "Open Sans", marginTop: "30px", margin: "0 auto", marginBottom: "15px", textAlign: "center", color: this.state.lightMode? "rgb(25, 55, 83)": "white"}}>{this.state.commentsAbout.length} Comment{this.state.commentsAbout.length !== 1? "s" : ""}</h3>
+      <h3 style={{fontFamily: "Open Sans", marginTop: "30px", margin: "0 auto", marginBottom: "15px", textAlign: "center", color: "rgb(25, 55, 83)"}}>{this.state.commentsAbout.length} Comment{this.state.commentsAbout.length !== 1? "s" : ""}</h3>
       {commentsArray}
     </div>
   );
 
-  var myBounties = [];
-  var myFul = [];
-  var numAccepted = 0;
-  var myNumKilled = 0;
-  var mine = false;
-  var myNumAccepted = 0;
-  var myIssued = 0;
-  var mySubs = 0;
-  var myContactInfo = [];
-  var myCategories = [];
-  for (i = 0; i  < totalBounties.length; i++){
+var contactString = "";
+var myCategories = [];
+var myBounties = [];
+var myFul = [];
+var numAccepted = 0;
+var myNumKilled = 0;
+var mine = false;
+var myNumAccepted = 0;
+var myIssued = 0;
+var mySubs = 0;
+var myContactInfo = [];
 
-    if (totalBounties[i].mine){
-      mine = true;
-      myIssued++;
-      myBounties.push(totalBounties[i]);
+var fulfillmentsList = [];
+for (i = 0; i < this.state.fulfillments.length && i < 5; i++){
+  var url = ("/bounty/v1/"+ this.state.fulfillments[i].bounty);
 
-      mySubs+= totalBounties[i].fulfillments.length;
+  var rewardAmount;
 
-      myContactInfo.push(totalBounties[i].bountyData.contact);
+  var decimals = parseInt(this.state.fulfillments[i].bounty_data.tokenDecimals, 10);
+  var newAmount = new BN(this.state.fulfillments[i].bounty_data.fulfillmentAmount, 10);
+  var decimalToMult = new BN(10, 10);
+  var decimalUnits = new BN(decimals, 10);
+  decimalToMult = decimalToMult.pow(decimalUnits);
+  newAmount = newAmount.div(decimalToMult);
+  rewardAmount = newAmount.toString();
 
-    }
-    for (var j = 0; j < totalBounties[i].fulfillments.length; j++){
-      if (mine){
-        if (totalBounties[i].fulfillments[j].accepted){
-          myNumAccepted ++;
-        }
-        if (totalBounties[i].stage === "Dead"){
-          myNumKilled++;
-        }
-      }
-      if (totalBounties[i].fulfillments[j].fulfiller.toLowerCase() === this.state.userAddress.toLowerCase()){
-        for (var k = 0; k < totalBounties[i].bountyData.categories.length; k++){
-          if (myCategories.indexOf(totalBounties[i].bountyData.categories[k]) < 0){
-            myCategories.push(totalBounties[i].bountyData.categories[k]);
-          }
-        }
-        if (totalBounties[i].fulfillments[j].accepted){
-          numAccepted ++;
-        }
-        myFul.push({
-          accepted:totalBounties[i].fulfillments[j].accepted,
-          data:totalBounties[i].fulfillments[j].data,
-          bountyId:totalBounties[i].bountyId,
-          value: totalBounties[i].value,
-          symbol: totalBounties[i].symbol,
-          bountyData: totalBounties[i].bountyData,
-          version: totalBounties[i].version
-        });
-      }
-    }
-    mine = false;
-  }
-  var categories = [];
-  if (myCategories.length > 0){
-    for (i = 0; i < myCategories.length; i++){
-
-      categories.push(
-
-        <Chip style={{margin: "0px 15px 5px 0px", float: "left", border: this.state.lightMode? "1px solid rgba(25, 55, 83, 1)":"1px solid rgba(0, 126, 255, 0.24)", backgroundColor: this.state.lightMode? "rgba(25, 55, 83, 10.08":"rgba(0, 126, 255, 0.08)", height: "30px"}}
-              labelStyle={{color: "white", lineHeight: "28px"}}
-              key={myCategories[i]}>
-            {myCategories[i]}
-        </Chip>
-      );
-    }
-  }
-  var uniqueContactInfo = myContactInfo.filter(this.onlyUnique);
-  var acceptanceRate = 0;
-  if (myFul.length !== 0){
-    acceptanceRate = (numAccepted*100 / myFul.length).toFixed(0);
-  }
-  var myAcceptanceRate = 0;
-  if (mySubs !== 0){
-
-    myAcceptanceRate = (myNumAccepted*100 / mySubs).toFixed(0);
-  }
-  var contactString = uniqueContactInfo.join(", ");
-  var bountiesList = [];
-  for (i = 0; i < myBounties.length && i < 5; i++){
-    var url = ("/bounty/v"+ myBounties[i].version+"/"+ myBounties[i].bountyId);
-    bountiesList.push(
-      <a key={"bountiesList"+i} style={{}} href={url}>
-      <div  style={{backgroundColor: this.state.lightMode? "rgba(1, 1, 1, 0.05)":"rgba(10, 22, 40, 0.75)", borderLeft: this.state.lightMode? "1px solid rgb(25, 55, 83)":"1px solid #16e5cd", padding: "10px", marginBottom: (i === (myBounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: this.state.lightMode? "rgb(25, 55, 83)":"white", overflow: "hidden"}} >
-        <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
-        <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "600"}}>{myBounties[i].bountyData.title}</h4>
-        <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}> <b style={{color: this.state.lightMode? "rgb(255, 184, 21)":"#FFDE46"}}>{myBounties[i].stage}</b>| {myBounties[i].fulfillments.length}<b style={{color: this.state.lightMode? "rgb(255, 184, 21)":"#FFDE46", fontWeight: "500"}}> total submissions</b></p>
-        </div>
-        <SvgArrow style={{color: this.state.lightMode? "rgb(25, 55, 83)":"#16e5cd", fontSize: "44px", marginTop: "10px", color: "#16e5cd", textAlign: "right", display: "block"}}/>
-      </div>
-      </a>
-    );
-  }
-  var fulfillmentsList = [];
-  for (i = 0; i < myFul.length && i < 5; i++){
-    var url = ("/bounty/v"+ myFul[i].version+"/"+ myFul[i].bountyId);
-
-    fulfillmentsList.push(
-      <a key={"fulList"+i} style={{}} href={url}>
-      <div style={{backgroundColor: this.state.lightMode? "rgba(1, 1, 1, 0.05)":"rgba(10, 22, 40, 0.75)", borderLeft: this.state.lightMode? "1px solid rgb(25, 55, 83)":"1px solid #16e5cd", padding: "10px", marginBottom: (i === (myFul.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: this.state.lightMode? "rgb(25, 55, 83)":"white", overflow: "hidden"}} >
-        <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
-        <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "600"}}>{myFul[i].bountyData.title}</h4>
-        <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}><b style={{color: this.state.lightMode? "rgb(255, 184, 21)":"#FFDE46", fontWeight: "500"}}>Reward: </b>{myFul[i].value + " " + myFul[i].symbol} | <b style={{color: this.state.lightMode? "rgb(255, 184, 21)":"#FFDE46", fontWeight: "500"}}>{myFul[i].accepted? "Accepted" : "Not Accepted"}</b></p>
-
-        </div>
-        <SvgArrow style={{color: this.state.lightMode? "rgb(25, 55, 83)":"#16e5cd", fontSize: "44px", marginTop: "10px", color: "#16e5cd", textAlign: "right", display: "block"}}/>
+  fulfillmentsList.push(
+    <a key={"fulList"+i} style={{}} href={url}>
+    <div style={{backgroundColor: "rgba(1, 1, 1, 0.05)", borderLeft: "1px solid rgb(25, 55, 83)", padding: "10px", marginBottom: (i === (this.state.fulfillments.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "rgb(25, 55, 83)", overflow: "hidden"}} >
+      <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
+      <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "600"}}>{this.state.fulfillments[i].bounty_data.title}</h4>
+      <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}><b style={{color: "rgb(255, 184, 21)", fontWeight: "500"}}>Reward: </b>{rewardAmount + " " + this.state.fulfillments[i].bounty_data.tokenSymbol} | <b style={{color: "rgb(255, 184, 21)", fontWeight: "500"}}>{this.state.fulfillments[i].accepted? "Accepted" : "Not Accepted"}</b></p>
 
       </div>
-      </a>
-    );
-  }
-  var bountiesUI = (
-    <div>
+      <SvgArrow style={{color: "rgb(25, 55, 83)", fontSize: "44px", marginTop: "10px", color: "#16e5cd", textAlign: "right", display: "block"}}/>
 
-      <h3 style={{margin: "0px", width: "100%", fontSize: "18px", textAlign: "center",  fontWeight: "600", color: this.state.lightMode? "rgb(25, 55, 83)" :"white"}}>Bounties Posted</h3>
-      <div style={{paddingBottom: "15px", borderBottom: "1px solid #16e5cd", display: "inline-block", width: "442px", marginBottom: "12px",color: this.state.lightMode? "rgb(25, 55, 83)" :"white"}}>
-        <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}> {myBounties.length} </h3>
-          <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: this.state.lightMode? "rgb(255, 184, 21)":"rgb(255, 222, 70)"}}>BOUNTIES</p>
-        </div>
-        <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}>{myNumAccepted}</h3>
-          <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: this.state.lightMode? "rgb(255, 184, 21)":"rgb(255, 222, 70)"}}>ACCEPTED</p>
-        </div>
-        <div style={{width: "33%", display: "inline-block", float: "left"}}>
-        <h3 style={{textAlign: "center", fontSize: "48px", margin: "15px 0px"}}>{myAcceptanceRate}<b style={{fontSize: "18px"}}>%</b></h3>
-          <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: this.state.lightMode? "rgb(255, 184, 21)":"rgb(255, 222, 70)"}}>ACCEPTANCE RATE</p>
-        </div>
-      </div>
-      {bountiesList}
     </div>
+    </a>
   );
+}
 
-  var fulUI = (
-    <div>
-      <h3 style={{margin: "0px", width: "100%", fontSize: "18px", textAlign: "center",  fontWeight: "600", color: this.state.lightMode? "rgb(25, 55, 83)" :"white"}}>Bounty Submissions</h3>
-      <div style={{paddingBottom: "15px", borderBottom: "1px solid #16e5cd", display: "inline-block", width: "442px",  marginBottom: "12px", color: this.state.lightMode? "rgb(25, 55, 83)" :"white"}}>
-        <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}>{myFul.length}</h3>
-          <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: this.state.lightMode? "rgb(255, 184, 21)":"rgb(255, 222, 70)"}}>SUBMISSIONS</p>
-        </div>
-
-        <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}>{numAccepted}</h3>
-          <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: this.state.lightMode? "rgb(255, 184, 21)":"rgb(255, 222, 70)"}}>ACCEPTED</p>
-        </div>
-        <div style={{width: "33%", display: "inline-block", float: "left"}}>
-          <h3 style={{textAlign: "center", fontSize: "48px", margin: "15px 0px"}}>{acceptanceRate}<b style={{fontSize: "18px"}}>%</b></h3>
-          <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: this.state.lightMode? "rgb(255, 184, 21)":"rgb(255, 222, 70)"}}>ACCEPTANCE RATE</p>
-        </div>
+var bountiesList = [];
+for (i = 0; i < this.state.bounties.length && i < 5; i++){
+  var url = ("/bounty/v1/"+ this.state.bounties[i].bounty_id);
+  bountiesList.push(
+    <a key={"bountiesList"+i} style={{}} href={url}>
+    <div  style={{backgroundColor: "rgba(1, 1, 1, 0.05)", borderLeft: "1px solid rgb(25, 55, 83)", padding: "10px", marginBottom: (i === (this.state.bounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "rgb(25, 55, 83)", overflow: "hidden"}} >
+      <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
+      <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "600"}}>{this.state.bounties[i].title}</h4>
+      <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}> <b style={{color: "rgb(255, 184, 21)"}}>{this.state.bounties[i].stage}</b>| {this.state.bounties[i].fulfillment_count}<b style={{color: "rgb(255, 184, 21)", fontWeight: "500"}}> total submissions</b></p>
       </div>
-      {fulfillmentsList}
+      <SvgArrow style={{color: "rgb(25, 55, 83)", fontSize: "44px", marginTop: "10px", color: "#16e5cd", textAlign: "right", display: "block"}}/>
     </div>
+    </a>
   );
+}
+var fulUI  = (
+  <div>
+    <h3 style={{margin: "0px", width: "100%", fontSize: "18px", textAlign: "center",  fontWeight: "600", color: "rgb(25, 55, 83)"}}>Bounty Submissions</h3>
+    <div style={{paddingBottom: "15px", borderBottom: "1px solid #16e5cd", display: "inline-block", width: "442px",  marginBottom: "12px", color: "rgb(25, 55, 83)" }}>
+      <div style={{width: "33%", display: "inline-block", float: "left"}}>
+        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}>{this.state.submissionsTotal}</h3>
+        <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>SUBMISSIONS</p>
+      </div>
 
+      <div style={{width: "33%", display: "inline-block", float: "left"}}>
+        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}>{this.state.submissionsAccepted}</h3>
+        <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>ACCEPTED</p>
+      </div>
+      <div style={{width: "33%", display: "inline-block", float: "left"}}>
+        <h3 style={{textAlign: "center", fontSize: "48px", margin: "15px 0px"}}>{parseInt(100*this.state.submissionsRate)}<b style={{fontSize: "18px"}}>%</b></h3>
+        <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>ACCEPTANCE RATE</p>
+      </div>
+    </div>
+    {fulfillmentsList}
+  </div>
+);
+var bountiesUI = (
+  <div>
+
+    <h3 style={{margin: "0px", width: "100%", fontSize: "18px", textAlign: "center",  fontWeight: "600", color: "rgb(25, 55, 83)"}}>Bounties Posted</h3>
+    <div style={{paddingBottom: "15px", borderBottom: "1px solid #16e5cd", display: "inline-block", width: "442px", marginBottom: "12px", color: "rgb(25, 55, 83)" }}>
+      <div style={{width: "33%", display: "inline-block", float: "left"}}>
+        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}> {this.state.bountiesTotal} </h3>
+        <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>BOUNTIES</p>
+      </div>
+      <div style={{width: "33%", display: "inline-block", float: "left"}}>
+        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #16e5cd", margin: "15px 0px"}}>{this.state.bountiesAccepted}</h3>
+        <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>ACCEPTED</p>
+      </div>
+      <div style={{width: "33%", display: "inline-block", float: "left"}}>
+      <h3 style={{textAlign: "center", fontSize: "48px", margin: "15px 0px"}}>{parseInt(100*this.state.bountiesRate)}<b style={{fontSize: "18px"}}>%</b></h3>
+        <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>ACCEPTANCE RATE</p>
+      </div>
+    </div>
+    {bountiesList}
+  </div>
+);
   const modalActions3 = [
   <FlatButton
     label="Close"
@@ -1213,10 +753,8 @@ handleToggleLightMode(){
           <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#16e5cd"}}> Metamask </a> browser extension.</p>
             </div>
         </Dialog>
-        <div id={this.state.lightMode? "colourBodyLight": "colourBodyDark"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
+        <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
         <div style={{position: "fixed", bottom: "15px", left: "15px", display: "block", overflow: "hidden", width: "100px"}} className="CornerEmoji">
-        <div onClick={this.handleToggleLightMode} style={{backgroundImage:  this.state.lightMode? `url(${darkMoon})`:`url(${lightMoon})`, height: "28px", width: "28px", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
-        </div>
         </div>
         <div style={{overflow: "hidden"}} className="navBar">
           <a href="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
@@ -1226,58 +764,71 @@ handleToggleLightMode(){
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
 <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > New Bounty </FlatButton>
         </div>
-          <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px"}}>
-          <div style={{float: "left", margin: "15px 15px 15px 15px", width: "960px", display: "inline-block", backgroundColor: this.state.lightMode? "rgb(249, 249, 249)" :"rgba(10, 22, 40, 0.5)", padding: "30px", color: this.state.lightMode? "rgb(25, 55, 83)" :"white"}}>
-
-              <div style={{float: "left", display: "inline-block", width: "72px"}}>
-                <Blockies
-                  seed={this.state.userAddress}
-                  size={9}
-                  scale={8}
-                  style={{borderRadius: "100px", display: "inline-block", float: "left"}}
-                  className={"identicon"}
-                />
-              </div>
-              <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "600px"}}>
-              <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: this.state.lightMode? "rgb(255, 184, 21)":"#FFDE46", fontWeight: "500"}}>User Address:</b></p>
-                <h3 style={{margin: "0px", width: "100%", display: "inline", fontWeight: "500", marginTop: "30px"}}>
-                  <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.userAddress}>{this.state.userAddress}</a>
-                </h3>
-                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: this.state.lightMode? "rgb(255, 184, 21)":"#FFDE46", fontWeight: "500"}}>Contact user:</b> { contactString}</p>
-                {myCategories.length > 0 && <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: this.state.lightMode? "rgb(255, 184, 21)": "#FFDE46", fontWeight: "500"}}>Skills:</b></p>}
-
-                {categories}
-              </div>
-
+        {(this.state.loadingBounties || this.state.loadingFulfillments || this.state.loadingStats) &&
+          <div style={{width: "100%", marginTop: "60px"}}>
+            <div style={{margin: "0 auto", width: "42px", overflow: "hidden", }}>
+            <Halogen.ScaleLoader color={"#16e5cd"} />
+            </div>
           </div>
-            <div style={{float: "left", margin: "0 15px 15px 15px", width: "442px", display: "inline-block", backgroundColor: this.state.lightMode? "rgb(249, 249, 249)" :"rgba(10, 22, 40, 0.5)", padding: "30px"}}>
-              {bountiesUI}
+        }
+        {
+          !(this.state.loadingBounties || this.state.loadingFulfillments || this.state.loadingStats) &&
+          <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px"}}>
 
-            </div>
-            <div style={{float: "left", margin: "0 15px 15px 0px", width: "442px", display: "inline-block", backgroundColor: this.state.lightMode? "rgb(249, 249, 249)" :"rgba(10, 22, 40, 0.5)", padding: "30px"}}>
-              {fulUI}
 
-            </div>
+            <div style={{float: "left", margin: "15px 15px 15px 15px", width: "960px", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px", color: "rgb(25, 55, 83)"}}>
+
+                <div style={{float: "left", display: "inline-block", width: "72px"}}>
+                  <Blockies
+                    seed={this.state.userAddress}
+                    size={9}
+                    scale={8}
+                    style={{borderRadius: "100px", display: "inline-block", float: "left"}}
+                    className={"identicon"}
+                  />
+                </div>
+                <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "600px"}}>
+                <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color:"rgb(255, 184, 21)", fontWeight: "500"}}>User Address:</b></p>
+                  <h3 style={{margin: "0px", width: "100%", display: "inline", fontWeight: "500", marginTop: "30px"}}>
+                    <a style={{color: "#16e5cd"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.userAddress}>{this.state.userAddress}</a>
+                  </h3>
+                  <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "rgb(255, 184, 21)", fontWeight: "500"}}>Contact user:</b> { contactString}</p>
+                  {myCategories.length > 0 && <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color:  "rgb(255, 184, 21)", fontWeight: "500"}}>Skills:</b></p>}
+
+
+                </div>
+
+              </div>
+              <div style={{float: "left", margin: "0 15px 15px 15px", width: "442px", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px"}}>
+                {bountiesUI}
+
+              </div>
+              <div style={{float: "left", margin: "0 15px 15px 0px", width: "442px", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px"}}>
+                {fulUI}
+
+              </div>
               <div style={{float: "left", display: "block", margin: "0 15px", width: "1000px"}}>
               {this.state.accounts.length === 0 ||
                 (this.state.userAddress.toLowerCase() !== this.state.accounts[0].toLowerCase() && !this.state.loading)
                 &&
-                <form className='Contribute' onSubmit={this.handleComment} style={{width: "960px", display: "inline-block", backgroundColor: this.state.lightMode? "rgb(249, 249, 249)":"rgba(10, 22, 40, 0.5)", padding: "30px", color: this.state.lightMode? "rgb(25, 55, 83)": "white"}}>
-                  <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center",  fontWeight: "600", color: this.state.lightMode? "rgb(25, 55, 83)": "white"}}>Comment on User</h4>
+                <form className='Contribute' onSubmit={this.handleComment} style={{width: "960px", display: "inline-block", backgroundColor: "rgb(249, 249, 249)", padding: "30px", color: "rgb(25, 55, 83)"}}>
+                  <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center",  fontWeight: "600", color: "rgb(25, 55, 83)"}}>Comment on User</h4>
                   <label htmlFor='comment_title' style={{fontSize: "12px", display: "block"}}>Title</label>
                   <input id='comment_title' className='SendAmount' type='text' style={{width: "940px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}/>
                   <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Description</label>
                   <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "940px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
                   {this.state.commentError &&
                     <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.commentError}</p>}
-                  <button type='submit'  className='AddBtn' style={{backgroundColor: this.state.lightMode? "rgb(25, 55, 83)":"rgba(0, 126, 255, 0.24)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
+                  <button type='submit'  className='AddBtn' style={{backgroundColor: "rgb(25, 55, 83)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
                 </form>
               }
               {comments}
+              </div>
             </div>
-          </div>
-          <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: this.state.lightMode? "rgb(25, 55, 83)":"#16e5cd"}}>ConsenSys</a> Formation <br/>
-           <a href="/privacyPolicy/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Terms of Service</a>
+        }
+
+          <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: "rgb(25, 55, 83)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "rgb(25, 55, 83)"}}>ConsenSys</a> Formation <br/>
+           <a href="/privacyPolicy/" target="_blank" style={{color: "rgb(25, 55, 83)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: "rgb(25, 55, 83)"}}>Terms of Service</a>
            </p>
         </div>
       </div>

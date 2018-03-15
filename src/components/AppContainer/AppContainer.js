@@ -99,6 +99,7 @@ class AppContainer extends Component {
       total: 0,
       totalMe: 0,
       loading: true,
+      loadingMore: false,
       myBountiesLoading: true,
       selectedStage: "Active",
       selectedMine: "ANY",
@@ -121,7 +122,8 @@ class AppContainer extends Component {
       myCompleted: 0,
       myDead: 0,
       myExpired: 0,
-      myTotal: 0
+      myTotal: 0,
+      baseURL: "http://a2e716ea2144911e898ed02122fce8e2-236283655.us-east-1.elb.amazonaws.com:83"
     }
 
     this.getInitialData = this.getInitialData.bind(this);
@@ -141,7 +143,7 @@ class AppContainer extends Component {
     this.getBounties = this.getBounties.bind(this);
     this.getCategories = this.getCategories.bind(this);
     this.getMyBounties = this.getMyBounties.bind(this);
-
+    this.getMoreBounties = this.getMoreBounties.bind(this);
 
   }
 
@@ -182,133 +184,9 @@ class AppContainer extends Component {
     this.setState({modalOpen: false});
     this.getInitialData();
   }
-  dateToString(date){
-    var givenDate = date;
-
-    var oneMillenium = 31556952000000;
-    var oneCentury = 3155695200000;
-    var oneDecade = 315569520000;
-    var oneYear = 31556952000;
-    var oneMonth = 2592000000;
-    var oneWeek = 604800000;
-    var oneDay = 86400000;
-    var oneHour = 3600000;
-    var oneMinute = 60000;
-    var oneSecond = 1000;
-    var difference = givenDate - Date.now();
-    if (difference > 0){
-      if (difference >= oneMillenium){
-        var num = parseInt(difference/oneMillenium);
-        var time = (num === 1? "millennium" : "millennia");
-        return ("ends in " + num + " "+time);
-      }
-      if (difference >= oneCentury){
-        var num = parseInt(difference/oneCentury);
-        var time = (num === 1? "century" : "centuries");
-        return ("ends in " + num + " "+time);
-      }
-      if (difference >= oneDecade){
-        var num = parseInt(difference/oneDecade);
-        var time = (num === 1? "decade" : "decades");
-        return ("ends in " + num + " "+time);
-      }
-      if (difference >= oneYear){
-        var num = parseInt(difference/oneYear);
-        var time = (num === 1? "year" : "years");
-        return ("ends in " + num + " "+time);
-      }
-      if (difference >= oneMonth){
-        var num = parseInt(difference/oneMonth);
-        var time = (num === 1? "month" : "months");
-        return ("ends in " + num + " "+time);
-      }
-      if (difference >= oneWeek){
-        var num = parseInt(difference/oneWeek);
-        var time = (num === 1? "week" : "weeks");
-        return ("ends in " + num + " "+time);
-      }
-      if (difference >= oneDay){
-        var num = parseInt(difference/oneDay);
-        var time = (num === 1? "day" : "days");
-        return ("ends in " + num + " "+time);
-      }
-      if (difference >= oneHour){
-        var num = parseInt(difference/oneHour);
-        var time = (num === 1? "hour" : "hours");
-        return ("ends in " + num + " "+time);
-      }
-      if (difference >= oneMinute){
-        var num = parseInt(difference/oneMinute);
-        var time = (num === 1? "minute" : "minutes");
-        return ("ends in " + num + " "+time);
-      }
-      if (difference >= oneSecond){
-        var num = parseInt(difference/oneSecond);
-        var time = (num === 1? "second" : "seconds");
-        return ("ends in " + num + " "+time);
-      }
-
-    } else if (difference < 0){
-      difference = difference * -1;
-
-      if (difference >= oneMillenium){
-        var num = parseInt(difference/oneMillenium);
-        var time = (num === 1? "millennium" : "millennia");
-        return (num + " "+time+" ago");
-      }
-      if (difference >= oneCentury){
-        var num = parseInt(difference/oneCentury);
-        var time = (num === 1? "century" : "centuries");
-        return (num + " "+time+" ago");
-      }
-      if (difference >= oneDecade){
-        var num = parseInt(difference/oneDecade);
-        var time = (num === 1? "decade" : "decades");
-        return (num + " "+time+" ago");
-      }
-      if (difference >= oneYear){
-        var num = parseInt(difference/oneYear);
-        var time = (num === 1? "year" : "years");
-        return (num + " "+time+" ago");
-      }
-      if (difference >= oneMonth){
-        var num = parseInt(difference/oneMonth);
-        var time = (num === 1? "month" : "months");
-        return (num + " "+time+" ago");
-      }
-      if (difference >= oneWeek){
-        var num = parseInt(difference/oneWeek);
-        var time = (num === 1? "week" : "weeks");
-        return (num + " "+time+" ago");
-      }
-      if (difference >= oneDay){
-        var num = parseInt(difference/oneDay);
-        var time = (num === 1? "day" : "days");
-        return (num + " "+time+" ago");
-      }
-      if (difference >= oneHour){
-        var num = parseInt(difference/oneHour);
-        var time = (num === 1? "hour" : "hours");
-        return (num + " "+time+" ago");
-      }
-      if (difference >= oneMinute){
-        var num = parseInt(difference/oneMinute);
-        var time = (num === 1? "minute" : "minutes");
-        return (num + " "+time+" ago");
-      }
-      if (difference >= oneSecond){
-        var num = parseInt(difference/oneSecond);
-        var time = (num === 1? "second" : "seconds");
-        return (num + " "+time+" ago");
-      }
-
-    } else {
-      return "now";
-    }
-  }
   getBounties(){
 
-    var urlBase = 'http://0.0.0.0:8000/bounty/?limit=1000';
+    var urlBase = this.state.baseURL+'/bounty/?limit=25';
 
     var selectedStageUrl = "";
 
@@ -372,7 +250,27 @@ class AppContainer extends Component {
       }.bind(this)).then(function(json) {
         console.log('parsed json', json)
 
-        this.setState({bounties: json.results, loading: false});
+        this.setState({bounties: json.results, loading: false, nextUrl: json.next});
+
+
+
+      }.bind(this)).catch(function(ex) {
+        console.log('parsing failed', ex)
+      });
+  }
+
+  getMoreBounties(){
+    this.setState({loadingMore: true});
+    fetch(this.state.nextUrl)
+      .then(function(response) {
+        return response.json();
+
+      }.bind(this)).then(function(json) {
+        console.log('parsed json', json)
+        var bounties = this.state.bounties;
+
+        Array.prototype.push.apply(bounties,json.results);
+        this.setState({bounties: bounties, loadingMore: false});
 
 
 
@@ -382,7 +280,7 @@ class AppContainer extends Component {
   }
 
   getCategories(){
-    fetch("http://0.0.0.0:8000/category/?limit=1000")
+    fetch(this.state.baseURL+"/category/?limit=1000")
       .then(function(response) {
         return response.json();
 
@@ -404,7 +302,7 @@ class AppContainer extends Component {
   }
 
   getMyBounties(){
-    fetch("http://0.0.0.0:8000/bounty/?limit=1000&issuer="+this.state.accounts[0])
+    fetch(this.state.baseURL+"/bounty/?limit=1000&issuer="+this.state.accounts[0])
       .then(function(response) {
         return response.json();
 
@@ -474,7 +372,8 @@ class AppContainer extends Component {
             this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                            StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
-                           selectedNetwork: netId});
+                           selectedNetwork: netId,
+                          baseURL: "http://afb256214274611e898ed02122fce8e2-504516521.us-east-1.elb.amazonaws.com:83"});
           } else {
             this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
           }
@@ -675,7 +574,7 @@ class AppContainer extends Component {
             </div>
           </a>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-<FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > New Bounty </FlatButton>
+          <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > New Bounty </FlatButton>
         </div>
         <div style={{ display: "block", overflow: "hidden", width: "1100px", margin: "0 auto", paddingBottom: "120px"}}>
 
@@ -770,7 +669,7 @@ class AppContainer extends Component {
 
           </div>
           <div style={{width: "630px", float: "left", display: "block"}}>
-            <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} prices={this.state.prices} sortBy={this.state.sortBy} descending={this.state.descending}/>
+            <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} loadingMore={this.state.loadingMore} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} prices={this.state.prices} sortBy={this.state.sortBy} handleGetMore={this.getMoreBounties} descending={this.state.descending}/>
           </div>
           <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className={"FilterBarLight"}>
             <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color:"rgb(25, 55, 83)", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>

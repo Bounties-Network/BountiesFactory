@@ -63,7 +63,7 @@
     "ipfs-mini": "^1.1.2",
     "material-ui": "^0.16.4",
     "material-ui-community-icons": "^0.15.0",
-    "moment": "^2.18.1",
+    "moment": "^2.21.0",
     "react": "^15.6.2",
     "react-blockies": "^1.2.2",
     "react-datetime": "^2.8.10",

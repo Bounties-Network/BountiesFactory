@@ -44,7 +44,6 @@ class ContractList extends Component {
                       stage={contract.stage}
                       issuer={contract.issuer}
                       mine={contract.mine}
-                      numFulfillments={contract.numFulfillments}
                       acc={acc}
                       balance={contract.balance}
                       tokenDetails={contract.tokenDetails}
@@ -57,6 +56,9 @@ class ContractList extends Component {
                       price={prices[contract.tokenSymbol? contract.tokenSymbol:"ETH"]}
                       stage={contract.stage}
                       version={"v1"}
+                      usdValue={contract.usd_price}
+                      numFul={contract.fulfillment_count}
+                      decimals={contract.tokenDecimals}
                       />
         );
       });
@@ -143,7 +145,6 @@ class ContractList extends Component {
 
                   this.props.descending? <SvgDown style={{color: "rgba(243,243,243, 1)" , float: "right", position: "absolute", marginTop: "-1px", width: "20px", height: "20px", display: !sortByExpiry?  "none" : ""}}/>:
                                               <SvgUp style={{color: "rgba(243,243,243, 1)" , float: "right", position: "absolute", marginTop: "-2px", width: "20px", height: "20px", display: !sortByExpiry?  "none" : ""}}/>
-
                 }</p>
 
       </div>
@@ -153,11 +154,21 @@ class ContractList extends Component {
           <div style={{marginLeft: "296px", marginTop: "60px", overflow: "hidden", }}>
           <Halogen.ScaleLoader color={"#16e5cd"} />
           </div>
-          <p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46"}}> Loading from the blockchain... </p>
         </div>
       }
         {contractsList}
         {!this.props.loading && error}
+        {!this.props.loading && !this.props.loadingMore &&
+
+          <a onClick={this.props.handleGetMore} style={{color: "rgb(25, 55, 83)", margin: "0 auto", cursor: "pointer"}}> SEE MORE...</a>
+        }
+        {this.props.loadingMore &&
+          <div style={{width: "100%"}}>
+            <div style={{marginLeft: "296px", marginTop: "10px", overflow: "hidden", }}>
+            <Halogen.ScaleLoader color={"#16e5cd"} />
+            </div>
+          </div>
+        }
       </div>
     )
   }
