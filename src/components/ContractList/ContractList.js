@@ -158,7 +158,7 @@ class ContractList extends Component {
       }
         {contractsList}
         {!this.props.loading && error}
-        {!this.props.loading && !this.props.loadingMore &&
+        {!this.props.loading && !this.props.loadingMore && this.props.next &&
 
           <a onClick={this.props.handleGetMore} style={{color: "rgb(25, 55, 83)", margin: "0 auto", cursor: "pointer"}}> SEE MORE...</a>
         }

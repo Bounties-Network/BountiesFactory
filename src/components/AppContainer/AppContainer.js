@@ -4,6 +4,9 @@ import './AppContainer.css'
 import Web3 from 'web3';
 import Select from 'react-select';
 
+import { Link } from 'react-router';
+
+
 import 'whatwg-fetch';
 
 const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
@@ -108,6 +111,7 @@ class AppContainer extends Component {
       requiredNetwork: requiredNetwork,
       networkName: networkName,
       prices: {},
+      searchQuery: "",
       standardBountiesAddress: standardBountiesAddress,
       userCommentsAddress: userCommentsAddress,
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
@@ -144,6 +148,8 @@ class AppContainer extends Component {
     this.getCategories = this.getCategories.bind(this);
     this.getMyBounties = this.getMyBounties.bind(this);
     this.getMoreBounties = this.getMoreBounties.bind(this);
+
+    this.handleSearch = this.handleSearch.bind(this);
 
   }
 
@@ -242,6 +248,8 @@ class AppContainer extends Component {
     var urlCategories = "&categories__normalized_name__in="+this.state.optionsUnseparated
 
     urlBase+=urlCategories;
+
+    urlBase+=("&search="+this.state.searchQuery);
 
     fetch(urlBase)
       .then(function(response) {
@@ -454,6 +462,10 @@ class AppContainer extends Component {
     this.setState({selectedMine: "MINE", loading: true, bounties: []}, this.getBounties);
 
   }
+  handleSearch(evt){
+    evt.preventDefault();
+    this.setState({searchQuery: evt.target.query.value, loading: true, bounties: []}, this.getBounties);
+  }
   handleChangeNetwork(evt){
     evt.preventDefault();
 
@@ -569,12 +581,12 @@ class AppContainer extends Component {
        </Dialog>
       <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative"}}>
         <div style={{overflow: "hidden"}} className="navBar">
-          <a href="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
+          <Link to="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
             <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
             </div>
-          </a>
+          </Link>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-          <FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > New Bounty </FlatButton>
+          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" style={{textDecoration: "none"}}> New Bounty </Link></FlatButton>
         </div>
         <div style={{ display: "block", overflow: "hidden", width: "1100px", margin: "0 auto", paddingBottom: "120px"}}>
 
@@ -625,10 +637,13 @@ class AppContainer extends Component {
                 label="My Profile"
                 primary={true}
                 labelPosition="before"
-                href={"/user/" + this.state.accounts[0]}
                 style={{color:  "#193753", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
                 icon={<SvgArrow style={{color: "#16e5cd", fontSize: "44px"}}/>}
-              />
+              >
+              <Link to={"/user/" + this.state.accounts[0]}>
+
+              </Link>
+              </FlatButton>
               <FlatButton
                 label="My Bounties"
                 primary={true}
@@ -669,7 +684,11 @@ class AppContainer extends Component {
 
           </div>
           <div style={{width: "630px", float: "left", display: "block"}}>
-            <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} loadingMore={this.state.loadingMore} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} prices={this.state.prices} sortBy={this.state.sortBy} handleGetMore={this.getMoreBounties} descending={this.state.descending}/>
+            <form className='Activate' onSubmit={this.handleSearch} style={{width: "100%", display: "inline-block", marginTop: "24px", marginBottom: "0px"}}>
+              <input id='query' className='SendAmount' style={{width: "444px", border: "1px solid rgb(24, 54, 83)", borderRadius: "8px", marginTop: "0px", marginBottom: "0px", marginLeft: "25px", marginRight: "18px", verticalAlign: "middle"}}/>
+              <button type='submit' className='AddBtn' style={{width: "100px", height: "40px", backgroundColor: "rgb(24, 54, 83)", borderRadius: "8px", border:"1px", color: "white", fontSize: "13px", marginTop: "0px", verticalAlign: "middle", fontWeight: "600"}}>SEARCH</button>
+            </form>
+            <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} loadingMore={this.state.loadingMore} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} prices={this.state.prices} sortBy={this.state.sortBy} handleGetMore={this.getMoreBounties} descending={this.state.descending} next={this.state.nextUrl}/>
           </div>
           <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className={"FilterBarLight"}>
             <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color:"rgb(25, 55, 83)", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import './ContractCard.css'
 
-
+import { Link } from 'react-router';
 import Chip from 'material-ui/Chip';
 import Avatar from 'material-ui/Avatar';
 import SvgBug from 'material-ui/svg-icons/action/bug-report';
@@ -66,7 +66,7 @@ class ContractCard extends Component {
         <div style={{width: "560px", marginBottom: "0px",boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgb(249, 249, 249)", color: "white", borderLeft: "1px solid rgb(56, 90, 116)", borderWidth: "0px 0px 0px 1px", display: "flex", justifyContent: "center", alignItems: "center"}} className="ContractCard">
 
           <div style={{float: "left", display: "inline-block", width: "430px", padding: "5px"}}>
-            <a style={{color: "rgb(25, 55, 83)", textDecoration: "none"}} href={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px", fontWeight: "600"}}> {this.props.title}</h4></a>
+            <Link style={{color: "rgb(25, 55, 83)", textDecoration: "none"}} to={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px", fontWeight: "600"}}> {this.props.title}</h4></Link>
             <div style={{display: "block", width: "440px", overflow: "hidden"}}>
             <p style={{ fontSize: "12px", margin: "6px 0px", float: "left", display: "inline-block"}}>
               <b style={{color: "rgb(56, 89, 115)", fontWeight: "500"}}>By:  </b>
@@ -78,10 +78,10 @@ class ContractCard extends Component {
             style={{borderRadius: "10px", display: "inline-block", float: "left"}}
             />
             <p style={{ fontSize: "12px", width: "125px", margin: "6px 0px", float: "left", display: "inline-block"}}>
-              <a style={{color: "#16e5cd", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100px"}}
-                  href={"/user/"+ this.props.issuer}>
+              <Link style={{color: "#16e5cd", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100px"}}
+                  to={"/user/"+ this.props.issuer}>
                     { this.props.issuer.substring(0,6)+"..."+this.props.issuer.substring(this.props.issuer.length-4,this.props.issuer.length)}
-              </a>
+              </Link>
             </p>
 
             </div>
@@ -105,11 +105,12 @@ class ContractCard extends Component {
           </div>
 
         </div>
-          <a style={{}} href={url}>
+          <Link style={{}} to={url}>
             <div className={ "SideArrowLight"} style={{float: "right", display: "flex", justifyContent: "center", alignItems: "center", width: "39px",   color: "#16e5cd", textAlign: "right", height: "100%"}}>
               <SvgArrow style={{color:"rgb(25, 55, 83)", fontSize: "44px", display: "inline-block"}}/>
             </div>
-          </a>
+          </Link>
+
         </div>
     )
   }

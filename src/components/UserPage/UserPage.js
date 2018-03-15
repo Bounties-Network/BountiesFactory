@@ -18,6 +18,7 @@ const utf8 = require('utf8');
 import logo from '../AppContainer/images/logo.svg';
 import darkMoon from '../AppContainer/images/DarkMoon.png';
 import lightMoon from '../AppContainer/images/LightMoon.png';
+import { Link } from 'react-router';
 
 
 import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
@@ -612,7 +613,7 @@ handleToggleLightMode(){
             scale={2.5}
             style={{borderRadius: "10px", display: "inline-block", float: "left"}}
             />
-            <p style={{ fontSize: "12px", margin: "4px  0px 4px 10px", display: "inline-block", float: "left"}}><a style={{color: "#16e5cd"}} target={"_blank"} href={"/user/"+ this.state.commentsAbout[i].from}>{this.state.commentsAbout[i].from}</a></p>
+            <p style={{ fontSize: "12px", margin: "4px  0px 4px 10px", display: "inline-block", float: "left"}}><Link style={{color: "#16e5cd"}} target={"_blank"} to={"/user/"+ this.state.commentsAbout[i].from}>{this.state.commentsAbout[i].from}</Link></p>
             <p style={{ fontSize: "12px", margin: "4px  0px 4px 10px", display: "inline-block", float: "left", color: "rgb(208, 208, 208)"}}>{this.state.commentsAbout[i].dateString}</p>
         </div>
       </div>
@@ -653,7 +654,7 @@ for (i = 0; i < this.state.fulfillments.length && i < 5; i++){
   rewardAmount = newAmount.toString();
 
   fulfillmentsList.push(
-    <a key={"fulList"+i} style={{}} href={url}>
+    <Link key={"fulList"+i} style={{}} to={url}>
     <div style={{backgroundColor: "rgba(1, 1, 1, 0.05)", borderLeft: "1px solid rgb(25, 55, 83)", padding: "10px", marginBottom: (i === (this.state.fulfillments.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "rgb(25, 55, 83)", overflow: "hidden"}} >
       <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
       <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "600"}}>{this.state.fulfillments[i].bounty_data.title}</h4>
@@ -663,7 +664,7 @@ for (i = 0; i < this.state.fulfillments.length && i < 5; i++){
       <SvgArrow style={{color: "rgb(25, 55, 83)", fontSize: "44px", marginTop: "10px", color: "#16e5cd", textAlign: "right", display: "block"}}/>
 
     </div>
-    </a>
+    </Link>
   );
 }
 
@@ -671,7 +672,7 @@ var bountiesList = [];
 for (i = 0; i < this.state.bounties.length && i < 5; i++){
   var url = ("/bounty/v1/"+ this.state.bounties[i].bounty_id);
   bountiesList.push(
-    <a key={"bountiesList"+i} style={{}} href={url}>
+    <Link key={"bountiesList"+i} style={{}} to={url}>
     <div  style={{backgroundColor: "rgba(1, 1, 1, 0.05)", borderLeft: "1px solid rgb(25, 55, 83)", padding: "10px", marginBottom: (i === (this.state.bounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "rgb(25, 55, 83)", overflow: "hidden"}} >
       <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
       <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "600"}}>{this.state.bounties[i].title}</h4>
@@ -679,7 +680,7 @@ for (i = 0; i < this.state.bounties.length && i < 5; i++){
       </div>
       <SvgArrow style={{color: "rgb(25, 55, 83)", fontSize: "44px", marginTop: "10px", color: "#16e5cd", textAlign: "right", display: "block"}}/>
     </div>
-    </a>
+    </Link>
   );
 }
 var fulUI  = (
@@ -757,12 +758,12 @@ var bountiesUI = (
         <div style={{position: "fixed", bottom: "15px", left: "15px", display: "block", overflow: "hidden", width: "100px"}} className="CornerEmoji">
         </div>
         <div style={{overflow: "hidden"}} className="navBar">
-          <a href="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
+          <Link to="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
             <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
             </div>
-          </a>
+          </Link>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-<FlatButton href="/newBounty/" style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > New Bounty </FlatButton>
+<FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" style={{textDecoration: "none"}}> New Bounty</Link> </FlatButton>
         </div>
         {(this.state.loadingBounties || this.state.loadingFulfillments || this.state.loadingStats) &&
           <div style={{width: "100%", marginTop: "60px"}}>
@@ -806,23 +807,6 @@ var bountiesUI = (
               <div style={{float: "left", margin: "0 15px 15px 0px", width: "442px", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px"}}>
                 {fulUI}
 
-              </div>
-              <div style={{float: "left", display: "block", margin: "0 15px", width: "1000px"}}>
-              {this.state.accounts.length === 0 ||
-                (this.state.userAddress.toLowerCase() !== this.state.accounts[0].toLowerCase() && !this.state.loading)
-                &&
-                <form className='Contribute' onSubmit={this.handleComment} style={{width: "960px", display: "inline-block", backgroundColor: "rgb(249, 249, 249)", padding: "30px", color: "rgb(25, 55, 83)"}}>
-                  <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center",  fontWeight: "600", color: "rgb(25, 55, 83)"}}>Comment on User</h4>
-                  <label htmlFor='comment_title' style={{fontSize: "12px", display: "block"}}>Title</label>
-                  <input id='comment_title' className='SendAmount' type='text' style={{width: "940px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}/>
-                  <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Description</label>
-                  <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "940px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
-                  {this.state.commentError &&
-                    <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.commentError}</p>}
-                  <button type='submit'  className='AddBtn' style={{backgroundColor: "rgb(25, 55, 83)", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "15px", fontSize: "1em", width: "200px"}}>Comment</button>
-                </form>
-              }
-              {comments}
               </div>
             </div>
         }
