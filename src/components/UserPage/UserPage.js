@@ -8,7 +8,7 @@ const networkId = json.networkId;
 
 import Web3 from 'web3';
 const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
-
+const BigNumber = require('bignumber.js');
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 const BN = require(`bn.js`);
@@ -416,10 +416,7 @@ class UserPage extends Component {
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.localhost.userCommentsAddress),
                          selectedNetwork: netId});
         }if (netId === "1"){
-          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
-                         StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
-                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
-                         selectedNetwork: netId});
+          this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
         } else if (netId === "4"){
           this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                          StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),

@@ -15,7 +15,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io
 
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
-const BN = require(`bn.js`);
+const BigNumber = require('bignumber.js');
 
 const utf8 = require('utf8');
 
@@ -477,15 +477,8 @@ class BountyPage extends Component {
           }
 
         } else if (netId === "1"){
-          if (this.state.version === "v0"){
-            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
-                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
-                           selectedNetwork: netId});
-          } else if (this.state.version === "v1"){
-            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
-                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
-                           selectedNetwork: netId});
-          }
+          this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
+
 
         } else if (netId === "4"){
           if (this.state.version == "v0"){
@@ -590,10 +583,10 @@ class BountyPage extends Component {
           balanceTokens = web3.fromWei(parseInt(newBounty.balance, 10), 'ether');
         } else {
           var decimals = parseInt(newBounty.tokenDecimals, 10);
-          var fulAmount = new BN(newBounty.fulfillmentAmount, 10);
-          var balAmount = new BN(newBounty.balance, 10);
-          var decimalToMult = new BN(10, 10);
-          var decimalUnits = new BN(decimals, 10);
+          var fulAmount = new BigNumber(newBounty.fulfillmentAmount, 10);
+          var balAmount = new BigNumber(newBounty.balance, 10);
+          var decimalToMult = new BigNumber(10, 10);
+          var decimalUnits = new BigNumber(decimals, 10);
           decimalToMult = decimalToMult.pow(decimalUnits);
           fulAmount = fulAmount.div(decimalToMult);
           balAmount = balAmount.div(decimalToMult);
@@ -670,7 +663,7 @@ class BountyPage extends Component {
           var intDate = parseInt(succ[5], 10);
           var newDate;
           var dateString;
-          var max = new BN(8640000000000000);
+          var max = new BigNumber(8640000000000000);
           if ((succ[5].times(1000)).greaterThan(max)){
             newDate = new Date(parseInt(max, 10));
             dateString = this.dateToString(8640000000000000);
@@ -820,9 +813,9 @@ class BountyPage extends Component {
         } else {
           this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to send tokens to this bounty"});
 
-          var newAmount = new BN(amount, 10);
-          var decimalToMult = new BN(10, 10);
-          var decimalUnits = new BN(this.state.decimals, 10);
+          var newAmount = new BigNumber(amount, 10);
+          var decimalToMult = new BigNumber(10, 10);
+          var decimalUnits = new BigNumber(this.state.decimals, 10);
           decimalToMult = decimalToMult.pow(decimalUnits);
           newAmount = newAmount.mul(decimalToMult);
 
@@ -1206,9 +1199,9 @@ isChecksumAddress(address) {
       });
     } else {
       if (amount !== 0){
-        var newAmount = new BN(amount, 10);
-        var decimalToMult = new BN(10, 10);
-        var decimalUnits = new BN(this.state.decimals, 10);
+        var newAmount = new BigNumber(amount, 10);
+        var decimalToMult = new BigNumber(10, 10);
+        var decimalUnits = new BigNumber(this.state.decimals, 10);
         decimalToMult = decimalToMult.pow(decimalUnits);
         newAmount = newAmount.mul(decimalToMult);
         this.setState({txModalOpen: true, txLoadingAmount: 10});
@@ -1349,16 +1342,16 @@ handleIncreasePayout(evt){
     var finalPayout;
     var finalDeposit;
     if (this.state.paysTokens){
-      var newAmount = new BN(newPayout, 10);
-      var decimalToMult = new BN(10, 10);
-      var decimalUnits = new BN(this.state.decimals, 10);
+      var newAmount = new BigNumber(newPayout, 10);
+      var decimalToMult = new BigNumber(10, 10);
+      var decimalUnits = new BigNumber(this.state.decimals, 10);
       decimalToMult = decimalToMult.pow(decimalUnits);
       newAmount = newAmount.mul(decimalToMult);
       finalPayout = parseInt(newAmount, 10);
 
-      var newDepositAmount = new BN(newDeposit, 10);
-      var decimalToMult = new BN(10, 10);
-      var decimalUnits = new BN(this.state.decimals, 10);
+      var newDepositAmount = new BigNumber(newDeposit, 10);
+      var decimalToMult = new BigNumber(10, 10);
+      var decimalUnits = new BigNumber(this.state.decimals, 10);
       decimalToMult = decimalToMult.pow(decimalUnits);
       newDepositAmount = newDepositAmount.mul(decimalToMult);
       finalDeposit = parseInt(newDepositAmount, 10);
@@ -1496,9 +1489,9 @@ handleChangePayout(evt){
     var finalPayout = web3.toWei(newPayout, 'ether');
 
     if (this.state.paysTokens){
-      var newAmount = new BN(newPayout, 10);
-      var decimalToMult = new BN(10, 10);
-      var decimalUnits = new BN(this.state.decimals, 10);
+      var newAmount = new BigNumber(newPayout, 10);
+      var decimalToMult = new BigNumber(10, 10);
+      var decimalUnits = new BigNumber(this.state.decimals, 10);
       decimalToMult = decimalToMult.pow(decimalUnits);
       newAmount = newAmount.mul(decimalToMult);
       finalPayout = parseInt(newAmount, 10);
@@ -2163,6 +2156,8 @@ render() {
           </Link>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
           <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" style={{textDecoration: "none"}}> New Bounty </Link></FlatButton>
+          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", left: "30px"}} > <Link to="/leaderboard/" style={{textDecoration: "none"}}> LeaderBoard </Link></FlatButton>
+
           </div>
 
           <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px", display: "block"}}>
@@ -2240,7 +2235,7 @@ render() {
                   {this.state.sourceDirectoryHash &&
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "rgb(255, 184, 21)", marginRight: "10px"}}>Associated File: </b> <Link style={{color: "#16e5cd"}} target={"_blank"} to={"https://ipfs.infura.io/ipfs/" + this.state.sourceDirectoryHash + "/"+ this.state.sourceFileName}> {this.state.sourceFileName} </Link> </p>}
                   {this.state.paysTokens &&
-                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "rgb(255, 184, 21)", marginRight: "10px"}}>Token Contract:</b> <Link style={{color: "#16e5cd"}} target={"_blank"} to={"https://etherscan.io/address/"+ this.state.tokenContract.address}>{this.state.tokenContract.address}</Link></p>}
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "rgb(255, 184, 21)", marginRight: "10px"}}>Token Contract:</b> <Link style={{color: "#16e5cd"}} target={"_blank"} to={"https://etherscan.io/address/"+ this.state.tokenAddress}>{this.state.tokenAddress}</Link></p>}
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "rgb(255, 184, 21)", marginRight: "10px"}}>Description: </b> </p>
                   <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "rgb(255, 184, 21)", textDecoration: "none"}}>{this.state.description}</Text>
                   <div style={{margin: "0 auto", display: "block", overflow: "hidden", marginTop: "15px"}}>

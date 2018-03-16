@@ -16,7 +16,7 @@ const ipfsAPI = require('ipfs-api');
 
 var ipfsNew = ipfsAPI({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 
-
+const BigNumber = require('bignumber.js');
 
 import ipfsFiles from "browser-ipfs";
 
@@ -239,16 +239,14 @@ class NewBounty extends Component {
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.localhost.userCommentsAddress),
                          selectedNetwork: netId});
         } else if (netId === "1"){
-          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
-                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
-                         selectedNetwork: netId});
+          this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
         } else if (netId ===  "4"){
           this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                          selectedNetwork: netId,
                        baseURL: "http://afb256214274611e898ed02122fce8e2-504516521.us-east-1.elb.amazonaws.com:83"});
         } else {
-          this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
+          this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
         }
 
         setInterval(function() {
@@ -732,6 +730,7 @@ class NewBounty extends Component {
             <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
             </div>
           </Link>
+          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", left: "30px"}} > <Link to="/leaderboard/" style={{textDecoration: "none"}}> LeaderBoard </Link></FlatButton>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
           </div>
             <div style={{display: "block", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #16e5cd", color:"rgb(25, 55, 83)"}} className="ContractCard">

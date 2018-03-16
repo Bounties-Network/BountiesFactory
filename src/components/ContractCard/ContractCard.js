@@ -15,7 +15,7 @@ import SvgSurvey from 'material-ui/svg-icons/editor/drag-handle';
 import SvgArrow from 'material-ui/svg-icons/hardware/keyboard-arrow-right';
 import Blockies from 'react-blockies';
 const BN = require(`bn.js`);
-
+const BigNumber = require('bignumber.js');
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -52,9 +52,9 @@ class ContractCard extends Component {
     } else {
 
       var decimals = parseInt(this.props.decimals, 10);
-      var newAmount = new BN(this.props.value, 10);
-      var decimalToMult = new BN(10, 10);
-      var decimalUnits = new BN(decimals, 10);
+      var newAmount = new BigNumber(this.props.value, 10);
+      var decimalToMult = new BigNumber(10, 10);
+      var decimalUnits = new BigNumber(decimals, 10);
       decimalToMult = decimalToMult.pow(decimalUnits);
       newAmount = newAmount.div(decimalToMult);
       reward = newAmount.toString();

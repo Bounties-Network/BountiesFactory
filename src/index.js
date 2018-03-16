@@ -8,6 +8,7 @@ import AllBountiesPage from './components/AllBountiesPage/AllBountiesPage';
 import UserPage from './components/UserPage/UserPage';
 import PrivacyPolicy from './components/PrivacyPolicy/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService/TermsOfService';
+import Leaderboard from './components/Leaderboard/Leaderboard';
 
 
 
@@ -25,6 +26,7 @@ import './index.css'
         <Route path="/privacyPolicy/" component={PrivacyPolicy} />
         <Route path="/terms/" component={TermsOfService} />
         <Route path="/newBounty/" component={NewBounty} />
+        <Route path="/leaderBoard/" component={Leaderboard} />
 
 
 
