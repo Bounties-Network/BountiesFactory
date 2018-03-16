@@ -685,8 +685,8 @@ class AppContainer extends Component {
           </div>
           <div style={{width: "630px", float: "left", display: "block"}}>
             <form className='Activate' onSubmit={this.handleSearch} style={{width: "100%", display: "inline-block", marginTop: "24px", marginBottom: "0px"}}>
-              <input id='query' className='SendAmount' style={{width: "444px", border: "1px solid rgb(24, 54, 83)", borderRadius: "8px", marginTop: "0px", marginBottom: "0px", marginLeft: "25px", marginRight: "18px", verticalAlign: "middle"}}/>
-              <button type='submit' className='AddBtn' style={{width: "100px", height: "40px", backgroundColor: "rgb(24, 54, 83)", borderRadius: "8px", border:"1px", color: "white", fontSize: "13px", marginTop: "0px", verticalAlign: "middle", fontWeight: "600"}}>SEARCH</button>
+              <input id='query' className='SendAmount' style={{width: "444px", border: "1px solid rgb(24, 54, 83)", borderRadius: "8px", marginTop: "0px", marginBottom: "0px", marginLeft: "25px", marginRight: "18px", verticalAlign: "middle", height: "14px"}}/>
+              <button type='submit' className='AddBtn' style={{width: "100px", height: "30px", backgroundColor: "rgb(24, 54, 83)", borderRadius: "8px", border:"1px", color: "white", fontSize: "13px", marginTop: "0px", verticalAlign: "middle", fontWeight: "600"}}>SEARCH</button>
             </form>
             <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} loadingMore={this.state.loadingMore} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} prices={this.state.prices} sortBy={this.state.sortBy} handleGetMore={this.getMoreBounties} descending={this.state.descending} next={this.state.nextUrl}/>
           </div>
