@@ -44,7 +44,7 @@ class MyContractList extends Component {
       {this.props.loading &&
         <div style={{width: "100%"}}>
           <div style={{marginLeft: "100px", marginTop: "60px", overflow: "hidden", }}>
-          <Halogen.ScaleLoader color={"#16e5cd"} />
+          <Halogen.ScaleLoader color={"#f52a34"} />
 
           </div>
           <p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46"}}> Loading from the blockchain... </p>

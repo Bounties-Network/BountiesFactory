@@ -35,7 +35,7 @@ class MilestoneInput extends Component {
           </div>
           <div style={{width: "30px", float: "left", display: "inline-block"}}>
             <a onClick={(e)=>{this.props.onremove(e, this.props.index)}} >
-            <CancelIcon color="rgb(255, 222, 70)" hoverColor="#16e5cd" style={{marginTop: "15px", marginLeft: "15px"}}/>
+            <CancelIcon color="rgb(255, 222, 70)" hoverColor="#f52a34" style={{marginTop: "15px", marginLeft: "15px"}}/>
             </a>
           </div>
         </div>

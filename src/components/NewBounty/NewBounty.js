@@ -23,6 +23,8 @@ import ipfsFiles from "browser-ipfs";
 import { browserHistory } from 'react-router';
 
 import logo from '../AppContainer/images/logo.svg';
+import logoBounties from '../AppContainer/images/logo-bounties.svg';
+
 import darkMoon from '../AppContainer/images/DarkMoon.png';
 import lightMoon from '../AppContainer/images/LightMoon.png';
 
@@ -726,16 +728,21 @@ class NewBounty extends Component {
         <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
 
           <div style={{overflow: "hidden"}} className="navBar">
-          <Link to="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
-            <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
+          <Link to="/" style={{width: "18em", overflow: "hidden", float: "left",  position: "absolute", top: "15px", left: "30px"}}>
+            <div style={{backgroundImage:  `url(${logoBounties})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
             </div>
           </Link>
-          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", left: "30px"}} > <Link to="/leaderboard/" style={{textDecoration: "none"}}> LeaderBoard </Link></FlatButton>
-          <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
+          <Link to="/" style={{width: "18em", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
+            <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
+            </div>
+          </Link>
+            <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
+            <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "180px"}} > <Link to="/leaderboard/" className={"buttonGlow"} style={{textDecoration: "none"}}> LeaderBoard </Link></FlatButton>
+            <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" className={"buttonGlow"} style={{textDecoration: "none"}}> New Bounty </Link></FlatButton>
           </div>
-            <div style={{display: "block", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #16e5cd", color:"rgb(25, 55, 83)"}} className="ContractCard">
+            <div style={{display: "block", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #f52a34", color:"#1D1749"}} className="ContractCard">
               <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "1000px", fontWeight: "600", fontSize: "28px"}}>Create a New Bounty</h3>
-              <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "rgb(25, 55, 83)"}}>
+              <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "#1D1749"}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
                 <input id='contract_title' style={{border: "none", width: "1000px"}} className='SendAmount' type='text' />
                 {this.state.titleError &&
@@ -747,7 +754,7 @@ class NewBounty extends Component {
                 <div style={{display: "inline-block"}}>
                   <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} >Payout Method</label>
-                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid rgb(25, 55, 83)", color:  "rgb(25, 55, 83)", width: "490px", height: "40px", display: "block"}}>
+                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid #1D1749", color:  "#1D1749", width: "490px", height: "40px", display: "block"}}>
                       <option value="ETH">ETH</option>
                       <option value="ERC">ERC20 Token </option>
                     </select>
@@ -771,7 +778,7 @@ class NewBounty extends Component {
                       {
                         (this.state.didUploadFile && !this.state.fileUploadFinished)&&
                         <div style={{ float: "right", display: "inline-block", padding: "0px 15px 0px 5px", overflow: "hidden"}}>
-                          <Halogen.ClipLoader color={"#16e5cd"} size={"15px"} style={{float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
+                          <Halogen.ClipLoader color={"#f52a34"} size={"15px"} style={{float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
                         </div>
 
                       }
@@ -862,7 +869,7 @@ class NewBounty extends Component {
                     <LinearProgress mode="determinate" value={this.state.loadingAmount} color="rgb(255, 222, 70)"/>
                     </div>
                 }
-                <button type='submit' className='AddBtn' style={{backgroundColor: "#16e5cd", border:"0px", width: "200px", margin: "0 auto", color: "rgb(21, 38, 57)", display: "block", marginTop: "30px"}}>Create</button>
+                <button type='submit' className='AddBtn' style={{backgroundColor: "rgb(52, 74, 212)", border:"0px", width: "200px", margin: "0 auto", color: "white", display: "block", marginTop: "30px", fontWeight: "600"}}>CREATE</button>
 
               </form>
 

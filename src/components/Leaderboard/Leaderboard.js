@@ -24,6 +24,8 @@ import ipfsFiles from "browser-ipfs";
 import { browserHistory } from 'react-router';
 
 import logo from '../AppContainer/images/logo.svg';
+import logoBounties from '../AppContainer/images/logo-bounties.svg';
+
 import darkMoon from '../AppContainer/images/DarkMoon.png';
 import lightMoon from '../AppContainer/images/LightMoon.png';
 
@@ -253,7 +255,7 @@ class Leaderboard extends Component {
           <p style={{color: "rgb(25, 55, 83)", fontSize: "20px", margin: "16px", display: "inline-block", marginRight: "70px", width: "200px"}}>
           {this.state.leaderboard[i].name? this.state.leaderboard[i].name: "—"}
           </p>
-          <Link style={{color: "#16e5cd", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100px"}}
+          <Link style={{color: "#f52a34", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100px"}}
               to={"/user/"+ this.state.leaderboard[i].address}>
                 { this.state.leaderboard[i].address.substring(0,6)+"..."+this.state.leaderboard[i].address.substring(this.state.leaderboard[i].address.length-4,this.state.leaderboard[i].address.length)}
           </Link>
@@ -281,19 +283,24 @@ class Leaderboard extends Component {
         <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
 
           <div style={{overflow: "hidden"}} className="navBar">
-          <Link to="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
-            <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
+          <Link to="/" style={{width: "18em", overflow: "hidden", float: "left",  position: "absolute", top: "15px", left: "30px"}}>
+            <div style={{backgroundImage:  `url(${logoBounties})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
             </div>
           </Link>
-          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" style={{textDecoration: "none"}}> New Bounty </Link></FlatButton>
-          <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
+          <Link to="/" style={{width: "18em", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
+            <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
+            </div>
+          </Link>
+            <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
+            <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "180px"}} > <Link to="/leaderboard/" className={"buttonGlow"} style={{textDecoration: "none"}}> LeaderBoard </Link></FlatButton>
+            <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" className={"buttonGlow"} style={{textDecoration: "none"}}> New Bounty </Link></FlatButton>
           </div>
-            <div style={{display: "block", width: "850px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #16e5cd", color:"rgb(25, 55, 83)", paddingLeft: "100px", paddingRight: "100px"}} className="ContractCard">
+            <div style={{display: "block", width: "850px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #f52a34", color:"rgb(25, 55, 83)", paddingLeft: "100px", paddingRight: "100px"}} className="ContractCard">
               <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "800px", fontWeight: "600", fontSize: "28px"}}>Leaderboard</h3>
               {this.state.loading  &&
 
                 <div style={{marginLeft: "405px", marginTop: "60px", overflow: "hidden", marginBottom: "60px"}}>
-                <Halogen.ScaleLoader color={"#16e5cd"} />
+                <Halogen.ScaleLoader color={"#f52a34"} />
                 </div>
               }
               {leaderboard}

@@ -21,7 +21,7 @@ class MyContractCard extends Component {
           <h4 style={{margin: "0px", width: "100%", fontSize: "14px"}}>{title}</h4>
           <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "#FFDE46", fontWeight: "500"}}>Balance:</b> {this.props.balance + " "+this.props.symbol} | <b style={{color: "#FFDE46", fontWeight: "500"}}>Stage: </b>{this.props.stage}</p>
         </div>
-        <a style={{marginTop: "11px", color: "#16e5cd", textAlign: "right"}}> <SvgArrow style={{color: "#16e5cd", fontSize: "44px"}}/></a>
+        <a style={{marginTop: "11px", color: "#f52a34", textAlign: "right"}}> <SvgArrow style={{color: "#f52a34", fontSize: "44px"}}/></a>
 
       </div>
       </a>

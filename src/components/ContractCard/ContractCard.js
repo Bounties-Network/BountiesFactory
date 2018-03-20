@@ -36,10 +36,10 @@ class ContractCard extends Component {
         categories.push(
           <Chip style={{margin: "4px 9px 0px 0px", float: "left", border: "1px solid rgba(25, 55, 83,0.5)", backgroundColor: "rgba(0, 126, 255, 0)", height: "20px"}}
                 labelStyle={{color:  "rgb(25, 55, 83)", fontSize: "11px", marginTop: "-6px"}}
-                key={this.props.categories[i]}
-                onClick={this.props.handleAddCategory.bind(this, this.props.categories[i])}
+                key={this.props.categories[i].name}
+                onClick={this.props.handleAddCategory.bind(this, this.props.categories[i].normalized_name)}
                 className="Chip">
-            <b className="Chip" style={{fontWeight: "300", }}>{this.props.categories[i]}</b>
+            <b className="Chip" style={{fontWeight: "300", }}>{this.props.categories[i].name}</b>
           </Chip>
         );
       }
@@ -63,10 +63,10 @@ class ContractCard extends Component {
     var url = ("/bounty/v1/"+ this.props.bountyId);
     return (
       <div style={{float: "left", display: "block", width: "630px", marginBottom: "15px", display: "flex"}}>
-        <div style={{width: "560px", marginBottom: "0px",boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgb(249, 249, 249)", color: "white", borderLeft: "1px solid rgb(56, 90, 116)", borderWidth: "0px 0px 0px 1px", display: "flex", justifyContent: "center", alignItems: "center"}} className="ContractCard">
+        <div style={{width: "560px", marginBottom: "0px",boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgb(249, 249, 249)", color: "white", borderLeft: "1px solid rgb(52,74,212)", borderWidth: "0px 0px 0px 1px", display: "flex", justifyContent: "center", alignItems: "center"}} className="ContractCard">
 
           <div style={{float: "left", display: "inline-block", width: "430px", padding: "5px"}}>
-            <Link style={{color: "rgb(25, 55, 83)", textDecoration: "none"}} to={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px", fontWeight: "600"}}> {this.props.title}</h4></Link>
+            <Link style={{color: "#1D1749", textDecoration: "none"}} to={url}><h4 style={{margin: "0px", width: "360px", marginBottom: "2px", fontWeight: "600"}}> {this.props.title}</h4></Link>
             <div style={{display: "block", width: "440px", overflow: "hidden"}}>
             <p style={{ fontSize: "12px", margin: "6px 0px", float: "left", display: "inline-block"}}>
               <b style={{color: "rgb(56, 89, 115)", fontWeight: "500"}}>By:  </b>
@@ -78,7 +78,7 @@ class ContractCard extends Component {
             style={{borderRadius: "10px", display: "inline-block", float: "left"}}
             />
             <p style={{ fontSize: "12px", width: "125px", margin: "6px 0px", float: "left", display: "inline-block"}}>
-              <Link style={{color: "#16e5cd", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100px"}}
+              <Link style={{color: "#f52a34", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100px"}}
                   to={"/user/"+ this.props.issuer}>
                     { this.props.issuer.substring(0,6)+"..."+this.props.issuer.substring(this.props.issuer.length-4,this.props.issuer.length)}
               </Link>
@@ -95,9 +95,9 @@ class ContractCard extends Component {
             <div style={{overflow: "hidden", display: "block",  width: "120px",}}>
             <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
 
-            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "rgb(25, 55, 83)", fontSize: "24px", fontWeight: "600"}}><b style={{color: "#FFDE46", fontWeight: "200", lineHeight: "28px"}}>$</b>{numberWithCommas(parseInt(this.props.usdValue))}</h5>
+            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#1D1749", fontSize: "24px", fontWeight: "600"}}>{reward}<b style={{color: "#FFDE46", fontWeight: "700", lineHeight: "28px", fontSize: "16px"}}>{this.props.symbol? this.props.symbol : 'ETH'}</b></h5>
 
-            <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontSize: "12px", fontWeight: "200"}}>{reward} {this.props.symbol? this.props.symbol : 'ETH'}</h1>
+            <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontSize: "12px", fontWeight: "200"}}>$ {numberWithCommas(parseInt(this.props.usdValue))}</h1>
 
             <h5 style={{ fontSize: "11px", width: "100%", textAlign: "center", marginTop: "10px", marginBottom: "0px", color:"#8C9899", fontWeight: "200"}}>{this.props.dateString}</h5>
 
@@ -106,8 +106,8 @@ class ContractCard extends Component {
 
         </div>
           <Link style={{}} to={url}>
-            <div className={ "SideArrowLight"} style={{float: "right", display: "flex", justifyContent: "center", alignItems: "center", width: "39px",   color: "#16e5cd", textAlign: "right", height: "100%"}}>
-              <SvgArrow style={{color:"rgb(25, 55, 83)", fontSize: "44px", display: "inline-block"}}/>
+            <div className={ "SideArrowLight"} style={{float: "right", display: "flex", justifyContent: "center", alignItems: "center", width: "39px",   color: "#f52a34", textAlign: "right", height: "100%"}}>
+              <SvgArrow style={{color:"#1D1749", fontSize: "44px", display: "inline-block"}}/>
             </div>
           </Link>
 

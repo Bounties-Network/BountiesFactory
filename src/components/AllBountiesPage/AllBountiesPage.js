@@ -247,7 +247,7 @@ class AllBountiesPage extends Component {
         <BountiesFacts total={this.state.total}/>
         <AccountFacts total={totalMe}/>
         <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-        <FlatButton href="/newBounty/" style={{backgroundColor: "#16e5cd", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
+        <FlatButton href="/newBounty/" style={{backgroundColor: "#f52a34", border:"0px", color: "#152639", width: "150px", marginTop: '18px', float: "right", marginRight: "60px"}} > New Bounty </FlatButton>
       </div>
         <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "120px"}}>
 

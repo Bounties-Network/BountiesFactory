@@ -23,6 +23,8 @@
     margin-right: .8em;
   }
 
+
+
   input {
     margin-bottom: 1em;
     font-size:1em;
@@ -151,7 +153,7 @@ input {
   .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:hover,
   .has-value.Select--single > .Select-control .Select-value a.Select-value-label:focus,
   .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:focus {
-    color: #16e5cd;
+    color: #f52a34;
     outline: none;
     text-decoration: underline;
   }
@@ -241,7 +243,7 @@ input {
     width: 20px;
     padding-right: 2px;
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%;
-    background-color: #183653;
+    background-color: #1d1749;
 
   }
   .Select-arrow {
@@ -356,7 +358,7 @@ input {
     border: 1px solid #c2e0ff;
     /* Fallback color for IE 8 */
     border: 1px solid rgba(0, 126, 255, 0.24);
-    color: #16e5cd;
+    color: #f52a34;
     display: inline-block;
     font-size: 0.9em;
     line-height: 1.4;
@@ -376,7 +378,7 @@ input {
     padding: 2px 5px;
   }
   .Select--multi a.Select-value-label {
-    color: #16e5cd;
+    color: #f52a34;
     cursor: pointer;
     text-decoration: none;
   }
@@ -527,7 +529,7 @@ input {
   .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:hover,
   .has-value.Select--single > .Select-control .Select-value a.Select-value-label:focus,
   .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:focus {
-    color: #16e5cd;
+    color: #f52a34;
     outline: none;
     text-decoration: underline;
   }
@@ -616,8 +618,8 @@ input {
     vertical-align: middle;
     width: 20px;
     padding-right: 2px;
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%;
-    background-color: #183653;
+    background: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxZDE3NDk7fS5jbHMtMntmaWxsOiNmNWFiMmI7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPgo=') no-repeat 100% 50%;
+    background-color: #1d1749;
 
   }
   .Select-arrow {
@@ -732,7 +734,7 @@ input {
     border: 1px solid #c2e0ff;
     /* Fallback color for IE 8 */
     border: 1px solid rgba(0, 126, 255, 0.24);
-    color: #16e5cd;
+    color: #f52a34;
     display: inline-block;
     font-size: 0.9em;
     line-height: 1.4;
@@ -752,7 +754,7 @@ input {
     padding: 2px 5px;
   }
   .Select--multi a.Select-value-label {
-    color: #16e5cd;
+    color: #f52a34;
     cursor: pointer;
     text-decoration: none;
   }
@@ -822,9 +824,8 @@ input {
             z-index: 10000;
 }
 .navBar{
-  background: #385a74; /* Old browsers */
-background: -moz-linear-gradient(top, #385a74 0%, #274254 100%); /* FF3.6-15 */
-background: -webkit-linear-gradient(top, #385a74 0%,#274254 100%); /* Chrome10-25,Safari5.1-6 */
-background: linear-gradient(to bottom, #385a74 0%,#274254 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#385a74', endColorstr='#274254',GradientType=0 ); /* IE6-9 */
+  background: #1D1749; /* Old browsers */
+}
+.buttonGlow:hover{
+  color: rgb(245, 42, 52) !important;
 }

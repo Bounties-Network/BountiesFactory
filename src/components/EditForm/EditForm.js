@@ -46,7 +46,7 @@ class EditForm extends Component {
             {
               (this.props.didUploadFile && !this.props.fileUploadFinished)&&
               <div style={{ float: "right", display: "inline-block", padding: "0px 15px 0px 5px", overflow: "hidden"}}>
-                <Halogen.ClipLoader color={"#16e5cd"} size={"15px"} style={{float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
+                <Halogen.ClipLoader color={"#f52a34"} size={"15px"} style={{float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
               </div>
 
             }
@@ -68,7 +68,7 @@ class EditForm extends Component {
               <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>a github link to a relevant repository</p>
             </div>
           )}
-        <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#16e5cd", border:"0px", color: "#152639"}}>Submit Edits</button>
+        <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#f52a34", border:"0px", color: "#152639"}}>Submit Edits</button>
       </form>
       </div>
     )

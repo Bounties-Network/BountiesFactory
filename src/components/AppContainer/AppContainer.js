@@ -19,6 +19,8 @@ const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 const utf8 = require('utf8');
 
 import logo from './images/logo.svg';
+import logoBounties from './images/logo-bounties.svg';
+
 import logoDark from './images/logoDark.svg';
 import darkMoon from '../AppContainer/images/DarkMoon.png';
 import lightMoon from '../AppContainer/images/LightMoon.png';
@@ -377,7 +379,7 @@ class AppContainer extends Component {
                            StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                            selectedNetwork: netId,
-                          baseURL: "http://afb256214274611e898ed02122fce8e2-504516521.us-east-1.elb.amazonaws.com:83"});
+                          baseURL: "http://staging.api.bounties.network"});
           } else {
             this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
           }
@@ -513,7 +515,13 @@ class AppContainer extends Component {
   handleAddCategory(item){
     var optionsList = [];
     optionsList.push(item);
-    this.setState({optionsList: optionsList, value: item});
+    var value;
+
+    if (this.state.value.length > 0){
+      value = this.state.value+",";
+    }
+    value += item;
+    this.setState({optionsList: optionsList, value: value});
   }
   handleToggleSort(newSort){
   var sortByCreated = false;
@@ -530,11 +538,11 @@ class AppContainer extends Component {
   } else if (newSort === "Expiry" && this.state.sortBy === "Expiry"){
     this.setState({descending: !this.state.descending, loading: true, bounties: []}, this.getBounties)
   } else if (newSort === "Created"){
-    this.setState({sortBy: "Created", descending: !true, loading: true, bounties: []}, this.getBounties)
+    this.setState({sortBy: "Created", descending: true, loading: true, bounties: []}, this.getBounties)
   } else if (newSort === "Value"){
-    this.setState({sortBy: "Value", descending: !true, loading: true, bounties: []}, this.getBounties)
+    this.setState({sortBy: "Value", descending: true, loading: true, bounties: []}, this.getBounties)
   } else if (newSort === "Expiry"){
-    this.setState({sortBy: "Expiry", descending: !true, loading: true, bounties: []}, this.getBounties)
+    this.setState({sortBy: "Expiry", descending: true, loading: true, bounties: []}, this.getBounties)
   }
   }
 
@@ -556,7 +564,7 @@ class AppContainer extends Component {
       label="Retry"
       primary={true}
       onClick={this.handleClose}
-      style={{color: "#16e5cd"}}
+      style={{color: "#f52a34"}}
     />
   ];
   document.title = "Bounties Explorer | Dashboard";
@@ -577,51 +585,55 @@ class AppContainer extends Component {
        </Dialog>
       <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative"}}>
         <div style={{overflow: "hidden"}} className="navBar">
-          <Link to="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
-            <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
-            </div>
-          </Link>
+        <Link to="/" style={{width: "18em", overflow: "hidden", float: "left",  position: "absolute", top: "15px", left: "30px"}}>
+          <div style={{backgroundImage:  `url(${logoBounties})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
+          </div>
+        </Link>
+        <Link to="/" style={{width: "18em", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
+          <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
+          </div>
+        </Link>
           <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", left: "30px"}} > <Link to="/leaderboard/" style={{textDecoration: "none"}}> LeaderBoard </Link></FlatButton>
-          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "1px solid #16e5cd", color: "#16e5cd", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" style={{textDecoration: "none"}}> New Bounty </Link></FlatButton>
+          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "180px"}} > <Link to="/leaderboard/" className={"buttonGlow"} style={{textDecoration: "none"}}> LeaderBoard </Link></FlatButton>
+          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" className={"buttonGlow"} style={{textDecoration: "none"}}> New Bounty </Link></FlatButton>
         </div>
         <div style={{ display: "block", overflow: "hidden", width: "1100px", margin: "0 auto", paddingBottom: "120px"}}>
 
           <div style={{width: "245px", float: "left", display: "block", marginRight: "15px"}}>
-            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color: "rgb(25, 55, 83)", width: "100%", fontWeight: "600", fontSize: "16px"}}>PROFILE</h3>
+            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color: "#1D1749", width: "100%", fontWeight: "600", fontSize: "16px"}}>PROFILE</h3>
             <div style={{display: "block", width: "215px", backgroundColor: "rgb(249, 249, 249)" , overflow: "hidden", marginTop: "15px", padding: "15px", minHeight: "237px"}}>
 
             {this.state.accounts.length > 0 &&
               <div>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#193753", width: "100%", fontWeight: "500", textAlign: "center", lineHeight: "24px"}}>You have posted  <b style={{color: "#16e5cd", fontSize: "24px"}}>{this.state.myTotal}</b> bounties</h5>
-              <div style={{marginBottom: "15px", borderBottom: "1px solid #16e5cd", display: "block", overflow: "hidden"}}>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#1D1749", width: "100%", fontWeight: "500", textAlign: "center", lineHeight: "24px"}}>You have posted  <b style={{color: "#f52a34", fontSize: "24px"}}>{this.state.myTotal}</b> bounties</h5>
+              <div style={{marginBottom: "15px", borderBottom: "1px solid #f52a34", display: "block", overflow: "hidden"}}>
 
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{ fontSize: "24px"}}>{this.state.myDraft}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#1D1749", width: "100%", fontWeight: "500", lineHeight: "24px", borderRight:"1px solid #f52a34"}}><b style={{ fontSize: "24px"}}>{this.state.myDraft}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 186, 20)", width: "100%", fontWeight: "500" }}>DRAFT</h5>
 
                 </div>
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{this.state.myActive}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#1D1749", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #f52a34"}}><b style={{fontSize: "24px"}}>{this.state.myActive}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(140, 226, 88)" , width: "100%", fontWeight: "500" }}>ACTIVE</h5>
 
 
                 </div>
                 <div style={{width: "33%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{this.state.myDead}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "0px", textAlign: "center", color: "#1D1749", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{this.state.myDead}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "#ff6846", width: "100%", fontWeight: "500"}}>DEAD</h5>
 
                 </div>
 
 
                 <div style={{width: "50%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #16e5cd"}}><b style={{fontSize: "24px"}}>{this.state.myExpired}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#1D1749", width: "100%", fontWeight: "500",  lineHeight: "24px", borderRight:"1px solid #f52a34"}}><b style={{fontSize: "24px"}}>{this.state.myExpired}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(104, 166, 166)" , width: "100%", fontWeight: "500" }}>EXPIRED</h5>
 
 
                 </div>
                 <div style={{width: "50%", float: "left", display: "block"}}>
-                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#193753", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{this.state.myCompleted}</b></h5>
+                  <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "0px", textAlign: "center", color: "#1D1749", width: "100%", fontWeight: "500", lineHeight: "24px"}}><b style={{ fontSize: "24px"}}>{this.state.myCompleted}</b></h5>
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 222, 70)", width: "100%", fontWeight: "500"}}>COMPLETED</h5>
 
                 </div>
@@ -634,8 +646,8 @@ class AppContainer extends Component {
                 label="My Profile"
                 primary={true}
                 labelPosition="before"
-                style={{color:  "#193753", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
-                icon={<SvgArrow style={{color: "#16e5cd", fontSize: "44px"}}/>}
+                style={{color:  "#1D1749", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
+                icon={<SvgArrow style={{color: "#f52a34", fontSize: "44px"}}/>}
               >
               <Link to={"/user/" + this.state.accounts[0]}>
 
@@ -646,8 +658,8 @@ class AppContainer extends Component {
                 primary={true}
                 labelPosition="before"
                 onClick={this.handleChangeToMine}
-                style={{color: "#193753", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
-                icon={<SvgArrow style={{color: "#16e5cd", fontSize: "44px"}}/>}
+                style={{color: "#1D1749", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
+                icon={<SvgArrow style={{color: "#f52a34", fontSize: "44px"}}/>}
               />
 
               </div>
@@ -656,14 +668,14 @@ class AppContainer extends Component {
             <div>
               <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "#8a8a8a" , width: "100%", fontWeight: "700", textAlign: "center", fontSize: "18px"}}>You have no account!</h5>
               <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#8a8a8a" , width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px"}}>{"This is likely because you're not using a web3 enabled browser."}</h5>
-              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#8a8a8a" , width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px", paddingTop: "15px", borderTop: "1px solid #16e5cd"}}>{"You can download the "}<a href="https://metamask.io" target="_blank" style={{color: "#16e5cd", fontWeight: "700"}}> Metamask </a>{" extension to begin posting bounties."}</h5>
+              <h5 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", color: "#8a8a8a" , width: "100%", fontWeight: "300", textAlign: "center", fontSize: "14px", paddingTop: "15px", borderTop: "1px solid #f52a34"}}>{"You can download the "}<a href="https://metamask.io" target="_blank" style={{color: "#f52a34", fontWeight: "700"}}> Metamask </a>{" extension to begin posting bounties."}</h5>
 
             </div>
           }
 
             </div>
             <div id="mc_embed_signup">
-            <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "rgb(25, 55, 83)" , width: "100%", fontWeight: "600", textAlign: "center", fontSize: "14px"}}>SIGN UP TO RECEIVE <br/> BOUNTIES NOTIFICATIONS</h5>
+            <h5 style={{fontFamily: "Open Sans", marginTop: "35px", marginBottom: "15px", color: "#1D1749" , width: "100%", fontWeight: "600", textAlign: "center", fontSize: "14px"}}>SIGN UP TO RECEIVE <br/> BOUNTIES NOTIFICATIONS</h5>
 
               <form action="//network.us16.list-manage.com/subscribe/post?u=03351ad14a86e9637146ada2a&amp;id=96ba00fd12" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" className="validate" target="_blank" >
                   <div id="mc_embed_signup_scroll">
@@ -674,7 +686,7 @@ class AppContainer extends Component {
                   <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
                     <input type="text" name="b_03351ad14a86e9637146ada2a_96ba00fd12" tabIndex="-1" value=""/>
                     </div>
-                      <input type="submit" value="SIGN UP" name="subscribe" id="mc-embedded-subscribe" className="button" style={{boxShadow: "none", padding: "0px 18px", fontFamily: "Open Sans", backgroundColor: "#183653", width: "17.4em", color: "rgb(208, 208, 208)", border: "0px", padding: "5px 15px", fontWeight: "600", border: "0px solid rgba(0,0,0,0)"}}/>
+                      <input type="submit" value="SIGN UP" name="subscribe" id="mc-embedded-subscribe" className="button" style={{boxShadow: "none", padding: "0px 18px", fontFamily: "Open Sans", backgroundColor: "rgb(52,74,212)", width: "17.4em", color: "white", border: "0px", padding: "5px 15px", fontWeight: "600", border: "0px solid rgba(0,0,0,0)"}}/>
                   </div>
               </form>
             </div>
@@ -682,16 +694,16 @@ class AppContainer extends Component {
           </div>
           <div style={{width: "630px", float: "left", display: "block"}}>
             <form className='Activate' onSubmit={this.handleSearch} style={{width: "100%", display: "inline-block", marginTop: "24px", marginBottom: "0px"}}>
-              <input id='query' className='SendAmount' style={{width: "444px", border: "1px solid rgb(24, 54, 83)", borderRadius: "8px", marginTop: "0px", marginBottom: "0px", marginLeft: "25px", marginRight: "18px", verticalAlign: "middle", height: "14px"}}/>
-              <button type='submit' className='AddBtn' style={{width: "100px", height: "30px", backgroundColor: "rgb(24, 54, 83)", borderRadius: "8px", border:"1px", color: "white", fontSize: "13px", marginTop: "0px", verticalAlign: "middle", fontWeight: "600"}}>SEARCH</button>
+              <input id='query' className='SendAmount' style={{width: "444px", border: "1px solid #1D1749", borderRadius: "8px", marginTop: "0px", marginBottom: "0px", marginLeft: "25px", marginRight: "18px", verticalAlign: "middle", height: "14px"}}/>
+              <button type='submit' className='AddBtn' style={{width: "100px", height: "30px", backgroundColor: "#344AD4", borderRadius: "8px", border:"1px", color: "white", fontSize: "13px", marginTop: "0px", verticalAlign: "middle", fontWeight: "600", paddingTop: "3px"}}>SEARCH</button>
             </form>
             <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} loadingMore={this.state.loadingMore} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} prices={this.state.prices} sortBy={this.state.sortBy} handleGetMore={this.getMoreBounties} descending={this.state.descending} next={this.state.nextUrl}/>
           </div>
           <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className={"FilterBarLight"}>
-            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color:"rgb(25, 55, 83)", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>
+            <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color:"#1D1749", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>
 
             <div style={{display: "block", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", overflow: "hidden"}}>
-              <select onChange={this.handleChangeStage} value={this.state.selectedStage} style={{fontSize: "14px", backgroundColor: "rgba(10, 22, 40, 0)", border: "0px",color: "rgb(25, 55, 83)" , width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
+              <select onChange={this.handleChangeStage} value={this.state.selectedStage} style={{fontSize: "14px", backgroundColor: "rgba(10, 22, 40, 0)", border: "0px",color: "rgb(25, 55, 83)" , width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxZDE3NDk7fS5jbHMtMntmaWxsOiNmNWFiMmI7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPgo=') no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="Draft">Draft Bounties</option>
                 <option value="Active">Active Bounties</option>
                 <option value="Completed">Completed Bounties</option>
@@ -701,7 +713,7 @@ class AppContainer extends Component {
               </select>
             </div>
             <div style={{display: "block", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", overflow: "hidden", marginTop: "15px"}}>
-              <select onChange={this.handleMineChange} value={this.state.selectedMine} style={{fontSize: "14px",backgroundColor: "rgba(10, 22, 40, 0)" , border: "0px", color: "rgb(25, 55, 83)", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxNzM3NTM7fS5jbHMtMntmaWxsOiMxNmU1Y2Q7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPg==) no-repeat 100% 50%", padding: "0px 10px"}}>
+              <select onChange={this.handleMineChange} value={this.state.selectedMine} style={{fontSize: "14px",backgroundColor: "rgba(10, 22, 40, 0)" , border: "0px", color: "rgb(25, 55, 83)", width: "195px", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxZDE3NDk7fS5jbHMtMntmaWxsOiNmNWFiMmI7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPgo=') no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="ANY" selected="selected">{"Anyone's Bounties"}</option>
                 <option value="MINE">My Bounties</option>
               </select>
