@@ -127,7 +127,7 @@ class AppContainer extends Component {
       myDead: 0,
       myExpired: 0,
       myTotal: 0,
-      baseURL: "http://a2e716ea2144911e898ed02122fce8e2-236283655.us-east-1.elb.amazonaws.com:83"
+      baseURL: "http://api.bounties.network"
     }
 
     this.getInitialData = this.getInitialData.bind(this);
