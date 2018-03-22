@@ -424,7 +424,7 @@ class UserPage extends Component {
                          StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                          selectedNetwork: netId,
-                         baseURL: "http://afb256214274611e898ed02122fce8e2-504516521.us-east-1.elb.amazonaws.com:83"});
+                         baseURL: "https://staging.api.bounties.network"});
         } else {
           this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
         }

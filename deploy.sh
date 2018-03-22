@@ -1,2 +1,2 @@
 npm run build
-surge ./build/ beta.bounties.network
+surge ./build/ consensys.bounties.network

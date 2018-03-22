@@ -487,12 +487,12 @@ class BountyPage extends Component {
             this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                            selectedNetwork: netId,
-                          baseURL: "http://afb256214274611e898ed02122fce8e2-504516521.us-east-1.elb.amazonaws.com:83"});
+                          baseURL: "https://staging.api.bounties.network"});
           } else if (this.state.version == "v1"){
             this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                            selectedNetwork: netId,
-                          baseURL: "http://afb256214274611e898ed02122fce8e2-504516521.us-east-1.elb.amazonaws.com:83"});
+                          baseURL: "https://staging.api.bounties.network"});
           }
 
         } else {
@@ -1847,14 +1847,14 @@ render() {
 
 
       var categories = [];
-      if (this.state.categories){
-        for (i = 0; i < this.state.categories.length; i++){
+      if (this.state.categoryOptions){
+        for (i = 0; i < this.state.categoryOptions.length; i++){
 
           categories.push(
-            <Chip style={{margin: "0px 15px 5px 0px", float: "left", border: "1px solid rgba(25, 55, 83, 1)", backgroundColor: "rgba(25, 55, 83, 10.08", height: "30px"}}
+            <Chip style={{margin: "0px 15px 5px 0px", float: "left", border: "1px solid #1D1749", backgroundColor: "#1D1749", height: "30px"}}
                   labelStyle={{color: "white", lineHeight: "28px"}}
-                  key={this.state.categories[i]}>
-              {this.state.categories[i]}
+                  key={this.state.categoryOptions[i].label}>
+              {this.state.categoryOptions[i].label}
             </Chip>
           );
         }
@@ -2013,7 +2013,7 @@ render() {
                       <label htmlFor='contact' style={{fontSize: "12px"}}>{"Contact"}</label>
                       <input id='contact' className='SendAmount' style={{width: "450px", border: "0px", display: "block"}}/>
                       </div>
-                      {
+
                         <div style={{width: "445px", display: "block", overflow: "hidden", float: "left", marginLeft: "15px"}}>
                           <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
                           <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "rgb(25, 55, 83)", height: "0px", padding: "0px", margin: "0px"}}/>
@@ -2038,7 +2038,7 @@ render() {
                           <p style={{fontSize: "12px", color: "rgba(25,55,83, 0.55)", marginTop: "5px"}}>any file associated with your submission</p>
                         </div>
 
-                      }
+
 
 
                       <div style={{width: "100%", display: "block", overflow: "hidden", float: "left", marginRight: "0"}}>
@@ -2185,7 +2185,7 @@ render() {
                   <div style={{backgroundColor: "rgba(1, 1, 1, 0.05)", display: "block", overflow: "hidden", padding: "15px"}}>
                   <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
 
-                  <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "0px", color: "#1D1749", fontSize: "32px", fontWeight: "600"}}>{this.state.value}<b style={{color: "rgb(255, 184, 21)", fontWeight: "200", lineHeight: "28px"}}>{this.state.symbol? this.state.symbol : 'ETH'}</b></h5>
+                  <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "7.5px", marginBottom: "0px", color: "#1D1749", fontSize: "32px", fontWeight: "600"}}>{this.state.value}<b style={{color: "rgb(255, 184, 21)", fontWeight: "600", lineHeight: "28px"}}>{this.state.symbol? this.state.symbol : 'ETH'}</b></h5>
 
                   <h5 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "rgb(25, 55, 83)", marginBottom: "15px", fontSize: "16px", fontWeight: "200"}}><b style={{color: "rgb(255, 184, 21)", fontWeight: "500"}}>$</b>{numberWithCommas(parseInt((this.state.usdValue )))}</h5>
 

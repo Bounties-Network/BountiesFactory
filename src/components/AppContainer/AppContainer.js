@@ -111,7 +111,6 @@ class AppContainer extends Component {
       descending: true,
       requiredNetwork: requiredNetwork,
       networkName: networkName,
-      prices: {},
       searchQuery: "",
       standardBountiesAddress: standardBountiesAddress,
       userCommentsAddress: userCommentsAddress,
@@ -144,7 +143,6 @@ class AppContainer extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleToggleSort = this.handleToggleSort.bind(this);
 
-    this.getPrices = this.getPrices.bind(this);
     this.getBounties = this.getBounties.bind(this);
     this.getCategories = this.getCategories.bind(this);
     this.getMyBounties = this.getMyBounties.bind(this);
@@ -155,7 +153,6 @@ class AppContainer extends Component {
   }
 
   componentDidMount() {
-    this.getPrices();
 
 
     if (window.loaded){
@@ -379,7 +376,7 @@ class AppContainer extends Component {
                            StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                            selectedNetwork: netId,
-                          baseURL: "http://staging.api.bounties.network"});
+                          baseURL: "https://staging.api.bounties.network"});
           } else {
             this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
           }
@@ -428,21 +425,7 @@ class AppContainer extends Component {
 
     }
   }
-  getPrices(){
-
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "https://api.coinmarketcap.com/v1/ticker/?convert=USD&limit=100", false);
-    //xhttp.setRequestHeader("Content-type", "application/json");
-    xhttp.send();
-    var response = JSON.parse(xhttp.responseText);
-    var prices = {};
-    for (var i = 0; i < response.length; i++){
-      prices[response[i].symbol] = response[i].price_usd;
-    }
-    this.setState({prices: prices});
-
-
-  }
+  
   handleChangeStage(evt){
     evt.preventDefault();
     var selected = evt.target.value;
@@ -697,7 +680,7 @@ class AppContainer extends Component {
               <input id='query' className='SendAmount' style={{width: "444px", border: "1px solid #1D1749", borderRadius: "8px", marginTop: "0px", marginBottom: "0px", marginLeft: "25px", marginRight: "18px", verticalAlign: "middle", height: "14px"}}/>
               <button type='submit' className='AddBtn' style={{width: "100px", height: "30px", backgroundColor: "#344AD4", borderRadius: "8px", border:"1px", color: "white", fontSize: "13px", marginTop: "0px", verticalAlign: "middle", fontWeight: "600", paddingTop: "3px"}}>SEARCH</button>
             </form>
-            <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} loadingMore={this.state.loadingMore} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} prices={this.state.prices} sortBy={this.state.sortBy} handleGetMore={this.getMoreBounties} descending={this.state.descending} next={this.state.nextUrl}/>
+            <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} loadingMore={this.state.loadingMore} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} sortBy={this.state.sortBy} handleGetMore={this.getMoreBounties} descending={this.state.descending} next={this.state.nextUrl}/>
           </div>
           <div style={{width: "195px", float: "left", display: "block", marginLeft: "15px"}} className={"FilterBarLight"}>
             <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color:"#1D1749", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>

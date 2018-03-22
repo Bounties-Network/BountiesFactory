@@ -14,7 +14,7 @@ class IncreasePayoutForm extends Component {
           <input id='newPayout' className='SendAmount' type='number' step="any" style={{width: "450px", border: "0px"}}/>
           {this.props.increasePayoutError &&
             <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.props.increasePayoutError}</p>}
-          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#f52a34", border:"0px", color: "#152639"}}>Increase</button>
+          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#f52a34", border:"0px", color: "white", fontWeight: "600"}}>INCREASE</button>
         </form>
       </div>
     )

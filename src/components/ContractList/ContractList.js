@@ -53,7 +53,6 @@ class ContractList extends Component {
                       numFul={contract.numFul}
                       dateString={contract.dateString}
                       handleAddCategory={handleAddCategory}
-                      price={prices[contract.tokenSymbol? contract.tokenSymbol:"ETH"]}
                       stage={contract.stage}
                       version={"v1"}
                       usdValue={contract.usd_price}

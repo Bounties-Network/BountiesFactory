@@ -68,7 +68,7 @@ class EditForm extends Component {
               <p style={{fontSize: "12px", color: "rgba(265,265,265, 0.55)", marginTop: "-10px", marginBottom: "15px"}}>a github link to a relevant repository</p>
             </div>
           )}
-        <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#f52a34", border:"0px", color: "#152639"}}>Submit Edits</button>
+        <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#f52a34", border:"0px", color: "white", fontWeight: "600"}}>SUBMIT EDITS</button>
       </form>
       </div>
     )
