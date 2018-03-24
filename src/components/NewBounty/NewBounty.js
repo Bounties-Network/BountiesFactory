@@ -6,7 +6,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io
 import { Link } from 'react-router';
 
 const json = require('../../../contracts.json');
-const networkId = json.networkId;
 
 const Buffer = require('buffer/').Buffer;
 
@@ -16,94 +15,35 @@ const ipfsAPI = require('ipfs-api');
 
 var ipfsNew = ipfsAPI({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 
-const BigNumber = require('bignumber.js');
-
-import ipfsFiles from "browser-ipfs";
-
 import { browserHistory } from 'react-router';
 
 import logo from '../AppContainer/images/logo.svg';
 import logoBounties from '../AppContainer/images/logo-bounties.svg';
 
-import darkMoon from '../AppContainer/images/DarkMoon.png';
-import lightMoon from '../AppContainer/images/LightMoon.png';
-
 import FlatButton from 'material-ui/FlatButton';
 
-import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
 import SvgCheck from 'material-ui/svg-icons/action/check-circle';
 
 import Select from 'react-select';
 import Dialog from 'material-ui/Dialog';
 import LinearProgress from 'material-ui/LinearProgress';
 
-
 import Halogen from 'halogen';
-
 
 class NewBounty extends Component {
   constructor(props) {
     super(props)
-    var requiredNetwork = 0;
-    var standardBountiesAddress = "";
-    var userCommentsAddress = "";
-    var networkName = "";
-    var providerLink = "";
-    var stored = localStorage.getItem('ethereumNetwork');
-
-    if (!stored){
-      providerLink = "https://mainnet.infura.io";
-      requiredNetwork = 1;
-      standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
-      userCommentsAddress = json.mainNet.userCommentsAddress;
-      networkName = "Main Network";
-      localStorage.setItem('ethereumNetwork', "MainNet");
-    } else {
-      if (stored === "MainNet"){
-        providerLink = "https://mainnet.infura.io";
-        requiredNetwork = 1;
-        standardBountiesAddress = json.mainNet.standardBountiesAddress.v1;
-        userCommentsAddress = json.mainNet.userCommentsAddress;
-        networkName = "Main Network";
-
-
-      } else if (stored === "Rinkeby"){
-        providerLink = "https://rinkeby.infura.io";
-        requiredNetwork = 4;
-        standardBountiesAddress = json.rinkeby.standardBountiesAddress.v1;
-        userCommentsAddress = json.rinkeby.userCommentsAddress;
-        networkName = "Rinkeby Network";
-      }
-
-    }
-    web3.setProvider(new Web3.providers.HttpProvider(providerLink));
-    console.log("json.rinkeby.standardBountiesAddress.v1", json.rinkeby.standardBountiesAddress.v1);
 
     this.state = {
-      numUpdated: 0,
       modalError: "",
       modalOpen: false,
-      loadingInitial: true,
       accounts: [],
-      contracts: [],
-      fulfillments: [],
-      bounties: [],
-      total: 0,
-      totalMe: 0,
-      milestones: [{
-        payout: 0,
-        title: "Title for milestone",
-        description: "Description for milestone",
-        difficulty: 0
-      }],
-      numMilestones: 1,
       optionsList: [],
       sourceFileName: "",
       sourceFileHash: "",
       sourceDirectoryHash: "",
       payoutMethod: "ETH",
       activateNow: "later",
-      encrypt: false,
       titleError: "",
       descriptionError: "",
       payoutError: "",
@@ -118,17 +58,11 @@ class NewBounty extends Component {
       loadingAmount: 10,
       loadingString: "",
       containsCode: false,
-      requiredNetwork: requiredNetwork,
-      networkName: networkName,
-      standardBountiesAddress: standardBountiesAddress,
-      userCommentsAddress: userCommentsAddress,
-      StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
-      UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
-      baseURL: "http://a2e716ea2144911e898ed02122fce8e2-236283655.us-east-1.elb.amazonaws.com:83"
-
+      StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
+      UserComments : web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+      baseURL: json.url.mainNet
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
-    ipfsFiles.setProvider({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 
 
     this.getInitialData = this.getInitialData.bind(this);
@@ -140,7 +74,6 @@ class NewBounty extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
-    this.handleChangeNetwork = this.handleChangeNetwork.bind(this);
 
     this.getCategories = this.getCategories.bind(this);
 
@@ -176,51 +109,9 @@ class NewBounty extends Component {
         }
 
         this.setState({categoryOptions: categories});
-
-
-
       }.bind(this)).catch(function(ex) {
         console.log('parsing failed', ex)
       });
-  }
-  handleChangeNetwork(evt){
-    evt.preventDefault();
-
-    var requiredNetwork = evt.target.value;
-    var standardBountiesAddress = "";
-    var userCommentsAddress = "";
-    var networkName = "";
-    var providerLink = "";
-
-    if (parseInt(requiredNetwork) === parseInt(1)){
-      providerLink = "https://mainnet.infura.io";
-      standardBountiesAddress = json.mainNet.standardBountiesAddress;
-      userCommentsAddress = json.mainNet.userCommentsAddress;
-      networkName = "Main Network";
-      localStorage.setItem('ethereumNetwork', "MainNet");
-
-
-
-    } else if (parseInt(requiredNetwork) === parseInt(4)){
-      providerLink = "https://rinkeby.infura.io";
-      standardBountiesAddress = json.rinkeby.standardBountiesAddress;
-      userCommentsAddress = json.rinkeby.userCommentsAddress;
-      networkName = "Rinkeby Network";
-      localStorage.setItem('ethereumNetwork', "Rinkeby");
-
-    }
-
-    this.setState({requiredNetwork: requiredNetwork,
-                  providerLink: providerLink,
-                  standardBountiesAddress: standardBountiesAddress,
-                  userCommentsAddress: userCommentsAddress,
-                  networkName: networkName,
-                  web3: new Web3(new Web3.providers.HttpProvider(providerLink)),
-                  StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
-                  UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
-                  });
-
-    this.getInitialData();
   }
 
   getInitialData(){
@@ -231,22 +122,20 @@ class NewBounty extends Component {
 
       web3.setProvider(window.web3.currentProvider);
 
-      console.log("this.state.web3", web3.currentProvider);
-
       web3.version.getNetwork((err, netId) => {
 
-        if (parseInt(netId, 10) > 10000){
-          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.localhost.standardBountiesAddress.v1),
-                         StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.localhost.standardBountiesAddress.v0),
-                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.localhost.userCommentsAddress),
-                         selectedNetwork: netId});
-        } else if (netId === "1"){
+        if (netId === "1"){
           this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
+
+          /*this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
+                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+                         selectedNetwork: netId,
+                        baseURL: json.url.mainNet});*/
         } else if (netId ===  "4"){
           this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
                          selectedNetwork: netId,
-                       baseURL: "https://staging.api.bounties.network"});
+                       baseURL: json.url.rinkeby});
         } else {
           this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
         }
@@ -570,7 +459,6 @@ class NewBounty extends Component {
                                   }
                                 }.bind(this), 100);
                               }
-                              //browserHistory.push('/');
                             });
 
                           }
@@ -608,7 +496,6 @@ class NewBounty extends Component {
                       }
                     }.bind(this), 100);
                   }
-                  //browserHistory.push('/');
                 });
               }
             });
@@ -633,8 +520,6 @@ class NewBounty extends Component {
     reader.readAsArrayBuffer(file)
   }
   saveToIpfs (reader) {
-    let ipfsId
-
     const buffer = Buffer.from(reader.result);
 
     ipfsNew.add([{path: "/bounties/" + this.state.sourceFileName, content: buffer}], (err, response)=> {
@@ -652,44 +537,6 @@ class NewBounty extends Component {
   }
   handleEncryptChange(evt){
     this.setState({encrypt: evt.target.value});
-  }
-  handleChangeNetwork(evt){
-    evt.preventDefault();
-
-    var requiredNetwork = evt.target.value;
-    var standardBountiesAddress = "";
-    var userCommentsAddress = "";
-    var networkName = "";
-    var providerLink = "";
-
-    if (parseInt(requiredNetwork) === parseInt(1)){
-      providerLink = "https://mainnet.infura.io";
-      standardBountiesAddress = json.mainNet.standardBountiesAddress;
-      userCommentsAddress = json.mainNet.userCommentsAddress;
-      networkName = "Main Network";
-      localStorage.setItem('ethereumNetwork', "MainNet");
-
-
-
-    } else if (parseInt(requiredNetwork) === parseInt(4)){
-      providerLink = "https://rinkeby.infura.io";
-      standardBountiesAddress = json.rinkeby.standardBountiesAddress;
-      userCommentsAddress = json.rinkeby.userCommentsAddress;
-      networkName = "Rinkeby Network";
-      localStorage.setItem('ethereumNetwork', "Rinkeby");
-
-    }
-    this.setState({requiredNetwork: requiredNetwork,
-                  providerLink: providerLink,
-                  standardBountiesAddress: standardBountiesAddress,
-                  userCommentsAddress: userCommentsAddress,
-                  networkName: networkName,
-                  web3: new Web3(new Web3.providers.HttpProvider(providerLink)),
-                  StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
-                  UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress)
-                  });
-
-    this.getInitialData();
   }
 
   handleSelectChange (value) {
@@ -889,9 +736,7 @@ class NewBounty extends Component {
                     </div>
                 }
                 <button type='submit' className='AddBtn' style={{backgroundColor: "rgb(52, 74, 212)", border:"0px", width: "200px", margin: "0 auto", color: "white", display: "block", marginTop: "30px", fontWeight: "600"}}>CREATE</button>
-
               </form>
-
             </div>
             <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: "rgb(25, 55, 83)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "rgb(25, 55, 83)"}}>ConsenSys</a> Formation <br/>
              <a href="/privacyPolicy/" target="_blank" style={{color: "rgb(25, 55, 83)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: "rgb(25, 55, 83)"}}>Terms of Service</a>

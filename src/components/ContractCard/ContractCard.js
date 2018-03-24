@@ -1,20 +1,13 @@
 import React, { Component } from 'react'
 import './ContractCard.css'
 
+import Web3 from 'web3';
+const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
+
 import { Link } from 'react-router';
 import Chip from 'material-ui/Chip';
-import Avatar from 'material-ui/Avatar';
-import SvgBug from 'material-ui/svg-icons/action/bug-report';
-import SvgCode from 'material-ui/svg-icons/action/code';
-import SvgGraphic from 'material-ui/svg-icons/image/brush';
-import SvgContent from 'material-ui/svg-icons/editor/format-indent-increase';
-import SvgTranslations from 'material-ui/svg-icons/action/language';
-import SvgSocial from 'material-ui/svg-icons/social/share';
-import SvgQuestion from 'material-ui/svg-icons/action/question-answer';
-import SvgSurvey from 'material-ui/svg-icons/editor/drag-handle';
 import SvgArrow from 'material-ui/svg-icons/hardware/keyboard-arrow-right';
 import Blockies from 'react-blockies';
-const BN = require(`bn.js`);
 const BigNumber = require('bignumber.js');
 
 function numberWithCommas(x) {
@@ -62,7 +55,7 @@ class ContractCard extends Component {
 
     var url = ("/bounty/v1/"+ this.props.bountyId);
     return (
-      <div style={{float: "left", display: "block", width: "630px", marginBottom: "15px", display: "flex"}}>
+      <div style={{float: "left", width: "630px", marginBottom: "15px", display: "flex"}}>
         <div style={{width: "560px", marginBottom: "0px",boxShadow: "none", borderRadius: "0", padding: "15px", backgroundColor: "rgb(249, 249, 249)", color: "white", borderLeft: "1px solid rgb(52,74,212)", borderWidth: "0px 0px 0px 1px", display: "flex", justifyContent: "center", alignItems: "center"}} className="ContractCard">
 
           <div style={{float: "left", display: "inline-block", width: "430px", padding: "5px"}}>
@@ -95,7 +88,7 @@ class ContractCard extends Component {
             <div style={{overflow: "hidden", display: "block",  width: "120px",}}>
             <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "200"}}>PRIZE</h5>
 
-            <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#1D1749", fontSize: "24px", fontWeight: "600"}}>{reward}<b style={{color: "#FFDE46", fontWeight: "700", lineHeight: "28px", fontSize: "16px"}}>{this.props.symbol? this.props.symbol : 'ETH'}</b></h5>
+            <h5 style={{ width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#1D1749", fontSize: "24px", fontWeight: "600"}}>{reward}<b style={{color: "#FFDE46", fontWeight: "700", lineHeight: "28px", fontSize: "16px"}}>{this.props.symbol? this.props.symbol : 'ETH'}</b></h5>
 
             <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontSize: "12px", fontWeight: "200"}}>$ {numberWithCommas(parseInt(this.props.usdValue))}</h1>
 

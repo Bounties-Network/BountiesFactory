@@ -2,20 +2,9 @@ import React, { Component } from 'react'
 import './EditForm.css'
 import Select from 'react-select';
 
-
 import Halogen from 'halogen';
 import SvgCheck from 'material-ui/svg-icons/action/check-circle';
 
-const CATEGORIES = [
-  { label: 'Code', value: 'Code' },
-  { label: 'Bugs', value: 'Bugs' },
-  { label: 'Questions', value: 'Questions' },
-  { label: 'Graphic Design', value: 'Graphic Design' },
-  { label: 'Social Media', value: 'Social Media' },
-  { label: 'Content Creation', value: 'Content Creation' },
-  { label: 'Translations', value: 'Translations'},
-  { label: 'Surveys', value: 'Surveys'}
-];
 class EditForm extends Component {
   render() {
     var fileName;

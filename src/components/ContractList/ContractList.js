@@ -7,11 +7,6 @@ import SvgDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down';
 import SvgUp from 'material-ui/svg-icons/hardware/keyboard-arrow-up';
 
 class ContractList extends Component {
-  constructor(props) {
-    super(props)
-  }
-
-
   render() {
 
     var sortByValue = this.props.sortBy === "Value";
@@ -19,8 +14,6 @@ class ContractList extends Component {
     var sortByExpiry = this.props.sortBy === "Expiry";
 
     var givenList = this.props.list;
-
-    var prices = this.props.prices;
 
     var contractsList;
     var acc = this.props.acc;
@@ -50,10 +43,8 @@ class ContractList extends Component {
                       bountyId={contract.bounty_id}
                       symbol={contract.tokenSymbol}
                       deadline={contract.deadline}
-                      numFul={contract.numFul}
                       dateString={contract.dateString}
                       handleAddCategory={handleAddCategory}
-                      stage={contract.stage}
                       version={"v1"}
                       usdValue={contract.usd_price}
                       numFul={contract.fulfillment_count}

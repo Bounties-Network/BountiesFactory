@@ -27,9 +27,6 @@ import './index.css'
         <Route path="/terms/" component={TermsOfService} />
         <Route path="/newBounty/" component={NewBounty} />
         <Route path="/leaderBoard/" component={Leaderboard} />
-
-
-
       </Router>
     </MuiThemeProvider>
 ), document.getElementById('root'));

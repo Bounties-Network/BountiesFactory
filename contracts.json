@@ -1,4 +1,8 @@
 {
+	"url": {
+		"mainNet": "http://localhost:8000",
+		"rinkeby": "http://localhost:8000"
+	},
 	"mainNet": {
 		"userCommentsAddress": "0xf75a8e70da328ba79482632774dde52d316ecffa",
 		"standardBountiesAddress": {
