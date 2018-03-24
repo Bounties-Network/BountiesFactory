@@ -4,12 +4,10 @@ import { Router, Route, browserHistory } from 'react-router';
 import App from './App';
 import BountyPage from './components/BountyPage/BountyPage';
 import NewBounty from './components/NewBounty/NewBounty';
-import AllBountiesPage from './components/AllBountiesPage/AllBountiesPage';
 import UserPage from './components/UserPage/UserPage';
 import PrivacyPolicy from './components/PrivacyPolicy/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService/TermsOfService';
 import Leaderboard from './components/Leaderboard/Leaderboard';
-
 
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
@@ -22,7 +20,6 @@ import './index.css'
         <Route path="/" component={App} />
         <Route path="/bounty/:version/:id" component={BountyPage} />
         <Route path="/user/:address" component={UserPage} />
-        <Route path="/allBounties/" component={AllBountiesPage} />
         <Route path="/privacyPolicy/" component={PrivacyPolicy} />
         <Route path="/terms/" component={TermsOfService} />
         <Route path="/newBounty/" component={NewBounty} />
