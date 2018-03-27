@@ -50,7 +50,7 @@
   cursor: pointer;
 }
 .iconHover:hover{
-  color: rgb(255, 222, 70) !important;
+  color: #fe923b !important;
 }
 span {
   font-size: 14px;
@@ -58,7 +58,7 @@ span {
    overflow: hidden;
 }
 a {
-  color: white;
+  color: #4A79FA;
 }
 input {
   border-radius: 0px;

@@ -81,7 +81,7 @@
   outline: none;
   overflow: hidden;
   position: relative;
-  width: 490px;
+  width: 100%;
 }
 .Select-control:hover {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
@@ -121,7 +121,7 @@
   position: absolute;
   right: 0;
   top: 0;
-  max-width: 455px;
+  max-width: ;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -143,7 +143,7 @@
 .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:hover,
 .has-value.Select--single > .Select-control .Select-value a.Select-value-label:focus,
 .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:focus {
-  color: #f52a34;
+  color: #4a79fa;
   outline: none;
   text-decoration: underline;
 }
@@ -286,7 +286,7 @@
   max-height: 200px;
   position: absolute;
   top: 100%;
-  width: 455px;
+  width: ;
   z-index: 1;
   -webkit-overflow-scrolling: touch;
 }
@@ -345,7 +345,7 @@
   border: 1px solid #c2e0ff;
   /* Fallback color for IE 8 */
   border: 1px solid rgba(0, 126, 255, 0.24);
-  color: #f52a34;
+  color: #4a79fa;
   display: inline-block;
   font-size: 0.9em;
   line-height: 1.4;
@@ -365,7 +365,7 @@
   padding: 2px 5px;
 }
 .Select--multi a.Select-value-label {
-  color: #f52a34;
+  color: #4a79fa;
   cursor: pointer;
   text-decoration: none;
 }
@@ -454,7 +454,7 @@
     outline: none;
     overflow: hidden;
     position: relative;
-    width: 490px;
+    width: 100%;
   }
   .Select-control:hover {
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
@@ -494,7 +494,7 @@
     position: absolute;
     right: 0;
     top: 0;
-    max-width: 455px;
+    max-width: ;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -516,7 +516,7 @@
   .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:hover,
   .has-value.Select--single > .Select-control .Select-value a.Select-value-label:focus,
   .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:focus {
-    color: #f52a34;
+    color: #4a79fa;
     outline: none;
     text-decoration: underline;
   }
@@ -659,7 +659,7 @@
     max-height: 200px;
     position: absolute;
     top: 100%;
-    width: 455px;
+    width: ;
     z-index: 1;
     -webkit-overflow-scrolling: touch;
   }
@@ -718,7 +718,7 @@
     border: 1px solid #c2e0ff;
     /* Fallback color for IE 8 */
     border: 1px solid rgba(0, 126, 255, 0.24);
-    color: #f52a34;
+    color: #4a79fa;
     display: inline-block;
     font-size: 0.9em;
     line-height: 1.4;
@@ -738,7 +738,7 @@
     padding: 2px 5px;
   }
   .Select--multi a.Select-value-label {
-    color: #f52a34;
+    color: #4a79fa;
     cursor: pointer;
     text-decoration: none;
   }

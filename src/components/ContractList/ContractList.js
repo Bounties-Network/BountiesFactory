@@ -59,14 +59,14 @@ class ContractList extends Component {
     }
     return (
       <div className='ContractList'>
-      <div style={{display: "block", width: "60%", margin: "0 auto", overflow: "hidden", marginBottom: "14px", marginTop: "14px"}}>
+      <div style={{display: "block", width: "324px", margin: "0 auto", overflow: "hidden", marginBottom: "14px", marginTop: "14px"}}>
       <p style={{display: "inline-block",
                   float: "left",
                   fontSize: "12px",
                   fontWeight: "600",
                   marginTop: "1px",
                   marginBottom: "5px",
-                  color: "#1D1749",
+                  color: "#2D0874",
                   marginLeft: "15px"}}> SORT BY: </p>
       <p onClick={this.props.handleToggleSort.bind(this, "Value")}
       style={{display: "inline-block",
@@ -75,14 +75,14 @@ class ContractList extends Component {
                 fontWeight: "600",
                 marginTop: "0px",
                 marginBottom: "5px",
-                color: (sortByValue? "rgb(243, 243, 243)": "#1D1749") ,
+                color: (sortByValue? "rgb(243, 243, 243)": "#2D0874") ,
                 marginLeft: "15px",
                 border: "1px solid",
                 padding: "0px 10px",
                 borderRadius: "4px",
                 cursor: "pointer",
-                borderColor: (sortByValue?  "#1D1749" : "#1D1749"),
-                backgroundColor: (sortByValue?  "#1D1749" : "rgba(140, 152, 153, 0)"),
+                borderColor: (sortByValue?  "#2D0874" : "#2D0874"),
+                backgroundColor: (sortByValue?  "#2D0874" : "rgba(140, 152, 153, 0)"),
                 position: "relative",
                 paddingRight: sortByValue?  "20px" : "10px"}}> Value
                 {
@@ -99,13 +99,13 @@ class ContractList extends Component {
                 marginTop: "0px",
                 marginBottom: "5px",
                 cursor: "pointer",
-                color: (sortByCreated? "rgb(243, 243, 243)": "#1D1749") ,
+                color: (sortByCreated? "rgb(243, 243, 243)": "#2D0874") ,
                 marginLeft: "15px",
                 border: "1px solid",
                 padding: "0px 10px",
                 borderRadius: "4px",
-                borderColor: (sortByCreated?  "#1D1749" : "#1D1749") ,
-                backgroundColor: (sortByCreated?  "#1D1749" : "rgba(140, 152, 153, 0)"),
+                borderColor: (sortByCreated?  "#2D0874" : "#2D0874") ,
+                backgroundColor: (sortByCreated?  "#2D0874" : "rgba(140, 152, 153, 0)"),
                 position: "relative",
                 paddingRight: sortByCreated?  "20px" : "10px"}}> Creation
                 {
@@ -121,14 +121,14 @@ class ContractList extends Component {
                 fontWeight: "600",
                 marginTop: "0px",
                 marginBottom: "5px",
-                color: (sortByExpiry? "rgb(243, 243, 243)": "#1D1749"),
+                color: (sortByExpiry? "rgb(243, 243, 243)": "#2D0874"),
                 marginLeft: "15px",
                 cursor: "pointer",
                 border: "1px solid",
                 padding: "0px 10px",
                 borderRadius: "4px",
-                borderColor: (sortByExpiry?  "#1D1749" : "#1D1749") ,
-                backgroundColor: (sortByExpiry?  "#1D1749" : "rgba(52,74,212, 0)"),
+                borderColor: (sortByExpiry?  "#2D0874" : "#2D0874") ,
+                backgroundColor: (sortByExpiry?  "#2D0874" : "rgba(52,74,212, 0)"),
                 position: "relative",
                 paddingRight: sortByExpiry?  "20px" : "10px"}}> Expiry
                 {
@@ -141,8 +141,8 @@ class ContractList extends Component {
 
       {this.props.loading &&
         <div style={{width: "100%"}}>
-          <div style={{marginLeft: "296px", marginTop: "60px", overflow: "hidden", }}>
-          <Halogen.ScaleLoader color={"#f52a34"} />
+          <div style={{width: "40px", margin: "0 auto",  marginTop: "60px", overflow: "hidden", }}>
+          <Halogen.ScaleLoader color={"#fe923b"} />
           </div>
         </div>
       }
@@ -150,12 +150,12 @@ class ContractList extends Component {
         {!this.props.loading && error}
         {!this.props.loading && !this.props.loadingMore && this.props.next &&
 
-          <a onClick={this.props.handleGetMore} style={{color: "rgb(25, 55, 83)", margin: "0 auto", cursor: "pointer"}}> SEE MORE...</a>
+          <a onClick={this.props.handleGetMore} style={{color: "#2D0874", margin: "0 auto", cursor: "pointer", fontWeight: "600"}}> SEE MORE...</a>
         }
         {this.props.loadingMore &&
           <div style={{width: "100%"}}>
-            <div style={{marginLeft: "296px", marginTop: "10px", overflow: "hidden", }}>
-            <Halogen.ScaleLoader color={"#f52a34"} />
+            <div style={{width: "40px", margin: "0 auto", overflow: "hidden", }}>
+            <Halogen.ScaleLoader color={"#fe923b"} />
             </div>
           </div>
         }

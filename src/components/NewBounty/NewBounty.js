@@ -19,6 +19,7 @@ import { browserHistory } from 'react-router';
 
 import logo from '../AppContainer/images/logo.svg';
 import logoBounties from '../AppContainer/images/logo-bounties.svg';
+import Navigation from 'components/Navigation/Navigation';
 
 import FlatButton from 'material-ui/FlatButton';
 
@@ -125,12 +126,10 @@ class NewBounty extends Component {
       web3.version.getNetwork((err, netId) => {
 
         if (netId === "1"){
-          this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
-
-          /*this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
+          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
                          selectedNetwork: netId,
-                        baseURL: json.url.mainNet});*/
+                        baseURL: json.url.mainNet});
         } else if (netId ===  "4"){
           this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
@@ -194,6 +193,7 @@ class NewBounty extends Component {
     var oldDeadline = evt.target.bounty_deadline.value;
     var fulfillmentAmount = evt.target.fulfillmentAmount.value;
     var tokenAddress = "0x0000000000000000000000000000000000000000";
+    var difficulty = evt.target.difficulty.value;
     if (evt.target.token_address){
       tokenAddress = evt.target.token_address.value;
     }
@@ -289,6 +289,7 @@ class NewBounty extends Component {
               created: new Date().getTime()/1000|0,
               tokenAddress: tokenAddress,
               symbol: 'ETH',
+              difficulty: difficulty,
               issuer: {
                 address: this.state.accounts[0],
                 email: info,
@@ -396,6 +397,7 @@ class NewBounty extends Component {
                 created: new Date().getTime()/1000|0,
                 tokenAddress: tokenAddress,
                 symbol: symbol,
+                difficulty: difficulty,
                 issuer: {
                   address: this.state.accounts[0],
                   email: info,
@@ -580,86 +582,91 @@ class NewBounty extends Component {
         </Dialog>
         <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
 
-          <div style={{overflow: "hidden"}} className="navBar">
-          <Link to="/" style={{width: "18em", overflow: "hidden", float: "left",  position: "absolute", top: "15px", left: "30px"}}>
-            <div style={{backgroundImage:  `url(${logoBounties})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
-            </div>
-          </Link>
-          <Link to="/" style={{width: "18em", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
-            <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
-            </div>
-          </Link>
-            <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-            <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "180px"}} > <Link to="/leaderboard/" className={"buttonGlow"} style={{textDecoration: "none"}}> LeaderBoard </Link></FlatButton>
-            <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" className={"buttonGlow"} style={{textDecoration: "none"}}> New Bounty </Link></FlatButton>
-          </div>
-            <div style={{display: "block", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #f52a34", color:"#1D1749"}} className="ContractCard">
+          <Navigation userAddress={this.state.accounts[0] || ""}/>
+            <div style={{display: "block", maxWidth: "1050px", margin: "0 auto", marginBottom: "75px", marginTop: "30px"}}>
+            <div style={{ padding: "15px", width: "calc(100% - 90px)", marginRight: "30px", marginLeft: "30px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #4a79fa", color:"#1D1749"}} className="ContractCard">
               <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "1000px", fontWeight: "600", fontSize: "28px"}}>Create a New Bounty</h3>
               <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "#1D1749"}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
-                <input id='contract_title' style={{border: "none", width: "1000px"}} className='SendAmount' type='text' />
+                <input id='contract_title' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text' />
                 {this.state.titleError &&
                   <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.titleError}</p>}
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Description</label>
-                <textarea rows="3" id='contract_description' className='SendAmount ' type='text'  style={{width: "995px", marginBottom: "15px", fontSize: "16px", padding: "10px", border: "0px"}}/>
+                <textarea rows="3" id='contract_description' className='SendAmount ' type='text'  style={{width: "calc(100% - 20px)", marginBottom: "15px", fontSize: "16px", padding: "10px", border: "0px"}}/>
                 {this.state.descriptionError &&
                   <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.descriptionError}</p>}
 
 
 
 
-                  <div style={{display: "inline-block"}}>
-                    <div style={{width: "490px", float: "left", marginRight: "15px", display: "inline-block"}}>
+                  <div style={{display: "inline-block", width: "100%"}}>
+                    <div style={{width: "calc(50% - 28px)", float: "left", marginRight: "15px", display: "inline-block"}}>
                       <label style={{fontSize: "12px"}} htmlFor='contact_info'>Contact Name</label>
-                      <input id="contact_name" style={{width: "468px", border: "none"}}></input>
+                      <input id="contact_name" style={{width: "100%", border: "none"}}></input>
                     </div>
-                    <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                    <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
                       <label style={{fontSize: "12px"}} htmlFor='contact_info'>Contact Email</label>
-                      <input id="contact_info" style={{width: "468px", border: "none"}}></input>
+                      <input id="contact_info" style={{width: "100%", border: "none"}}></input>
                       <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>for bounty hunters to be able to contact you off-chain</p>
                       {this.state.contactError &&
                         <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.contactError}</p>}
                     </div>
                   </div>
-                <div style={{display: "inline-block"}}>
-                  <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
+                <div style={{display: "inline-block", width: "100%"}}>
+                  <div style={{width: "calc(50% - 13px)",  float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} >Payout Method</label>
-                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid #1D1749", color:  "#1D1749", width: "490px", height: "40px", display: "block"}}>
+                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid #1D1749", color:  "#1D1749", width: "100%", height: "40px", display: "block"}}>
                       <option value="ETH">ETH</option>
                       <option value="ERC">ERC20 Token </option>
                     </select>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "10px", marginBottom: "15px"}}>the token which will be used to pay out the reward</p>
 
                   </div>
-                  <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (ETH or whole tokens)</label>
-                    <input id="fulfillmentAmount" style={{width: "470px", border: "0px"}} type="number" step="any"></input>
+                    <input id="fulfillmentAmount" style={{width: "100%", border: "0px"}} type="number" step="any"></input>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
                   </div>
                 </div>
-
-                <div style={{display: "inline-block"}}>
-                <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}} className={"LightMode"}>
+                {this.state.payoutMethod === "ERC" && (
+                  <div style={{float: "left", display: "inline-block", width: "100%"}}>
+                    <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
+                    <input id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
+                    <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
+                  </div>
+                )}
+                <div style={{display: "inline-block", width: "100%"}}>
+                <div style={{width: "calc(50% - 13px)", float: "left", display: "inline-block"}} className={"LightMode"}>
                   <label style={{fontSize: "12px"}} >Bounty Category</label>
                   <Select.Creatable multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select task categories" options={this.state.categoryOptions} onChange={this.handleSelectChange} />
                   <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "5px", marginBottom: "15px"}}>the types of tasks being bountied</p>
                 </div>
 
-                  <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='bounty_deadline'>Bounty Deadline (UTC)</label>
-                    <input id='bounty_deadline' style={{border: "none", width: "470px"}} type='datetime-local' max="2222-12-22T22:22"/>
+                    <input id='bounty_deadline' style={{border: "none", width: "100%"}} type='datetime-local' max="2222-12-22T22:22"/>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the deadline for submitting any bugs</p>
                     {this.state.deadlineError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.deadlineError}</p>}
                   </div>
                 </div>
-                <div style={{display: "inline-block"}}>
+                <div style={{display: "inline-block", width: "100%"}}>
+                  <div style={{width: "calc(50% - 13px)",  float: "left", display: "inline-block", marginBottom: "30px"}}>
+                    <label style={{fontSize: "12px"}} >Difficulty</label>
+                    <select id="difficulty" style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid #1D1749", color:  "#1D1749", width: "100%", height: "40px", display: "block"}}>
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Expert">Expert</option>
+                    </select>
+                  </div>
+                </div>
+                <div style={{display: "inline-block", width: "100%"}}>
 
-                <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
+                <div style={{width: "calc(50% - 13px)", float: "left", display: "inline-block"}}>
                   <label style={{fontSize: "12px"}} >When to Activate</label>
-                  <select onChange={this.handleActivateNowChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid rgb(25, 55, 83)", color: "rgb(25, 55, 83)", width: "490px", height: "40px", display: "block"}}>
+                  <select onChange={this.handleActivateNowChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid rgb(25, 55, 83)", color: "rgb(25, 55, 83)", width: "100%", height: "40px", display: "block"}}>
                     <option value="later">Later</option>
                     <option value="now">Now</option>
                   </select>
@@ -667,38 +674,28 @@ class NewBounty extends Component {
                 </div>
 
                   {this.state.activateNow === "now" && (
-                    <div style={{width: "465px", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                    <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
                       <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Deposit Amount</label>
-                      <input id='deposit_amount' style={{border: "none", width: "470px"}} className='SendAmount' type='number' step="any"/>
+                      <input id='deposit_amount' style={{border: "none", width: "100%"}} className='SendAmount' type='number' step="any"/>
                       <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>To activate, you must deposit enough to pay the bounty at least once</p>
                       {this.state.valueError &&
                         <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.valueError}</p>}
                     </div>
                   )}
-                  {this.state.encrypt &&
-                  <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
 
-                      <label style={{fontSize: "12px"}} >Encrypt File Submissions</label>
-                      <select onChange={this.handleEncryptChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid white", color: "rgb(25, 55, 83)", width: "457px", height: "40px", display: "block"}}>
-                        <option value="encrypt">Encrypt Submissions</option>
-                        <option value="no">No Encryption of Submissions</option>
-                      </select>
-                      <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "10px", marginBottom: "15px"}}>Submissions will be encrypted for the issuer, unless otherwise specified</p>
-
-                  </div>}
                 </div>
 
-                <div style={{display: "inline-block"}}>
+                <div style={{display: "inline-block", width: "100%"}}>
 
-                  <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "calc(50% - 13px)", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} htmlFor='contract_code'>Associated Files</label>
                     <input id='contract_code' type="file" name="file" onChange={this.handlecaptureFile} style={{width: "0px", display: "block", border: "0px", color: "rgb(25, 55, 83)", height: "0px", padding: "0px", margin: "0px"}}/>
-                    <div style={{width: "475px", display: "block", border: "1px solid rgb(25, 55, 83)", color: "rgb(25, 55, 83)", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px"}}>
+                    <div style={{width: "calc(100% - 15px)", display: "block", border: "1px solid rgb(25, 55, 83)", color: "rgb(25, 55, 83)", height: "20px", padding: "7.5px", paddingTop: "6px", paddingLeft: "4px", borderRadius: "4px"}}>
                       <label htmlFor="contract_code" style={{backgroundColor: "white", color: "#122134", padding: "3px 15px", fontWeight: "700", borderRadius: "4px", marginTop: "-1px"}}> Upload </label>
                       {
                         (this.state.didUploadFile && !this.state.fileUploadFinished)&&
                         <div style={{ float: "right", display: "inline-block", padding: "0px 15px 0px 5px", overflow: "hidden"}}>
-                          <Halogen.ClipLoader color={"#f52a34"} size={"15px"} style={{float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
+                          <Halogen.ClipLoader color={"#4a79fa"} size={"15px"} style={{float: "right", width: "15px", height: "15px", display: "inline-block"}}/>
                         </div>
 
                       }
@@ -716,18 +713,12 @@ class NewBounty extends Component {
                     {this.state.fileUploadError &&
                       <p style={{fontSize: "12px", color:"#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fileUploadError}</p>}
                   </div>
-                  <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                  <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Web Link</label>
-                    <input id='github_link' style={{border: "none", width: "470px"}} className='SendAmount' type='text'/>
+                    <input id='github_link' style={{border: "none", width: "100%"}} className='SendAmount' type='text'/>
                   </div>
                 </div>
-                  {this.state.payoutMethod === "ERC" && (
-                    <div style={{float: "left", display: "inline-block"}}>
-                      <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
-                      <input id='token_address' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
-                      <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
-                    </div>
-                  )}
+
                 {this.state.submitting &&
                   <div style={{width: "50%", display: "block", margin: "0 auto", marginTop: "30px"}}>
                   <p style={{fontSize: "14px", textAlign: "center"}}> {this.state.loadingString} </p>
@@ -738,11 +729,11 @@ class NewBounty extends Component {
                 <button type='submit' className='AddBtn' style={{backgroundColor: "rgb(52, 74, 212)", border:"0px", width: "200px", margin: "0 auto", color: "white", display: "block", marginTop: "30px", fontWeight: "600"}}>CREATE</button>
               </form>
             </div>
-            <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: "rgb(25, 55, 83)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "rgb(25, 55, 83)"}}>ConsenSys</a> Formation <br/>
-             <a href="/privacyPolicy/" target="_blank" style={{color: "rgb(25, 55, 83)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: "rgb(25, 55, 83)"}}>Terms of Service</a>
+            <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: "#2D0874", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#2D0874"}}>ConsenSys</a> Formation <br/>
+              <a href="/privacyPolicy/" target="_blank" style={{color: "#2D0874"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: "#2D0874"}}>Terms of Service</a>
              </p>
         </div>
-
+        </div>
       </div>
     )
   }

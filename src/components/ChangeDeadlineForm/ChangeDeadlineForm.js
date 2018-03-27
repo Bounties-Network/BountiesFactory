@@ -11,7 +11,7 @@ class ChangeDeadlineForm extends Component {
           <input id='bounty_deadline' defaultValue={this.props.dateNum} type='datetime-local' style={{width: "450px", border: "0px", height: "22px"}}/>
           {this.props.deadlineError &&
             <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.props.deadlineError}</p>}
-          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#f52a34", border:"0px", color: "white", fontWeight: "600"}}>EXTEND</button>
+          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#4a79fa", border:"0px", color: "white", fontWeight: "600"}}>EXTEND</button>
 
         </form>
       </div>

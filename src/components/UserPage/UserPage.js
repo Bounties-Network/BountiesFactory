@@ -10,6 +10,7 @@ const BigNumber = require('bignumber.js');
 
 import logo from '../AppContainer/images/logo.svg';
 import logoBounties from '../AppContainer/images/logo-bounties.svg';
+import Navigation from 'components/Navigation/Navigation';
 
 import { Link } from 'react-router';
 
@@ -113,11 +114,10 @@ class UserPage extends Component {
       web3.setProvider(window.web3.currentProvider);
       web3.version.getNetwork((err, netId) => {
         if (netId === "1"){
-          this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
-          /*this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
+          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
                          selectedNetwork: netId,
-                        baseURL: json.url.mainNet});*/
+                        baseURL: json.url.mainNet});
         } else if (netId === "4"){
           this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                          StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
@@ -213,12 +213,12 @@ for (var i = 0; i < this.state.fulfillments.length && i < 5; i++){
   fulfillmentsList.push(
     <Link key={"fulList"+i} style={{}} to={url}>
     <div style={{backgroundColor: "rgba(1, 1, 1, 0.05)", borderLeft: "1px solid rgb(25, 55, 83)", padding: "10px", marginBottom: (i === (this.state.fulfillments.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "rgb(25, 55, 83)", overflow: "hidden"}} >
-      <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
+      <div style={{width: "calc(100% - 24px)", display: "block", float: "left", overflow: "hidden"}}>
       <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "600"}}>{this.state.fulfillments[i].bounty_data.title}</h4>
       <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}><b style={{color: "rgb(255, 184, 21)", fontWeight: "500"}}>Reward: </b>{rewardAmount + " " + this.state.fulfillments[i].bounty_data.tokenSymbol} | <b style={{color: "rgb(255, 184, 21)", fontWeight: "500"}}>{this.state.fulfillments[i].accepted? "Accepted" : "Not Accepted"}</b></p>
 
       </div>
-      <SvgArrow style={{fontSize: "44px", marginTop: "10px", color: "#f52a34", textAlign: "right", display: "block"}}/>
+      <SvgArrow style={{fontSize: "44px", marginTop: "10px", color: "#4a79fa", textAlign: "right", display: "block"}}/>
 
     </div>
     </Link>
@@ -231,11 +231,11 @@ for (i = 0; i < this.state.bounties.length && i < 5; i++){
   bountiesList.push(
     <Link key={"bountiesList"+i} style={{}} to={url}>
     <div  style={{backgroundColor: "rgba(1, 1, 1, 0.05)", borderLeft: "1px solid rgb(25, 55, 83)", padding: "10px", marginBottom: (i === (this.state.bounties.length - 1) || i == 4)? "0px":"15px", marginTop: "0px", color: "rgb(25, 55, 83)", overflow: "hidden"}} >
-      <div style={{width: "390px", display: "block", float: "left", overflow: "hidden"}}>
+      <div style={{width: "calc(100% - 24px)", display: "block", float: "left", overflow: "hidden"}}>
       <h4 style={{margin: "0px", fontSize: "16px", fontWeight: "600"}}>{this.state.bounties[i].title}</h4>
       <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", fontWeight: "700"}}> <b style={{color: "rgb(255, 184, 21)"}}>{this.state.bounties[i].stage}</b>| {this.state.bounties[i].fulfillment_count}<b style={{color: "rgb(255, 184, 21)", fontWeight: "500"}}> total submissions</b></p>
       </div>
-      <SvgArrow style={{ fontSize: "44px", marginTop: "10px", color: "#f52a34", textAlign: "right", display: "block"}}/>
+      <SvgArrow style={{ fontSize: "44px", marginTop: "10px", color: "#4a79fa", textAlign: "right", display: "block"}}/>
     </div>
     </Link>
   );
@@ -243,14 +243,14 @@ for (i = 0; i < this.state.bounties.length && i < 5; i++){
 var fulUI  = (
   <div>
     <h3 style={{margin: "0px", width: "100%", fontSize: "18px", textAlign: "center",  fontWeight: "600", color: "#1D1749"}}>Bounty Submissions</h3>
-    <div style={{paddingBottom: "15px", borderBottom: "1px solid #f52a34", display: "inline-block", width: "442px",  marginBottom: "12px", color: "#1D1749" }}>
+    <div style={{paddingBottom: "15px", borderBottom: "1px solid #4a79fa", display: "inline-block", width: "100%",  marginBottom: "12px", color: "#1D1749" }}>
       <div style={{width: "33%", display: "inline-block", float: "left"}}>
-        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #f52a34", margin: "15px 0px"}}>{this.state.submissionsTotal}</h3>
+        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #4a79fa", margin: "15px 0px"}}>{this.state.submissionsTotal}</h3>
         <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>SUBMISSIONS</p>
       </div>
 
       <div style={{width: "33%", display: "inline-block", float: "left"}}>
-        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #f52a34", margin: "15px 0px"}}>{this.state.submissionsAccepted}</h3>
+        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #4a79fa", margin: "15px 0px"}}>{this.state.submissionsAccepted}</h3>
         <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>ACCEPTED</p>
       </div>
       <div style={{width: "33%", display: "inline-block", float: "left"}}>
@@ -265,13 +265,13 @@ var bountiesUI = (
   <div>
 
     <h3 style={{margin: "0px", width: "100%", fontSize: "18px", textAlign: "center",  fontWeight: "600", color: "#1D1749"}}>Bounties Posted</h3>
-    <div style={{paddingBottom: "15px", borderBottom: "1px solid #f52a34", display: "inline-block", width: "442px", marginBottom: "12px", color: "#1D1749" }}>
+    <div style={{paddingBottom: "15px", borderBottom: "1px solid #4a79fa", display: "inline-block", width: "100%", marginBottom: "12px", color: "#1D1749" }}>
       <div style={{width: "33%", display: "inline-block", float: "left"}}>
-        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #f52a34", margin: "15px 0px"}}> {this.state.bountiesTotal} </h3>
+        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #4a79fa", margin: "15px 0px"}}> {this.state.bountiesTotal} </h3>
         <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>BOUNTIES</p>
       </div>
       <div style={{width: "33%", display: "inline-block", float: "left"}}>
-        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #f52a34", margin: "15px 0px"}}>{this.state.bountiesAccepted}</h3>
+        <h3 style={{textAlign: "center", fontSize: "48px", borderRight: "1px solid #4a79fa", margin: "15px 0px"}}>{this.state.bountiesAccepted}</h3>
         <p style={{fontSize: "10px", textAlign: "center", fontWeight: "600", color: "rgb(255, 184, 21)"}}>ACCEPTED</p>
       </div>
       <div style={{width: "33%", display: "inline-block", float: "left"}}>
@@ -308,34 +308,20 @@ var bountiesUI = (
           onRequestClose={this.handleCloseNoWeb3}
         >
           <div style={{width: "75%", display: "block", margin: "0 auto", marginTop: "30px"}}>
-          <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#f52a34"}}> Metamask </a> browser extension.</p>
+          <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#4a79fa"}}> Metamask </a> browser extension.</p>
             </div>
         </Dialog>
         <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
-        <div style={{position: "fixed", bottom: "15px", left: "15px", display: "block", overflow: "hidden", width: "100px"}} className="CornerEmoji">
-        </div>
-        <div style={{overflow: "hidden"}} className="navBar">
-        <Link to="/" style={{width: "18em", overflow: "hidden", float: "left",  position: "absolute", top: "15px", left: "30px"}}>
-          <div style={{backgroundImage:  `url(${logoBounties})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
-          </div>
-        </Link>
-        <Link to="/" style={{width: "18em", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
-          <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
-          </div>
-        </Link>
-          <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
-          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "180px"}} > <Link to="/leaderboard/" className={"buttonGlow"} style={{textDecoration: "none"}}> LeaderBoard </Link></FlatButton>
-          <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "150px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" className={"buttonGlow"} style={{textDecoration: "none"}}> New Bounty </Link></FlatButton>
-        </div>
+        <Navigation userAddress={this.state.accounts[0] || ""}/>
         {(this.state.loadingBounties || this.state.loadingFulfillments || this.state.loadingStats) &&
           <div style={{width: "100%", marginTop: "60px"}}>
             <div style={{margin: "0 auto", width: "42px", overflow: "hidden", }}>
-            <Halogen.ScaleLoader color={"#f52a34"} />
+            <Halogen.ScaleLoader color={"#4a79fa"} />
             </div>
           </div>}
         {!(this.state.loadingBounties || this.state.loadingFulfillments || this.state.loadingStats) &&
-          <div style={{ display: "block", overflow: "hidden", width: "1050px", margin: "0 auto", paddingBottom: "160px"}}>
-            <div style={{float: "left", margin: "15px 15px 15px 15px", width: "960px", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px", color: "rgb(25, 55, 83)"}}>
+          <div style={{ display: "block", overflow: "hidden", maxWidth: "1050px", width: "100%", margin: "0 auto", paddingBottom: "160px"}}>
+            <div style={{float: "left", margin: "15px 15px 15px 15px", width: "calc(100% - 89px)", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px", color: "rgb(25, 55, 83)", overflow: "hidden", textOverflow: "ellipsis"}}>
                 <div style={{float: "left", display: "inline-block", width: "72px"}}>
                   <Blockies
                     seed={this.state.userAddress}
@@ -345,25 +331,25 @@ var bountiesUI = (
                     className={"identicon"}
                   />
                 </div>
-                <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "600px"}}>
+                <div style={{float: "left", display: "inline-block", paddingLeft: "30px", width: "calc(100% - 102px)"}}>
                 <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color:"rgb(255, 184, 21)", fontWeight: "500"}}>User Address:</b></p>
                   <h3 style={{margin: "0px", width: "100%", display: "inline", fontWeight: "500", marginTop: "30px"}}>
-                    <a style={{color: "#f52a34"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.userAddress}>{this.state.userAddress}</a>
+                    <a style={{color: "#4a79fa"}} target={"_blank"} href={"https://etherscan.io/address/"+ this.state.userAddress}>{this.state.userAddress}</a>
                   </h3>
                   <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color: "rgb(255, 184, 21)", fontWeight: "500"}}>Contact user:</b> { contactString}</p>
                   {myCategories.length > 0 && <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px"}}><b style={{color:  "rgb(255, 184, 21)", fontWeight: "500"}}>Skills:</b></p>}
                 </div>
               </div>
-              <div style={{float: "left", margin: "0 15px 15px 15px", width: "442px", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px"}}>
+              <div className="fullWidthMobile" style={{float: "left", margin: "0 15px 15px 15px", width: "calc(50% - 83px)", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px"}}>
                 {bountiesUI}
               </div>
-              <div style={{float: "left", margin: "0 15px 15px 0px", width: "442px", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px"}}>
+              <div className="fullWidthMobile" style={{float: "right", margin: "0 15px 15px 0px", width: "calc(50% - 82px)", display: "inline-block", backgroundColor: "rgb(249, 249, 249)" , padding: "30px"}}>
                 {fulUI}
               </div>
             </div>}
-          <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: "rgb(25, 55, 83)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "rgb(25, 55, 83)"}}>ConsenSys</a> Formation <br/>
-           <a href="/privacyPolicy/" target="_blank" style={{color: "rgb(25, 55, 83)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: "rgb(25, 55, 83)"}}>Terms of Service</a>
-           </p>
+            <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: "#2D0874", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#2D0874"}}>ConsenSys</a> Formation <br/>
+              <a href="/privacyPolicy/" target="_blank" style={{color: "#2D0874"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: "#2D0874"}}>Terms of Service</a>
+             </p>
         </div>
       </div>
     )
