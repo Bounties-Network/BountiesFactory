@@ -18,7 +18,7 @@ class Navigation extends Component {
     return (
       <div style={{overflow: "hidden"}} className="navBar">
         <Link to="/" style={{width: "18em", overflow: "hidden", float: "left",  position: "absolute", top: "15px", left: "30px"}}>
-          <div className={"bountiesLogo"} style={{backgroundImage:  `url(${logoBounties})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
+          <div className={"bountiesLogo mobileHidden"} style={{backgroundImage:  `url(${logoBounties})`, height: "3em", width: "18em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
           </div>
         </Link>
         <Link to="/" style={{width: "18em", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
@@ -36,6 +36,9 @@ class Navigation extends Component {
             smallMenuClassName="smallNav"
             menu={
               <ul>
+                <li className="mobileShow" style={{display: "none"}}>
+                  <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> Home </Link></FlatButton>
+                </li>
               {this.props.userAddress.length > 0 &&
                 <li>
                   <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "270px"}} > <Link to={"/user/" + this.props.userAddress} className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> Profile </Link></FlatButton>
@@ -46,6 +49,13 @@ class Navigation extends Component {
                 </li>
                 <li>
                   <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> New Bounty </Link></FlatButton>
+                </li>
+
+                <li className="mobileShow" style={{display: "none"}}>
+                  <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/privacyPolicy/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> Privacy Policy </Link></FlatButton>
+                </li>
+                <li className="mobileShow" style={{display: "none"}}>
+                  <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/terms/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> Terms of Service </Link></FlatButton>
                 </li>
 
 

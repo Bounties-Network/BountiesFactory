@@ -159,10 +159,10 @@ class Leaderboard extends Component {
       var decimalUnits = new BigNumber(decimals, 10);
       decimalToMult = decimalToMult.pow(decimalUnits);
       newAmount = newAmount.div(decimalToMult).toNumber();
-      reward = newAmount.toFixed(4);
+      reward = +newAmount.toFixed(4);
 
       leaderboard.push(
-        <div style={{padding: "15px", borderBottom: "1px solid rgba(25, 55, 83,0.1)", display: "block", height: "50px"}} key={i}>
+        <div className="leaderWrapper" style={{padding: "15px", borderBottom: "1px solid rgba(25, 55, 83,0.1)", display: "block", height: "50px"}} key={i}>
           <div className="leaderboardBlockies" style={{display: "inline-block", float: "left", marginRight: "50px"}}>
           <h3 style={{color: "rgb(25, 55, 83)", fontSize: "42px", margin: "0", width: "40px", textAlign: "center"}}>{1+i}</h3>
           </div>
@@ -178,7 +178,7 @@ class Leaderboard extends Component {
           <span className="leaderboardName" style={{color: "#2D0874", fontSize: "20px", margin: "16px", display: "inline-block", width: "calc(100% - 470px)", whiteSpace: "nowrap", textOverflow: "ellipsis"}}>
           {this.state.leaderboard[i].name? this.state.leaderboard[i].name: "—"}
           </span>
-          <p style={{color: "#2D0874", fontSize: "20px", margin: "16px", display: "inline-block", width: "70px", textAlign: "right", float: "right", textOverflow: "ellipsis"}}>
+          <p style={{color: "#2D0874", fontSize: "20px", margin: "16px", display: "inline-block", width: "70px", textAlign: "left", float: "right", textOverflow: "ellipsis"}}>
           {reward+this.state.leaderboard[i].symbol}
           </p>
           <span className="leaderboardUserLink" style={{width: "100px", display: "inline-block", float: "right", margin: "18px 15px", textOverflow: "ellipsis", color: "#4A79FA"}}>
@@ -207,7 +207,7 @@ class Leaderboard extends Component {
           <Navigation userAddress={this.state.accounts[0] || ""}/>
           <div style={{display: "block", width: "100%", maxWidth: "1050px", margin: "0 auto", marginBottom: "75px", marginTop: "15px"}}>
             <div className={"ContractCard leaderboard"} style={{display: "block", width: "calc(100% - 230px)", padding: "15px", margin: "0 auto", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #4a79fa", color:"#2D0874", paddingLeft: "100px", paddingRight: "100px", margin: "15px"}}>
-              <h2 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "100%", fontWeight: "600", fontSize: "28px"}}>Leaderboard</h2>
+              <h2 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center", fontWeight: "600", fontSize: "28px"}}>Leaderboard</h2>
               {this.state.loading  &&
 
                 <div style={{width: "40px", margin: "0 auto", marginTop: "60px", overflow: "hidden", marginBottom: "60px"}}>

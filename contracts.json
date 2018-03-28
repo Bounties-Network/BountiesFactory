@@ -1,7 +1,7 @@
 {
 	"url": {
-		"mainNet": "http://api.bounties.network",
-		"rinkeby": "http://staging.api.bounties.network"
+		"mainNet": "https://api.bounties.network",
+		"rinkeby": "https://staging.api.bounties.network"
 	},
 	"mainNet": {
 		"userCommentsAddress": "0xf75a8e70da328ba79482632774dde52d316ecffa",

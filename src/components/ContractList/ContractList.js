@@ -55,7 +55,7 @@ class ContractList extends Component {
     }
     var error;
     if (givenList.length === 0){
-      error = (<p style={{fontSize: "12px", textAlign: "center", color: "#FFDE46", width: "100%"}}>There are no bounties here!</p>)
+      error = (<p style={{fontSize: "12px", textAlign: "center", color: "rgb(254, 146, 59)", width: "100%"}}>There are no bounties here!</p>)
     }
     return (
       <div className='ContractList'>

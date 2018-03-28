@@ -1533,7 +1533,7 @@ render() {
             <div style={{backgroundColor: "rgb(249, 249, 249)", color: "rgb(25, 55, 83)"}}>
               <div style={{display: "block", overflow: "hidden", padding: "15px", position: "relative"}}>
                 <div style={{width: "calc(100% - 100px)", display: "inline-block", float: "left", overflow: "hidden", textOverflow: "ellipsis"}}>
-                  <p style={{ fontSize: "14px", margin: "4px  10px 2.5px 0px", display: "inline-block", float: "left"}}><b style={{color:"rgb(255, 184, 21)"}}>Bounty Hunter: </b></p>
+                  <p style={{ fontSize: "14px", margin: "4px  10px 2.5px 0px", display: "inline-block", float: "left"}}><b style={{color:"#fe923b"}}>Bounty Hunter: </b></p>
                   <Blockies
                   seed={this.state.fulfillments[i].fulfiller}
                   size={9}
@@ -1542,12 +1542,12 @@ render() {
                   />
                   <p style={{ fontSize: "14px", margin: "4px  10px 2.5px 10px", display: "inline-block", float: "left"}}><Link style={{color: "#4a79fa"}} target={"_blank"} to={"/user/"+ this.state.fulfillments[i].fulfiller}>{this.state.fulfillments[i].fulfiller}</Link></p>
                   {this.state.fulfillments[i].fulfiller_email &&
-                  <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", display: "block", overflow: "hidden"}}><b style={{color: "rgb(255, 184, 21)"}}>Contact: </b> {this.state.fulfillments[i].fulfiller_email} </p>}
+                  <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#fe923b"}}>Contact: </b> <a href={"mailto:"+this.state.fulfillments[i].fulfiller_email} >{this.state.fulfillments[i].fulfiller_email} </a></p>}
                   {this.state.fulfillments[i].sourceDirectoryHash &&
-                  <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", display: "block", overflow: "hidden"}}><b style={{color: "rgb(255, 184, 21)"}}>Associated File: </b> <Link style={{color: "#4a79fa"}} target={"_blank"} to={"https://ipfs.infura.io/ipfs/" + this.state.fulfillments[i].sourceDirectoryHash+"/"+this.state.fulfillments[i].sourceFileName}> {this.state.fulfillments[i].sourceFileName} </Link> </p>}
+                  <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#fe923b"}}>Associated File: </b> <Link style={{color: "#4a79fa"}} target={"_blank"} to={"https://ipfs.infura.io/ipfs/" + this.state.fulfillments[i].sourceDirectoryHash+"/"+this.state.fulfillments[i].sourceFileName}> {this.state.fulfillments[i].sourceFileName} </Link> </p>}
 
-                  <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", color:"rgb(255, 184, 21)", display: "block", overflow: "hidden"}}><b>Submission</b>:</p>
-                  <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "rgb(255, 184, 21)", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.fulfillments[i].description}</Text>
+                  <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", color:"#fe923b", display: "block", overflow: "hidden"}}><b>Submission</b>:</p>
+                  <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#fe923b", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.fulfillments[i].description}</Text>
                   <FlatButton style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white", float: "left",  marginTop: "15px", display: "block", width: "200px"}} onClick={this.handleExpandComment.bind(this,i)}>Add Comment </FlatButton>
 
                   {this.state.fulfillments[i].comments && this.state.fulfillments[i].comments.length > 0 &&
@@ -1784,7 +1784,7 @@ render() {
 
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Deadline:</b> {this.state.deadlineString}</p>
 
-                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Contact the bounty issuer:</b> { this.state.contact}</p>
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Contact the bounty issuer:</b> <a href={"mailto:"+this.state.contact} >{ this.state.contact}</a></p>
                   {this.state.webLink &&
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Github Link: </b> <Link style={{color: "#4a79fa"}} target={"_blank"} to={this.state.webLink}> {this.state.webLink} </Link> </p>}
 

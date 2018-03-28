@@ -16,7 +16,7 @@ class TermsOfService extends Component {
     return (
       <div style={{position: "relative"}}>
         <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
-          <Navigation userAddress={this.state.accounts[0] || ""}/>
+          <Navigation userAddress={""}/>
             <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #4a79fa", color:"rgb(25, 55, 83)"}} className="ContractCard">
               <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "1000px", fontWeight: "600", fontSize: "28px"}}>Bounties Network Terms of Use</h3>
               <p>
