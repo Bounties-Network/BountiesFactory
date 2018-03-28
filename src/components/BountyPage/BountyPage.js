@@ -23,6 +23,9 @@ import LinearProgress from 'material-ui/LinearProgress';
 
 import Navigation from 'components/Navigation/Navigation';
 
+const ReactMarkdown = require('react-markdown')
+
+
 import ActivateForm from 'components/ActivateForm/ActivateForm';
 import EditForm from 'components/EditForm/EditForm';
 import ChangeDeadlineForm from 'components/ChangeDeadlineForm/ChangeDeadlineForm';
@@ -1726,7 +1729,7 @@ render() {
           {(this.state.loadingFulfillments || this.state.loadingBounty)  &&
 
             <div style={{width: "40px", margin: "0 auto", marginTop: "60px", overflow: "hidden", marginBottom: "60px"}}>
-            <Halogen.ScaleLoader color={"#ffb815"} />
+            <Halogen.ScaleLoader color={"rgb(254, 146, 59)"} />
             </div>
           }
           {!(this.state.loadingFulfillments || this.state.loadingBounty) &&
@@ -1793,7 +1796,7 @@ render() {
                   {this.state.paysTokens &&
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Token Contract:</b> <Link style={{color: "#4a79fa"}} target={"_blank"} to={"https://etherscan.io/address/"+ this.state.tokenAddress}>{this.state.tokenAddress}</Link></p>}
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Description: </b> </p>
-                  <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#fe923b", textDecoration: "none"}}>{this.state.description}</Text>
+                  <ReactMarkdown source={this.state.description} />
                   <div style={{margin: "0 auto", display: "block", overflow: "hidden", marginTop: "15px"}}>
                     {categories}
                   </div>
