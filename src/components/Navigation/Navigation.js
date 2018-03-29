@@ -37,25 +37,56 @@ class Navigation extends Component {
             menu={
               <ul>
                 <li className="mobileShow" style={{display: "none"}}>
-                  <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> Home </Link></FlatButton>
+                  <FlatButton style={{fontSize: "13px", fontWeight: "600", backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px", fontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica'"}} >
+                   <Link to="/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}>
+                    HOME
+                   </Link>
+                  </FlatButton>
                 </li>
               {this.props.userAddress.length > 0 &&
-                <li>
-                  <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "270px"}} > <Link to={"/user/" + this.props.userAddress} className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> Profile </Link></FlatButton>
+                <li className="mobileShow" style={{display: "none"}}>
+                  <FlatButton style={{fontSize: "13px", fontWeight: "600", backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "270px", fontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica'"}} >
+                    <Link to={"/user/" + this.props.userAddress} className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}>
+                      PROFILE
+                    </Link>
+                  </FlatButton>
                 </li>
               }
+              <li>
+                <FlatButton style={{fontSize: "13px", fontWeight: "600", backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "270px", fontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica'"}} >
+                  <Link to={"https://join.slack.com/t/bountiesnetwork/shared_invite/enQtMzA2Mjk3MzAzODQwLTZjN2UxMmU5MWYxZTVmMmM4OGNjZDRiMDgwYTVhOTIwYmQ4MjVlMjNkZjYzOTE4MWI4OTFhOWE4ZTUzN2MyNWY"} target="_blank" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}>
+                    COMMUNITY
+                  </Link>
+                </FlatButton>
+              </li>
                 <li>
-                  <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "150px"}} > <Link to="/leaderboard/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> LeaderBoard </Link></FlatButton>
+                  <FlatButton style={{fontSize: "13px", fontWeight: "600", backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "left", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "150px", fontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica'"}} >
+                  <Link to="/leaderboard/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}>
+                    LEADERBOARD
+                  </Link>
+                  </FlatButton>
                 </li>
                 <li>
-                  <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/newBounty/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> New Bounty </Link></FlatButton>
+                  <FlatButton style={{fontSize: "13px", fontWeight: "600", backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px", fontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica'"}} >
+                    <Link to="/newBounty/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}>
+                      NEW BOUNTY
+                    </Link>
+                  </FlatButton>
                 </li>
 
                 <li className="mobileShow" style={{display: "none"}}>
-                  <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/privacyPolicy/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> Privacy Policy </Link></FlatButton>
+                  <FlatButton style={{fontSize: "13px", fontWeight: "600", backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px", fontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica'"}} >
+                    <Link to="/privacyPolicy/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}>
+                      PRIVACY POLICY
+                    </Link>
+                  </FlatButton>
                 </li>
                 <li className="mobileShow" style={{display: "none"}}>
-                  <FlatButton style={{backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px"}} > <Link to="/terms/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}> Terms of Service </Link></FlatButton>
+                  <FlatButton style={{fontSize: "13px", fontWeight: "600", backgroundColor: "rgba(0,0,0,0)", border: "0px solid white", color: "white", width: "120px", float: "right", height: "30px", lineHeight: "30px", position: "absolute", top: "25px", right: "30px", fontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica'"}} >
+                    <Link to="/terms/" className={"buttonGlow"} style={{textDecoration: "none", color: "white"}}>
+                      TERMS OF SERVICE
+                    </Link>
+                  </FlatButton>
                 </li>
 
 
