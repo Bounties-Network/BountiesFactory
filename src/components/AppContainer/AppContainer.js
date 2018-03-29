@@ -55,6 +55,7 @@ class AppContainer extends Component {
       myDead: 0,
       myExpired: 0,
       myTotal: 0,
+      resultsCount: 0,
       baseURL: json.url.mainNet
     }
 
@@ -160,7 +161,7 @@ class AppContainer extends Component {
       }.bind(this)).then(function(json) {
         console.log('parsed json', json)
 
-        this.setState({bounties: json.results, loading: false, nextUrl: json.next});
+        this.setState({bounties: json.results, loading: false, nextUrl: json.next, resultsCount: json.count});
 
       }.bind(this)).catch(function(ex) {
         console.log('parsing failed', ex)
@@ -178,7 +179,7 @@ class AppContainer extends Component {
         var bounties = this.state.bounties;
 
         Array.prototype.push.apply(bounties,json.results);
-        this.setState({bounties: bounties, loadingMore: false});
+        this.setState({bounties: bounties, loadingMore: false, resultsCount: json.count});
 
 
 
@@ -365,7 +366,7 @@ class AppContainer extends Component {
       value += item;
     }
 
-    this.setState({optionsList: optionsList, value: value});
+    this.setState({optionsList: optionsList, value: value, optionsUnseparated: value, loading: true, bounties: []}, this.getBounties);
   }
 
   handleToggleSort(newSort){
@@ -437,6 +438,8 @@ class AppContainer extends Component {
                   <h5 style={{fontFamily: "Open Sans", marginTop: "0px", marginBottom: "15px", textAlign: "center", color: "rgb(255, 222, 70)", width: "100%", fontWeight: "500"}}>COMPLETED</h5>
                 </div>
               </div>
+
+              <Link to={"/user/" + this.state.accounts[0]}>
               <FlatButton
                 label="My Profile"
                 primary={true}
@@ -444,9 +447,9 @@ class AppContainer extends Component {
                 style={{color:  "#1D1749", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", marginTop: "15px"}}
                 icon={<SvgArrow style={{color: "#4a79fa", fontSize: "44px"}}/>}
               >
-              <Link to={"/user/" + this.state.accounts[0]}>
-              </Link>
               </FlatButton>
+              </Link>
+
               <FlatButton
                 label="My Bounties"
                 primary={true}
@@ -487,7 +490,7 @@ class AppContainer extends Component {
               <input id='query' style={{width: "calc(100% - 136px)", border: "1px solid #2D0874", borderRadius: "8px", marginTop: "0px", marginBottom: "0px", marginRight: "18px", verticalAlign: "middle", height: "14px"}}/>
               <button type='submit' className='AddBtn' style={{width: "100px", height: "30px", backgroundColor: "#4A79FA", borderRadius: "8px", border:"1px", color: "white", fontSize: "13px", marginTop: "0px", verticalAlign: "middle", fontWeight: "600", paddingTop: "3px"}}>SEARCH</button>
             </form>
-            <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} loadingMore={this.state.loadingMore} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} sortBy={this.state.sortBy} handleGetMore={this.getMoreBounties} descending={this.state.descending} next={this.state.nextUrl}/>
+            <ContractList list={this.state.bounties} acc={this.state.accounts[0]} loading={this.state.loading} loadingMore={this.state.loadingMore} title={'BOUNTIES'} handleAddCategory={this.handleAddCategory} handleToggleSort={this.handleToggleSort} sortBy={this.state.sortBy} handleGetMore={this.getMoreBounties} descending={this.state.descending} next={this.state.nextUrl} count={this.state.resultsCount}/>
           </div>
           <div style={{width: "245px", float: "right", display: "block", marginLeft: "15px", marginRight: "15px"}} className={"FilterBarLight filterBar"}>
             <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color:"#2D0874", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>

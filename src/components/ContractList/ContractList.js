@@ -55,11 +55,11 @@ class ContractList extends Component {
     }
     var error;
     if (givenList.length === 0){
-      error = (<p style={{fontSize: "12px", textAlign: "center", color: "rgb(254, 146, 59)", width: "100%"}}>There are no bounties here!</p>)
+      error = (<p style={{fontSize: "12px", textAlign: "center", color: "rgb(254, 146, 59)", width: "100%", fontWeight: "600"}}>THERE ARE NO BOUNTIES HERE!</p>)
     }
     return (
       <div className='ContractList'>
-      <div style={{display: "block", width: "324px", margin: "0 auto", overflow: "hidden", marginBottom: "14px", marginTop: "14px"}}>
+      <div style={{display: "block", margin: "0 auto", overflow: "hidden", marginBottom: "14px", marginTop: "14px"}}>
       <p style={{display: "inline-block",
                   float: "left",
                   fontSize: "12px",
@@ -67,7 +67,8 @@ class ContractList extends Component {
                   marginTop: "1px",
                   marginBottom: "5px",
                   color: "#2D0874",
-                  marginLeft: "15px"}}> SORT BY: </p>
+                  marginLeft: "15px"}}> SORT {this.props.list.length > 0 &&
+                  (this.props.count+" RESULTS ")} BY: </p>
       <p onClick={this.props.handleToggleSort.bind(this, "Value")}
       style={{display: "inline-block",
                 float: "left",
