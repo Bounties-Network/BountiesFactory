@@ -164,7 +164,7 @@ class Leaderboard extends Component {
       leaderboard.push(
         <div className="leaderWrapper" style={{padding: "15px", borderBottom: "1px solid rgba(25, 55, 83,0.1)", display: "block", height: "50px"}} key={i}>
           <div className="leaderboardBlockies" style={{display: "inline-block", float: "left", marginRight: "50px"}}>
-          <h3 style={{color: "rgb(25, 55, 83)", fontSize: "42px", margin: "0", width: "40px", textAlign: "center"}}>{1+i}</h3>
+          <h3 style={{color: "#2D0874", fontSize: "42px", margin: "0", width: "40px", textAlign: "center"}}>{1+i}</h3>
           </div>
           <div className="leaderboardBlockies" style={{marginTop: "8px", display: "block", overflow: "hidden", float: "left", marginRight: "50px"}}>
           <Blockies
@@ -211,7 +211,7 @@ class Leaderboard extends Component {
               {this.state.loading  &&
 
                 <div style={{width: "40px", margin: "0 auto", marginTop: "60px", overflow: "hidden", marginBottom: "60px"}}>
-                <Halogen.ScaleLoader color={"#4a79fa"} />
+                <Halogen.ScaleLoader color={"#fe923b"} />
                 </div>
               }
               {leaderboard}
