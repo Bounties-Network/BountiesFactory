@@ -5,7 +5,11 @@ var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var S3Plugin = require('webpack-s3-plugin');
+var argv = require('yargs').argv;
 
+
+var deployment = argv.deploy;
 // TODO: hide this behind a flag and eliminate dead code on eject.
 // This shouldn't be exposed to the user.
 var isInNodeModules = 'node_modules' ===
@@ -130,6 +134,14 @@ module.exports = {
         screw_ie8: true
       }
     }),
-    new ExtractTextPlugin('[name].[contenthash].css')
+    new ExtractTextPlugin('[name].[contenthash].css'),
+    new S3Plugin({
+      s3Options: {
+        region: 'us-east-1',
+      },
+      s3UploadOptions: {
+        Bucket: deployment,
+      },
+    }),
   ]
 };

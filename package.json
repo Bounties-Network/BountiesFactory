@@ -1,5 +1,8 @@
 {
   "name": "Bounties-Network",
+  "config": {
+    "deploy": "production"
+  },
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
@@ -80,12 +83,14 @@
     "react-sidecar": "^0.1.1",
     "react-tap-event-plugin": "^2.0.0",
     "utf8": "^2.1.2",
+    "webpack-s3-plugin": "^0.9.2",
     "whatwg-fetch": "^2.0.3",
     "ws": "^3.2.0"
   },
   "scripts": {
     "start": "node ./scripts/start.js",
-    "build": "node ./scripts/build.js"
+    "build": "node ./scripts/build.js",
+    "build:prod": "rimraf ./build && webpack --config ./config/webpack.config.prod.js --deploy $npm_package_config_deploy"
   },
   "standard": {
     "globals": [
