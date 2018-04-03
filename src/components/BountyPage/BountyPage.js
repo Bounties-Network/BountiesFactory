@@ -127,7 +127,8 @@ class BountyPage extends Component {
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
       UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
       version: this.props.params.version,
-      baseURL: json.url.mainNet
+      baseURL: json.url.mainNet,
+      bountyError: false
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
 
@@ -312,57 +313,66 @@ class BountyPage extends Component {
         return response.json();
 
       }.bind(this)).then(function(json) {
-        console.log('parsed json', json);
-        var newBounty = json.results[0];
-        var deadlineString = moment(newBounty.deadline, 'YYYY-MM-DDThh:mm:ssZ').fromNow();
-        console.log("deadline", deadlineString);
-        var valueTokens = 0;
-        var balanceTokens = 0;
-        if (newBounty.tokenSymbol == "ETH"){
-          valueTokens = web3.fromWei(parseInt(newBounty.fulfillmentAmount, 10), 'ether');
-          balanceTokens = web3.fromWei(parseInt(newBounty.balance, 10), 'ether');
-        } else {
-          var decimals = parseInt(newBounty.tokenDecimals, 10);
-          var fulAmount = new BigNumber(newBounty.fulfillmentAmount, 10);
-          var balAmount = new BigNumber(newBounty.balance, 10);
-          var decimalToMult = new BigNumber(10, 10);
-          var decimalUnits = new BigNumber(decimals, 10);
-          decimalToMult = decimalToMult.pow(decimalUnits);
-          fulAmount = fulAmount.div(decimalToMult);
-          balAmount = balAmount.div(decimalToMult);
-          valueTokens = fulAmount.toString();
-          balanceTokens = balAmount.toString();
-        }
-        var bountyStage = "Draft";
 
-        if (newBounty.bountyStage == "1"){
-          bountyStage = "Active";
-        } else if (newBounty.bountyStage == "2"){
-          bountyStage = "Completed";
-        } else if (newBounty.bountyStage == "3"){
-          bountyStage = "Expired";
-        } else if (newBounty.bountyStage == "4"){
-          bountyStage = "Dead";
+        if (json.count > 0){
+
+          console.log('parsed json', json);
+          var newBounty = json.results[0];
+          var deadlineString = moment(newBounty.deadline, 'YYYY-MM-DDThh:mm:ssZ').fromNow();
+          console.log("deadline", deadlineString);
+          var valueTokens = 0;
+          var balanceTokens = 0;
+          if (newBounty.tokenSymbol == "ETH"){
+            valueTokens = web3.fromWei(parseInt(newBounty.fulfillmentAmount, 10), 'ether');
+            balanceTokens = web3.fromWei(parseInt(newBounty.balance, 10), 'ether');
+          } else {
+            var decimals = parseInt(newBounty.tokenDecimals, 10);
+            var fulAmount = new BigNumber(newBounty.fulfillmentAmount, 10);
+            var balAmount = new BigNumber(newBounty.balance, 10);
+            var decimalToMult = new BigNumber(10, 10);
+            var decimalUnits = new BigNumber(decimals, 10);
+            decimalToMult = decimalToMult.pow(decimalUnits);
+            fulAmount = fulAmount.div(decimalToMult);
+            balAmount = balAmount.div(decimalToMult);
+            valueTokens = fulAmount.toString();
+            balanceTokens = balAmount.toString();
+          }
+          var bountyStage = "Draft";
+
+          if (newBounty.bountyStage == "1"){
+            bountyStage = "Active";
+          } else if (newBounty.bountyStage == "2"){
+            bountyStage = "Completed";
+          } else if (newBounty.bountyStage == "3"){
+            bountyStage = "Expired";
+          } else if (newBounty.bountyStage == "4"){
+            bountyStage = "Dead";
+          }
+          this.setState({issuer: newBounty.issuer,
+                        deadline: newBounty.deadline,
+                        deadlineString: deadlineString,
+                        value: valueTokens,
+                        balance: balanceTokens,
+                        paysTokens: newBounty.paysTokens,
+                        stage: bountyStage,
+                        title: newBounty.title,
+                        description: newBounty.description,
+                        sourceFileName: newBounty.sourceFileName,
+                        sourceDirectoryHash: newBounty.sourceDirectoryHash,
+                        contact: newBounty.issuer_email,
+                        categories: newBounty.categories,
+                        symbol: newBounty.tokenSymbol,
+                        mine: (newBounty.issuer === this.state.accounts[0]),
+                        loadingBounty: false,
+                        usdValue: newBounty.usd_price,
+                        webLink: newBounty.webReferenceURL,
+                        optionsValue: newBounty.data_categories? newBounty.data_categories.join(",").toLowerCase() : ""});
+        } else {
+          console.log("no bounty");
+
+          this.setState({loadingBounty: false, bountyError: true});
         }
-        this.setState({issuer: newBounty.issuer,
-                      deadline: newBounty.deadline,
-                      deadlineString: deadlineString,
-                      value: valueTokens,
-                      balance: balanceTokens,
-                      paysTokens: newBounty.paysTokens,
-                      stage: bountyStage,
-                      title: newBounty.title,
-                      description: newBounty.description,
-                      sourceFileName: newBounty.sourceFileName,
-                      sourceDirectoryHash: newBounty.sourceDirectoryHash,
-                      contact: newBounty.issuer_email,
-                      categories: newBounty.categories,
-                      symbol: newBounty.tokenSymbol,
-                      mine: (newBounty.issuer === this.state.accounts[0]),
-                      loadingBounty: false,
-                      usdValue: newBounty.usd_price,
-                      webLink: newBounty.webReferenceURL,
-                      optionsValue: newBounty.data_categories? newBounty.data_categories.join(",").toLowerCase() : ""});
+
 
 
 
@@ -1732,7 +1742,18 @@ render() {
             <Halogen.ScaleLoader color={"rgb(254, 146, 59)"} />
             </div>
           }
-          {!(this.state.loadingFulfillments || this.state.loadingBounty) &&
+          {!(this.state.loadingFulfillments || this.state.loadingBounty)  && this.state.bountyError &&
+
+            <div style={{marginBottom: "0px", boxShadow: "none", borderRadius: "0", padding: "30px", marginTop: "15px", border: "0", backgroundColor: "rgb(249, 249, 249)", borderBottom: "0px solid #4A79FA", color:"#2D0874", paddingTop: "30px", marginLeft: "15px", marginRight: "15px"}} className="ContractCard">
+              <h3 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "28px", textAlign: "center",  fontWeight: "600", textOverflow: "ellipsis", overflow: "hidden"}}>{"There's Nothing Here!"}</h3>
+              <h4 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "22px", textAlign: "center",  fontWeight: "500", textOverflow: "ellipsis", overflow: "hidden"}}>{"Maybe someone sent you here by mistake, but this bounty doesn't exist. It's possible someone sent you this link for a bounty on the "}<b style={{fontWeight: "600"}}>Rinkeby Testnet,</b></h4>
+              <h4 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "22px", textAlign: "center",  fontWeight: "500", textOverflow: "ellipsis", overflow: "hidden"}}>{"Try changing your Metamask network to the Rinkeby Network instead."}</h4>
+              <h4 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "28px", textAlign: "center",  fontWeight: "600", textOverflow: "ellipsis", overflow: "hidden"}}><Link to="/">Go Home</Link></h4>
+
+
+            </div>
+          }
+          {!(this.state.loadingFulfillments || this.state.loadingBounty || this.state.bountyError) &&
             <div >
               <div style={{marginBottom: "0px", boxShadow: "none", borderRadius: "0", padding: "30px", marginTop: "15px", border: "0", backgroundColor: "rgb(249, 249, 249)", borderBottom: "0px solid #4A79FA", color:"#2D0874", paddingTop: "30px", marginLeft: "15px", marginRight: "15px"}} className="ContractCard">
                 <h3 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "28px", textAlign: "center",  fontWeight: "600", textOverflow: "ellipsis", overflow: "hidden"}}> {this.state.title}</h3>
