@@ -1,13 +1,12 @@
-.ContractCard {
+.BountiesFacts {
+  /*border: 3px solid black;*/
+  padding: 15px;
   display: flex;
   align-items: flex-start;
   flex-flow: row wrap;
   justify-content: space-between;
   color: black;
-  margin-bottom: 2em;
-  border: 2px solid black;
-  box-shadow: 0;
-  border-radius: 0px;
+  margin-top: 15px;
 
   label {
     white-space: nowrap;
@@ -52,4 +51,32 @@
     background-color: black;
     width: 100%;
   }
+}
+
+.smallNav {
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: white;
+}
+
+.smallNav li{
+}
+.smallNav button{
+  width: 100vw !important;
+  background-color: #2D0874 !important;
+  display: block !important;
+  position: relative !important;
+  top: 64px !important;
+  right: 0 !important;
+  border-radius: 0px !important;
+  z-index: 1000;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  height: 45px !important;
+
+}
+
+.largeNav {
+  height: 0px;
 }

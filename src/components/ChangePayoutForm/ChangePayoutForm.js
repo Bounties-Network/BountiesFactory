@@ -12,7 +12,7 @@ class ChangePayoutForm extends Component {
           <input id='newPayout' className='SendAmount' type='number' step="any" style={{width: "450px", border: "0px"}}/>
           {this.props.changePayoutError &&
             <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.props.changePayoutError}</p>}
-          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#16e5cd", border:"0px", color: "#152639"}}>Change Reward</button>
+          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#4a79fa", border:"0px", color: "white", fontWeight: "600"}}>CHANGE REWARD</button>
         </form>
       </div>
     )

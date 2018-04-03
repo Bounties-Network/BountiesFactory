@@ -50,7 +50,7 @@
   cursor: pointer;
 }
 .iconHover:hover{
-  color: rgb(255, 222, 70) !important;
+  color: #fe923b !important;
 }
 span {
   font-size: 14px;
@@ -58,7 +58,7 @@ span {
    overflow: hidden;
 }
 a {
-  color: rgb(22, 229, 205);
+  color: #4A79FA;
 }
 input {
   border-radius: 0px;
@@ -67,4 +67,7 @@ input {
   background-color: red;
   -webkit-mask: url(./images/hexagon.svg) no-repeat 100% 100% !important ;
   mask: url(./images/hexagon.svg) no-repeat 100% 100% !important;
+}
+.bountyDetails li{
+  list-style-type: disc !important;
 }

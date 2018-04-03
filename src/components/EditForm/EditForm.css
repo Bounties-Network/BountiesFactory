@@ -17,7 +17,11 @@
   .RecipientAddress {
     flex: 1;
   }
+  .Select-control {
 
+    border: 1px solid rgb(25, 55, 83) !important;
+
+  }
 
 
   input {

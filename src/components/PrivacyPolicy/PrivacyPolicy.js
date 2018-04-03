@@ -1,196 +1,23 @@
 import React, { Component } from 'react'
 import './PrivacyPolicy.css'
 
-import Web3 from 'web3';
-const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
-
-const json = require('../../../contracts.json');
-const networkId = json.networkId;
-
-const Buffer = require('buffer/').Buffer;
-
-const IPFS = require('ipfs-mini');
-const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
-const ipfsAPI = require('ipfs-api');
-
-var ipfsNew = ipfsAPI({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
-
-
-
-import ipfsFiles from "browser-ipfs";
-
-import { browserHistory } from 'react-router';
+import { Link } from 'react-router';
 
 import logo from '../AppContainer/images/logo.svg';
-import darkMoon from '../AppContainer/images/DarkMoon.png';
-import lightMoon from '../AppContainer/images/LightMoon.png';
+import logoBounties from '../AppContainer/images/logo-bounties.svg';
+import Navigation from 'components/Navigation/Navigation';
 
 import FlatButton from 'material-ui/FlatButton';
 
-import BountiesFacts from 'components/BountiesFacts/BountiesFacts';
-import SvgCheck from 'material-ui/svg-icons/action/check-circle';
-
-import Select from 'react-select';
-import Dialog from 'material-ui/Dialog';
-import LinearProgress from 'material-ui/LinearProgress';
-
-
-import Halogen from 'halogen';
-
-
-const CATEGORIES = [
-  { label: 'Code', value: 'Code' },
-  { label: 'Bugs', value: 'Bugs' },
-  { label: 'Questions', value: 'Questions' },
-  { label: 'Graphic Design', value: 'Graphic Design' },
-  { label: 'Social Media', value: 'Social Media' },
-  { label: 'Content Creation', value: 'Content Creation' },
-  { label: 'Translations', value: 'Translations'},
-  { label: 'Surveys', value: 'Surveys'}
-];
-
-
-
-
 class PrivacyPolicy extends Component {
-  constructor(props) {
-    super(props)
-    var requiredNetwork = 0;
-    var standardBountiesAddress = "";
-    var userCommentsAddress = "";
-    var networkName = "";
-    var providerLink = "";
-    var stored = localStorage.getItem('ethereumNetwork');
-    if (!stored){
-      providerLink = "https://mainnet.infura.io";
-      requiredNetwork = 1;
-      standardBountiesAddress = json.mainNet.standardBountiesAddress;
-      userCommentsAddress = json.mainNet.userCommentsAddress;
-      networkName = "Main Network";
-      localStorage.setItem('ethereumNetwork', "MainNet");
-    } else {
-      if (stored === "MainNet"){
-        providerLink = "https://mainnet.infura.io";
-        requiredNetwork = 1;
-        standardBountiesAddress = json.mainNet.standardBountiesAddress;
-        userCommentsAddress = json.mainNet.userCommentsAddress;
-        networkName = "Main Network";
-
-
-      } else if (stored === "Rinkeby"){
-        providerLink = "https://rinkeby.infura.io";
-        requiredNetwork = 4;
-        standardBountiesAddress = json.rinkeby.standardBountiesAddress;
-        userCommentsAddress = json.rinkeby.userCommentsAddress;
-        networkName = "Rinkeby Network";
-      }
-
-    }
-    web3.setProvider(new Web3.providers.HttpProvider(providerLink));
-
-    console.log("localStorage.getItem('lightMode')", localStorage.getItem('lightMode'));
-    this.state = {
-      numUpdated: 0,
-      modalError: "",
-      modalOpen: false,
-      loadingInitial: true,
-      accounts: [],
-      contracts: [],
-      fulfillments: [],
-      bounties: [],
-      total: 0,
-      totalMe: 0,
-      milestones: [{
-        payout: 0,
-        title: "Title for milestone",
-        description: "Description for milestone",
-        difficulty: 0
-      }],
-      numMilestones: 1,
-      optionsList: [],
-      sourceFileName: "",
-      sourceFileHash: "",
-      sourceDirectoryHash: "",
-      payoutMethod: "ETH",
-      activateNow: "later",
-      encrypt: false,
-      titleError: "",
-      descriptionError: "",
-      payoutError: "",
-      contactError: "",
-      deadlineError: "",
-      tokenAddressError: "",
-      valueError: "",
-      fileUploadError: "",
-      didUploadFile: false,
-      fileUploadFinished: false,
-      submitting: false,
-      loadingAmount: 10,
-      loadingString: "",
-      containsCode: false,
-      requiredNetwork: requiredNetwork,
-      networkName: networkName,
-      standardBountiesAddress: standardBountiesAddress,
-      userCommentsAddress: userCommentsAddress,
-      StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(standardBountiesAddress),
-      UserComments : web3.eth.contract(json.interfaces.UserComments).at(userCommentsAddress),
-      lightMode:   localStorage.getItem('lightMode') === null? true : localStorage.getItem('lightMode') == "true",
-
-    }
-    this.handleToggleLightMode = this.handleToggleLightMode.bind(this);
-
-  }
-  componentDidMount() {
-
-
-  }
-  handleToggleLightMode(){
-    var lightMode = !this.state.lightMode;
-    this.setState({lightMode: lightMode});
-    localStorage.setItem('lightMode', lightMode);
-
-  }
   render() {
-    const modalActions = [
-      <FlatButton
-      label="Retry"
-      primary={true}
-      onClick={this.handleClose}
-      />
-    ];
-    var fileName;
-    if (this.state.sourceFileName.length > 38){
-      fileName = this.state.sourceFileName.substring(0,38) + "...";
-    } else {
-      fileName = this.state.sourceFileName;
-    }
     document.title = "Bounties Explorer | Privacy Policy";
-
     return (
       <div style={{position: "relative"}}>
-        <Dialog
-        title=""
-        actions={modalActions}
-        modal={false}
-        open={this.state.modalOpen}
-        onRequestClose={this.handleClose}
-        >
-          {this.state.modalError}
-        </Dialog>
-        <div id={this.state.lightMode? "colourBodyLight": "colourBodyDark"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
-          <div style={{position: "fixed", bottom: "15px", left: "15px", display: "block", overflow: "hidden", width: "100px"}} className="CornerEmoji">
-          <div onClick={this.handleToggleLightMode} style={{backgroundImage:  this.state.lightMode? `url(${darkMoon})`:`url(${lightMoon})`, height: "28px", width: "28px", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left"}}>
-          </div>
-          </div>
-          <div style={{overflow: "hidden"}} className="navBar">
-            <a href="/" style={{width: "276px", overflow: "hidden", display: "block", padding: "1em 0em 1em 0em", margin: "0 auto"}}>
-              <div style={{backgroundImage:  `url(${logo})`, height: "3em", width: "14em", backgroundSize: "contain", backgroundRepeat: "no-repeat", display: "block", float: "left", marginLeft: "57px"}}>
-              </div>
-            </a>
-            <span style={{backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '50%', boxShadow: 'inset rgba(255, 255, 255, 0.6) 0 2px 2px, inset rgba(0, 0, 0, 0.3) 0 -2px 6px'}} />
 
-          </div>
-            <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: this.state.lightMode? "rgb(249,249,249)":"rgba(10, 22, 40, 0.5)", border: "0px", borderBottom: "0px solid #16e5cd", color:this.state.lightMode? "rgb(25, 55, 83)":"white"}} className="ContractCard">
+        <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
+          <Navigation userAddress={""}/>
+            <div style={{display: "block", overflow: "hidden", width: "1050px", padding: "15px", margin: "0 auto", marginBottom: "75px", marginTop: "15px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #4a79fa", color:"rgb(25, 55, 83)"}} className="ContractCard">
               <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "1000px", fontWeight: "600", fontSize: "28px"}}>Privacy Policy</h3>
               <p>
                 Last updated: December 1, 2017
@@ -292,8 +119,8 @@ The Services may provide access or interaction with third-party websites and ser
 
 
             </div>
-            <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: this.state.lightMode? "rgb(25, 55, 83)":"#16e5cd"}}>ConsenSys</a> Formation <br/>
-             <a href="/privacyPolicy/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: this.state.lightMode? "rgb(25, 55, 83)":"rgba(256,256,256,0.75)"}}>Terms of Service</a>
+            <p style={{textAlign: "center", display: "block", fontSize: "10px", padding: "15px 0px", color: "#2D0874", width: "100%", position: "absolute", bottom: "0px"}}>&copy; Bounties Network, a <a href="https://ConsenSys.net" target="_blank" style={{textDecoration: "none", color: "#2D0874"}}>ConsenSys</a> Formation <br/>
+              <a href="/privacyPolicy/" target="_blank" style={{color: "#2D0874"}}>Privacy Policy</a>{" | "}<a href="/terms/" target="_blank" style={{color: "#2D0874"}}>Terms of Service</a>
              </p>
         </div>
 

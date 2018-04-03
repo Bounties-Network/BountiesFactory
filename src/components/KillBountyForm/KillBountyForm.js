@@ -8,7 +8,7 @@ class KillBountyForm extends Component {
         <form className='Activate' onSubmit={this.props.onhandleKill} style={{width: "100%", display: "inline-block"}}>
           <h3 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center", fontWeight: "600"}}> Kill Bounty</h3>
           <p style={{ fontSize: "12px", width: "100%", textAlign: "center", margin: "25px 0px 32px 0px"}}> This will return all funds to you, and disable the ability for individuals to submit deliverables for consideration</p>
-          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#16e5cd", border:"0px", color: "#152639"}}>Kill</button>
+          <button type='submit' className='AddBtn' style={{width: "100%", backgroundColor: "#4a79fa", border:"0px", color: "white", fontWeight: "600"}}>KILL</button>
         </form>
       </div>
     )

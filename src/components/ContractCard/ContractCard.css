@@ -26,7 +26,7 @@ Canvas.identicon{
   margin-top: 3px;
   height: 20px;
   width: 20px;
-  box-shadow: 0px 0px 5px 1px rgba(22, 229, 205, 0.4);
+  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.1);
 
 }
 
@@ -76,14 +76,14 @@ Canvas.identicon{
 }
 
 .SideArrowLight:hover{
-  background-color: rgb(22, 229, 205);
+  background-color: #A4BCFC;
 }
 .Chip:hover{
-  color: rgb(22, 229, 205) !important;
+  color: rgb(74, 121, 250) !important;
 }
 .Chip{
   cursor: pointer !important;
 }
 .chipset span:hover{
-border-color: rgb(22, 229, 205) !important
+border-color: rgb(245, 42, 52) !important
 }

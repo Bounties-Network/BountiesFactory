@@ -9,18 +9,13 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
 const muiTheme = getMuiTheme({
-  tabs: {
-    backgroundColor: "red",
-  }
 });
-
 
 class App extends Component {
   render () {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div className="App">
-
           <AppContainer web3={this.props.web3} />
         </div>
       </MuiThemeProvider>
