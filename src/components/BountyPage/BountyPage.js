@@ -342,11 +342,11 @@ class BountyPage extends Component {
           if (newBounty.bountyStage == "1"){
             bountyStage = "Active";
           } else if (newBounty.bountyStage == "2"){
-            bountyStage = "Completed";
-          } else if (newBounty.bountyStage == "3"){
-            bountyStage = "Expired";
-          } else if (newBounty.bountyStage == "4"){
             bountyStage = "Dead";
+          } else if (newBounty.bountyStage == "3"){
+            bountyStage = "Completed";
+          } else if (newBounty.bountyStage == "4"){
+            bountyStage = "Expired";
           }
           this.setState({issuer: newBounty.issuer,
                         deadline: newBounty.deadline,
