@@ -1454,6 +1454,45 @@ render() {
            </Tabs>
            </div>
         );
+      } else if (this.state.stage === "Completed"){
+        actions = (
+          <div style={{width: "100%"}}>
+          <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "#4a79fa"}} inkBarStyle={{backgroundColor: "#fe923b", color: "#4a79fa"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
+            <Tab label="Extend Bounty Deadline" value={0} style={{color: this.state.tabValue === 0?("#2D0874") : "#4a79fa"}}>
+              <ExtendDeadlineForm onhandleDeadline={this.handleDeadline} deadlineError={this.state.deadlineError} />
+            </Tab>
+            <Tab label="Increase Prize" value={3} style={{color: this.state.tabValue === 3? ("#2D0874") : "#4a79fa"}}>
+              <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.symbol}/>
+            </Tab>
+            <Tab label="Kill Bounty" value={1} style={{color: this.state.tabValue === 1? ("#2D0874") : "#4a79fa"}}>
+              <KillBountyForm onhandleKill={this.handleKill} />
+            </Tab>
+            <Tab label="Transfer Ownership" value={2} style={{color: this.state.tabValue === 2? ("#2D0874") : "#4a79fa"}}>
+              <TransferOwnershipForm onhandleTransfer={this.handleTransfer} transferError={this.state.transferError} />
+            </Tab>
+          </Tabs>
+          </div>
+        );
+      } else if (this.state.stage === "Expired"){
+        actions = (
+          <div style={{width: "100%"}}>
+          <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "#4a79fa"}} inkBarStyle={{backgroundColor: "#fe923b", color: "#4a79fa"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
+            <Tab label="Extend Bounty Deadline" value={0} style={{color: this.state.tabValue === 0?("#2D0874") : "#4a79fa"}}>
+              <ExtendDeadlineForm onhandleDeadline={this.handleDeadline} deadlineError={this.state.deadlineError} />
+            </Tab>
+            <Tab label="Increase Prize" value={3} style={{color: this.state.tabValue === 3? ("#2D0874") : "#4a79fa"}}>
+              <IncreasePayoutForm onhandleIncrease={this.handleIncreasePayout} increasePayoutError={this.state.increasePayoutError} symbol={this.state.symbol}/>
+            </Tab>
+            <Tab label="Kill Bounty" value={1} style={{color: this.state.tabValue === 1? ("#2D0874") : "#4a79fa"}}>
+              <KillBountyForm onhandleKill={this.handleKill} />
+            </Tab>
+            <Tab label="Transfer Ownership" value={2} style={{color: this.state.tabValue === 2? ("#2D0874") : "#4a79fa"}}>
+              <TransferOwnershipForm onhandleTransfer={this.handleTransfer} transferError={this.state.transferError} />
+            </Tab>
+          </Tabs>
+          </div>
+        );
+
       }
 
     }
@@ -1493,25 +1532,6 @@ render() {
     }
     comments = (
       <div style={{paddingTop: "30px", display: "block",  minHeight: "66vh"}}>
-        <div style={{overflow: "hidden", display: "block", backgroundColor: "rgb(249, 249, 249)", position: "relative", padding: "30px", marginBottom: "30px",color: "rgb(25, 55, 83)"}}>
-          <h4 onClick={this.handleToggleComment} style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "0px", textAlign: "center", fontSize: "1.17em", cursor: "pointer",  fontWeight: "600"}}>Comment on Bounty</h4>
-
-          {!this.state.commentOnBountyOpen? <SvgDown onClick={this.handleToggleComment} style={{position: "absolute", right: "50px", top: "30px", width: "40px", height: "40px", color: "#4A79FA", marginTop: "-7px", cursor: "pointer"}}/>
-        : <SvgUp onClick={this.handleToggleComment} style={{position: "absolute", right: "50px", top: "30px", width: "40px", height: "40px", color: "#4A79FA", marginTop: "-7px", cursor: "pointer"}}/>}
-
-          {this.state.commentOnBountyOpen &&
-            <form className='Contribute' onSubmit={this.handleComment} style={{width: "940px", display: "inline-block"}}>
-
-              <label htmlFor='comment_title' style={{fontSize: "12px", display: "block"}}>Title</label>
-              <input id='comment_title' className='SendAmount' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}/>
-              <label htmlFor='comment_description' style={{fontSize: "12px", display: "block", marginTop: "15px"}}>Description</label>
-              <textarea id='comment_description' cols="60" rows="3" className='ContractCode' type='text' style={{width: "920px", border: "0px", display: "block", padding: "8px", fontSize: "1em"}}></textarea>
-              {this.state.commentError &&
-                <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "10px", textAlign: "center"}}>{this.state.commentError}</p>}
-              <button type='submit'  className='AddBtn' style={{backgroundColor:"#4A79FA", border:"0px", color: "white",  display: "block", padding: "16px", margin: "0 auto", marginTop: "30px", fontSize: "1em", width: "200px", fontWeight: "700"}}>COMMENT</button>
-            </form>
-          }
-        </div>
         {commentsArray}
       </div>
     );
