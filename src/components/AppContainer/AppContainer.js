@@ -134,9 +134,9 @@ class AppContainer extends Component {
       }
     } else if (this.state.sortBy == "Value"){
       if (this.state.descending){
-        sortByUrl = "&ordering=-fulfillmentAmount"
+        sortByUrl = "&ordering=-usd_price"
       } else {
-        sortByUrl = "&ordering=fulfillmentAmount"
+        sortByUrl = "&ordering=usd_price"
       }
     } else if (this.state.sortBy == "Expiry"){
       if (this.state.descending){
