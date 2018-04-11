@@ -179,10 +179,7 @@ class AppContainer extends Component {
         var bounties = this.state.bounties;
 
         Array.prototype.push.apply(bounties,json.results);
-        this.setState({bounties: bounties, loadingMore: false, resultsCount: json.count});
-
-
-
+        this.setState({bounties: bounties, loadingMore: false, resultsCount: json.count, nextUrl: json.next});
       }.bind(this)).catch(function(ex) {
         console.log('parsing failed', ex)
       });
