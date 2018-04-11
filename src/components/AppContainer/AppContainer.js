@@ -209,40 +209,20 @@ class AppContainer extends Component {
   }
 
   getMyBounties(){
-    fetch(this.state.baseURL+"/bounty/?limit=1000&issuer="+this.state.accounts[0])
+    fetch(this.state.baseURL+"/stats/"+this.state.accounts[0])
       .then(function(response) {
         return response.json();
 
       }.bind(this)).then(function(json) {
-        console.log('parsed json', json);
-        var myDraft = 0;
-        var myActive = 0;
-        var myCompleted = 0;
-        var myDead = 0;
-        var myExpired = 0;
-        var myTotal = 0;
+        console.log('parsed json stats', json);
 
-        for (var i = 0; i < json.results.length; i++){
-          if (json.results[i].bountyStage === 0){
-            myDraft++;
-          } else if (json.results[i].bountyStage === 1){
-            myActive++;
-          } else if (json.results[i].bountyStage === 2){
-            myDead++;
-          } else if (json.results[i].bountyStage === 3){
-            myCompleted++;
-          } else if (json.results[i].bountyStage === 4){
-            myExpired++;
-          }
-          myTotal ++;
-        }
 
-        this.setState({myDraft: myDraft,
-                      myActive: myActive,
-                      myCompleted: myCompleted,
-                      myDead: myDead,
-                      myExpired: myExpired,
-                      myTotal: myTotal});
+        this.setState({myDraft: json.Draft,
+                      myActive: json.Active,
+                      myCompleted: json.Completed,
+                      myDead: json.Dead,
+                      myExpired: json.Expired,
+                      myTotal: (0+json.Draft+json.Active+json.Completed+json.Dead+json.Expired)});
 
       }.bind(this)).catch(function(ex) {
         console.log('parsing failed', ex)
