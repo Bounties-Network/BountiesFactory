@@ -16,6 +16,7 @@ const ipfsAPI = require('ipfs-api');
 var ipfsNew = ipfsAPI({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 
 import { browserHistory } from 'react-router';
+const ReactMarkdown = require('react-markdown');
 
 import logo from '../AppContainer/images/logo.svg';
 import logoBounties from '../AppContainer/images/logo-bounties.svg';
@@ -31,6 +32,23 @@ import LinearProgress from 'material-ui/LinearProgress';
 
 import Halogen from 'halogen';
 
+const intitialDescription =
+`# Description
+- Description of the bounty
+
+# Definition of Done
+- Definition 1
+- Definition 2
+
+# Requirements
+A correct submission will:
+- requirement 1
+- requirement 2
+- requirement 3
+
+# Revisions
+We will require at most 3 revisions for submitted work`;
+
 class NewBounty extends Component {
   constructor(props) {
     super(props)
@@ -43,6 +61,7 @@ class NewBounty extends Component {
       sourceFileName: "",
       sourceFileHash: "",
       sourceDirectoryHash: "",
+      description: intitialDescription,
       payoutMethod: "ETH",
       activateNow: "later",
       titleError: "",
@@ -75,6 +94,7 @@ class NewBounty extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
+    this.handleChangeDescription = this.handleChangeDescription.bind(this);
 
     this.getCategories = this.getCategories.bind(this);
 
@@ -540,6 +560,10 @@ class NewBounty extends Component {
   handleEncryptChange(evt){
     this.setState({encrypt: evt.target.value});
   }
+  handleChangeDescription(evt){
+    console.log('change', evt.target.value);
+    this.setState({description: evt.target.value});
+  }
 
   handleSelectChange (value) {
     var optionsList = value.split(",");
@@ -591,14 +615,22 @@ class NewBounty extends Component {
                 <input id='contract_title' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text' />
                 {this.state.titleError &&
                   <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.titleError}</p>}
-                <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Description</label>
-                <textarea rows="3" id='contract_description' className='SendAmount ' type='text'  style={{width: "calc(100% - 20px)", marginBottom: "15px", fontSize: "16px", padding: "10px", border: "0px"}}/>
-                {this.state.descriptionError &&
-                  <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.descriptionError}</p>}
 
+                  <div style={{display: "inline-block", width: "100%", borderBottom: "1px solid rgba(45, 8, 116, 0.3)", marginBottom: "15px", paddingBottom: "25px"}}>
+                    <div style={{width: "calc(50% - 28px)", float: "left", marginRight: "15px", display: "inline-block"}}>
+                    <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Description</label>
+                    <textarea value={this.state.description} rows="17" id='contract_description' className='SendAmount ' type='text'  style={{width: "calc(100% - 20px)", marginBottom: "15px", fontSize: "12px", padding: "10px", border: "0px"}} onChange={this.handleChangeDescription}/>
+                    {this.state.descriptionError &&
+                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.descriptionError}</p>}
+                    </div>
+                    <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                    <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Markdown Preview</label>
 
-
-
+                    <div style={{backgroundColor: "rgba(238, 238, 238,0.5)", overflow: "hidden", padding: "0px 15px"}}>
+                    <ReactMarkdown source={this.state.description}/>
+                    </div>
+                    </div>
+                  </div>
                   <div style={{display: "inline-block", width: "100%"}}>
                     <div style={{width: "calc(50% - 28px)", float: "left", marginRight: "15px", display: "inline-block"}}>
                       <label style={{fontSize: "12px"}} htmlFor='contact_info'>Contact Name</label>
