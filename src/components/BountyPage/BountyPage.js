@@ -1788,7 +1788,7 @@ render() {
 
                     <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center", marginBottom: "7.5px", color: "#8C9899"}}>Total Balance: {this.state.balance + " " + this.state.symbol}</p>
                   </div>
-
+                  {this.state.stage !== "Expired" && 
                   <form className='Contribute' onSubmit={this.handleContribute} style={{width: "100%", display: "inline-block", marginTop: "30px"}}>
                     <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center",  fontWeight: "600"}}> Contribute to Bounty</h4>
                     <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Deposit Amount ({this.state.symbol? this.state.symbol: 'ΞTH'})</label>
@@ -1811,6 +1811,8 @@ render() {
                       </Link>
                     </div>
                   </form>
+                  }
+
 
                 </div>
                 <div className="bountyDetails" style={{float: "left", display: "inline-block", width: "calc(100% - 260px)", marginLeft: "30px", marginRight: "30px", overflow: "hidden", textOverflow: "ellipsis"}}>
