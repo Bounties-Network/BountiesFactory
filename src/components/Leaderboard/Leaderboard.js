@@ -152,14 +152,8 @@ class Leaderboard extends Component {
     var leaderboard = [];
 
     for (var i = 0; i < this.state.leaderboard.length; i++){
-      var reward;
-      var decimals = parseInt(this.state.leaderboard[i].decimals, 10);
-      var newAmount = new BigNumber(this.state.leaderboard[i].total, 10);
-      var decimalToMult = new BigNumber(10, 10);
-      var decimalUnits = new BigNumber(decimals, 10);
-      decimalToMult = decimalToMult.pow(decimalUnits);
-      newAmount = newAmount.div(decimalToMult).toNumber();
-      reward = +newAmount.toFixed(4);
+      var reward = 0;
+      reward = this.state.leaderboard[i].total_usd.toFixed(2);
 
       leaderboard.push(
         <div className="leaderWrapper" style={{padding: "15px", borderBottom: "1px solid rgba(25, 55, 83,0.1)", display: "block", height: "50px"}} key={i}>
@@ -179,7 +173,7 @@ class Leaderboard extends Component {
           {this.state.leaderboard[i].name? this.state.leaderboard[i].name: "—"}
           </span>
           <p style={{color: "#2D0874", fontSize: "20px", margin: "16px", display: "inline-block", width: "70px", textAlign: "left", float: "right", textOverflow: "ellipsis"}}>
-          {reward+this.state.leaderboard[i].symbol}
+          {"$"+reward}
           </p>
           <span className="leaderboardUserLink" style={{width: "100px", display: "inline-block", float: "right", margin: "18px 15px", textOverflow: "ellipsis", color: "#4A79FA"}}>
             <Link style={{color: "#4a79fa", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100px"}}
