@@ -4,7 +4,7 @@ import './AppContainer.css'
 import Web3 from 'web3';
 import Select from 'react-select';
 
-import { Link } from 'react-router';
+import { Link , browserHistory} from 'react-router';
 
 import 'whatwg-fetch';
 
@@ -22,6 +22,7 @@ import Navigation from 'components/Navigation/Navigation';
 
 import Dialog from 'material-ui/Dialog';
 import SvgArrow from 'material-ui/svg-icons/hardware/keyboard-arrow-right';
+const queryString = require('query-string');
 
 
 class AppContainer extends Component {
@@ -29,26 +30,27 @@ class AppContainer extends Component {
     super(props)
 
     web3.setProvider(new Web3.providers.HttpProvider("https://mainnet.infura.io"));
+    const parsed = queryString.parse(location.search);
 
     this.state = {
       modalError: "",
       modalOpen: false,
       accounts: [],
       bounties: [],
-      optionsList: [],
+      optionsList: parsed.options? parsed.options.split(",") :[],
       loading: true,
       loadingMore: false,
-      selectedStage: "Active",
-      selectedMine: "ANY",
-      sortBy: "Created",
+      selectedStage: parsed.stage? parsed.stage : "Active",
+      selectedMine: parsed.selectedMine? parsed.selectedMine : "ANY",
+      sortBy: parsed.sortBy? parsed.sortBy : "Created",
       descending: true,
-      searchQuery: "",
+      searchQuery: parsed.search? parsed.search : "",
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
       nextUrl: "",
-      categories: [],
-      value: "",
-      optionsUnseparated: "",
+      categories: parsed.options? parsed.options.split(",") :[],
+      value: parsed.options? parsed.options : "",
+      optionsUnseparated: parsed.options? parsed.options :"",
       myDraft: 0,
       myActive: 0,
       myCompleted: 0,
@@ -300,11 +302,23 @@ class AppContainer extends Component {
   handleChangeStage(evt){
     evt.preventDefault();
     var selected = evt.target.value;
+    var query = queryString.parse(location.search);
+    query.stage = evt.target.value;
+    var qstring = queryString.stringify(query);
+    browserHistory.push({
+      search: "?"+qstring,
+    });
     this.setState({selectedStage: selected, loading: true, bounties: []}, this.getBounties);
   }
 
   handleMineChange(evt){
     evt.preventDefault();
+    var query = queryString.parse(location.search);
+    query.selectedMine = evt.target.value;
+    var qstring = queryString.stringify(query);
+    browserHistory.push({
+      search: "?"+qstring,
+    });
     var selected = evt.target.value;
     this.setState({selectedMine: selected, loading: true, bounties: []}, this.getBounties);
 
@@ -312,11 +326,24 @@ class AppContainer extends Component {
 
   handleChangeToMine(evt){
     evt.preventDefault();
+    var query = queryString.parse(location.search);
+    query.selectedMine = "MINE";
+    var qstring = queryString.stringify(query);
+    browserHistory.push({
+      search: "?"+qstring,
+    });
     this.setState({selectedMine: "MINE", loading: true, bounties: []}, this.getBounties);
 
   }
 
   handleSearch(evt){
+    var query = queryString.parse(location.search);
+    query.search = evt.target.query.value;
+    var qstring = queryString.stringify(query);
+    browserHistory.push({
+      search: "?"+qstring,
+    });
+
     evt.preventDefault();
     this.setState({searchQuery: evt.target.query.value, loading: true, bounties: []}, this.getBounties);
   }
@@ -327,6 +354,12 @@ class AppContainer extends Component {
     if (optionsList.includes("Code") || optionsList.includes("Bugs")){
       containsCode = true;
     }
+    var query = queryString.parse(location.search);
+    query.options = value;
+    var qstring = queryString.stringify(query);
+    browserHistory.push({
+      search: "?"+qstring,
+    });
 
     this.setState({ optionsList: optionsList, value: value, containsCode: containsCode, optionsUnseparated: value, loading: true, bounties: []}, this.getBounties);
   }
@@ -342,6 +375,12 @@ class AppContainer extends Component {
       }
       value += item;
     }
+    var query = queryString.parse(location.search);
+    query.options = value;
+    var qstring = queryString.stringify(query);
+    browserHistory.push({
+      search: "?"+qstring,
+    });
 
     this.setState({optionsList: optionsList, value: value, optionsUnseparated: value, loading: true, bounties: []}, this.getBounties);
   }
