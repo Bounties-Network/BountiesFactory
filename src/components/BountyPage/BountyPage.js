@@ -364,6 +364,7 @@ class BountyPage extends Component {
                         symbol: newBounty.tokenSymbol,
                         mine: (newBounty.issuer === this.state.accounts[0]),
                         loadingBounty: false,
+                        platform: newBounty.platform,
                         usdValue: newBounty.usd_price,
                         webLink: newBounty.webReferenceURL,
                         optionsValue: newBounty.data_categories? newBounty.data_categories.join(",").toLowerCase() : ""});
@@ -1628,7 +1629,17 @@ render() {
       }
       fulBody = (
         <div style={{width: "100%", marginTop: "15px", display: "block", marginBottom: "30px", paddingBottom: "30px", minHeight: "90vh"}}>
-          {(this.state.stage === "Active" && !this.state.mine)&&
+          {(this.state.stage === "Active" && !this.state.mine) && (this.state.platform === "gitcoin") &&
+            <a target="_blank" href="https://gitcoin.co" style={{width: "100%", marginTop: "15px",  marginBottom: "30px", position: "relative", cursor: "pointer", textDecoration: "none"}}>
+            <div style={{position: "relative", display: "block", width: "100%"}}>
+            <SvgDown onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "15px", top: "28px", width: "40px", height: "40px", color: "#f01574", marginTop: "-7px", cursor: "pointer"}}/>
+              <button type='submit' className='AddBtn' style={{backgroundColor: "#0d023b", cursor: "pointer", paddingTop: "30px", paddingBottom: "30px", border:"0px", width: "100%", margin: "0 auto", color: "white", display: "block", fontWeight: "600"}}>
+                <a style={{color: "#4aeaa7", fontWeight: "600", textDecoration: "none", fontSize: "18px"}} > FULFILL BOUNTY ON GITCOIN</a>
+              </button>
+              </div>
+            </a>
+          }
+          {(this.state.stage === "Active" && !this.state.mine) && (this.state.platform !== "gitcoin") &&
             <div style={{backgroundColor: "rgb(249, 249, 249)", display: "block", overflow: "hidden", marginBottom: "30px"}}>
               <div style={{width: "calc(100% - 60px)", marginTop: "15px", marginLeft: "15px", marginRight: "15px", position: "relative", padding: "15px"}}>
                 {!this.state.fulfillmentOpen? <SvgDown onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "15px", top: "15px", width: "40px", height: "40px", color: "#4A79FA", marginTop: "-7px", cursor: "pointer"}}/>
@@ -1788,7 +1799,7 @@ render() {
 
                     <p style={{ fontSize: "12px", width: "100%", margin: "2.5px 0px", textAlign: "center", marginBottom: "7.5px", color: "#8C9899"}}>Total Balance: {this.state.balance + " " + this.state.symbol}</p>
                   </div>
-                  {this.state.stage !== "Expired" && 
+                  {this.state.stage !== "Expired" &&
                   <form className='Contribute' onSubmit={this.handleContribute} style={{width: "100%", display: "inline-block", marginTop: "30px"}}>
                     <h4 style={{fontFamily: "Open Sans", marginTop: "0", margin: "0 auto", marginBottom: "15px", textAlign: "center",  fontWeight: "600"}}> Contribute to Bounty</h4>
                     <label htmlFor='deposit_amount' style={{fontSize: "12px"}}>Deposit Amount ({this.state.symbol? this.state.symbol: 'ΞTH'})</label>
@@ -1832,7 +1843,7 @@ render() {
 
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Contact the bounty issuer:</b> <a href={"mailto:"+this.state.contact} >{ this.state.contact}</a></p>
                   {this.state.webLink &&
-                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Github Link: </b> <Link style={{color: "#4a79fa"}} target={"_blank"} to={this.state.webLink}> {this.state.webLink} </Link> </p>}
+                  <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Link: </b> <Link style={{color: "#4a79fa"}} target={"_blank"} to={this.state.webLink}> {this.state.webLink} </Link> </p>}
 
                   {this.state.sourceDirectoryHash &&
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Associated File: </b> <Link style={{color: "#4a79fa"}} target={"_blank"} to={"https://ipfs.infura.io/ipfs/" + this.state.sourceDirectoryHash + "/"+ this.state.sourceFileName}> {this.state.sourceFileName} </Link> </p>}
