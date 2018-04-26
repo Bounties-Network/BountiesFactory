@@ -1630,10 +1630,10 @@ render() {
       fulBody = (
         <div style={{width: "100%", marginTop: "15px", display: "block", marginBottom: "30px", paddingBottom: "30px", minHeight: "90vh"}}>
           {(this.state.stage === "Active" && !this.state.mine) && (this.state.platform === "gitcoin") &&
-            <a target="_blank" href="https://gitcoin.co" style={{width: "100%", marginTop: "15px",  marginBottom: "30px", position: "relative", cursor: "pointer", textDecoration: "none"}}>
+            <a target="_blank" href="https://gitcoin.co" style={{width: "100%", marginTop: "15px", position: "relative", cursor: "pointer", textDecoration: "none"}}>
             <div style={{position: "relative", display: "block", width: "100%"}}>
-            <SvgDown onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "15px", top: "28px", width: "40px", height: "40px", color: "#f01574", marginTop: "-7px", cursor: "pointer"}}/>
-              <button type='submit' className='AddBtn' style={{backgroundColor: "#0d023b", cursor: "pointer", paddingTop: "30px", paddingBottom: "30px", border:"0px", width: "100%", margin: "0 auto", color: "white", display: "block", fontWeight: "600"}}>
+            <SvgDown onClick={this.handleToggleFulfillment} style={{position: "absolute", right: "15px", top: "28px", width: "40px", height: "40px", color: "#f01574", marginTop: "-7px", cursor: "pointer", marginBottom: ""}}/>
+              <button type='submit' className='AddBtn' style={{backgroundColor: "#0d023b", cursor: "pointer", marginBottom: "15px", paddingTop: "30px", paddingBottom: "30px", border:"0px", width: "100%", margin: "0 auto", color: "white", display: "block", fontWeight: "600"}}>
                 <a style={{color: "#4aeaa7", fontWeight: "600", textDecoration: "none", fontSize: "18px"}} > FULFILL BOUNTY ON GITCOIN</a>
               </button>
               </div>
