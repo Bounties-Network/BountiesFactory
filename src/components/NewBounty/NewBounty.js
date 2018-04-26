@@ -12,6 +12,7 @@ const Buffer = require('buffer/').Buffer;
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 const ipfsAPI = require('ipfs-api');
+const ReactMarkdown = require('react-markdown');
 
 var ipfsNew = ipfsAPI({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 
@@ -30,6 +31,20 @@ import LinearProgress from 'material-ui/LinearProgress';
 
 import Halogen from 'halogen';
 
+const intitialDescription =
+`# Description
+- Description of the bounty
+# Definition of Done
+- Definition 1
+- Definition 2
+# Requirements
+A correct submission will:
+- requirement 1
+- requirement 2
+- requirement 3
+# Revisions
+We will require at most 3 revisions for submitted work`;
+
 class NewBounty extends Component {
   constructor(props) {
     super(props)
@@ -39,10 +54,11 @@ class NewBounty extends Component {
       modalOpen: false,
       accounts: [],
       optionsList: [],
+      description: intitialDescription,
       sourceFileName: "",
       sourceFileHash: "",
       sourceDirectoryHash: "",
-      payoutMethod: "ETH",
+      payoutMethod: "ERC",
       activateNow: "later",
       titleError: "",
       descriptionError: "",
@@ -74,6 +90,7 @@ class NewBounty extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
+    this.handleChangeDescription = this.handleChangeDescription.bind(this);
 
     this.getCategories = this.getCategories.bind(this);
 
@@ -95,6 +112,9 @@ class NewBounty extends Component {
     this.setState({modalOpen: false});
     this.getInitialData();
   }
+  handleChangeDescription(evt){
+   this.setState({description: evt.target.value});
+ }
   getCategories(){
     fetch(this.state.baseURL+"/category/?limit=1000")
       .then(function(response) {
@@ -600,11 +620,21 @@ class NewBounty extends Component {
                 <input id='contract_title' style={{border: "none", width: "1000px"}} className='SendAmount' type='text' />
                 {this.state.titleError &&
                   <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.titleError}</p>}
-                <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Description</label>
-                <textarea rows="3" id='contract_description' className='SendAmount ' type='text'  style={{width: "995px", marginBottom: "15px", fontSize: "16px", padding: "10px", border: "0px"}}/>
-                {this.state.descriptionError &&
-                  <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.descriptionError}</p>}
+                  <div style={{display: "inline-block", width: "100%", borderBottom: "1px solid rgba(45, 8, 116, 0.3)", marginBottom: "15px", paddingBottom: "25px"}}>
+                    <div style={{width: "calc(50% - 28px)", float: "left", marginRight: "15px", display: "inline-block"}}>
+                    <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Description</label>
+                    <textarea value={this.state.description} rows="17" id='contract_description' className='SendAmount ' type='text'  style={{width: "calc(100% - 20px)", marginBottom: "15px", fontSize: "12px", padding: "10px", border: "0px"}} onChange={this.handleChangeDescription}/>
+                    {this.state.descriptionError &&
+                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.descriptionError}</p>}
+                    </div>
+                    <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                    <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Markdown Preview</label>
 
+                    <div style={{backgroundColor: "rgba(238, 238, 238,0.5)", overflow: "hidden", padding: "0px 15px"}}>
+                    <ReactMarkdown source={this.state.description}/>
+                    </div>
+                    </div>
+                  </div>
 
 
 
@@ -624,7 +654,7 @@ class NewBounty extends Component {
                 <div style={{display: "inline-block"}}>
                   <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} >Payout Method</label>
-                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid #1D1749", color:  "#1D1749", width: "490px", height: "40px", display: "block"}}>
+                    <select onChange={this.handleTokenChange} defaultValue="ERC" style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid #1D1749", color:  "#1D1749", width: "490px", height: "40px", display: "block"}}>
                       <option value="ETH">ETH</option>
                       <option value="ERC">ERC20 Token </option>
                     </select>
@@ -639,7 +669,13 @@ class NewBounty extends Component {
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.fulfillmentError}</p>}
                   </div>
                 </div>
-
+                {this.state.payoutMethod === "ERC" && (
+                  <div style={{float: "left", display: "inline-block"}}>
+                    <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
+                    <input defaultValue="0x22e5f4936629988e328323962fc9c6c0e2a65145" id='token_address' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
+                    <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
+                  </div>
+                )}
                 <div style={{display: "inline-block"}}>
                 <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}} className={"LightMode"}>
                   <label style={{fontSize: "12px"}} >Bounty Category</label>
@@ -721,13 +757,7 @@ class NewBounty extends Component {
                     <input id='github_link' style={{border: "none", width: "470px"}} className='SendAmount' type='text'/>
                   </div>
                 </div>
-                  {this.state.payoutMethod === "ERC" && (
-                    <div style={{float: "left", display: "inline-block"}}>
-                      <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
-                      <input id='token_address' style={{border: "none", width: "1000px"}} className='SendAmount' type='text'/>
-                      <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
-                    </div>
-                  )}
+
                 {this.state.submitting &&
                   <div style={{width: "50%", display: "block", margin: "0 auto", marginTop: "30px"}}>
                   <p style={{fontSize: "14px", textAlign: "center"}}> {this.state.loadingString} </p>

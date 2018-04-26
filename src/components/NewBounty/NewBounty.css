@@ -794,3 +794,24 @@
 input {
   border-radius: 0px;
 }
+.AddProject {
+  h1 {
+    font-size: 16px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  ul {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  li {
+    font-size: 12px;
+    list-style-type: disc !important;
+
+  }
+  p {
+    font-size: 12px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+}
