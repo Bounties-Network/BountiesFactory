@@ -84,7 +84,8 @@
   },
   "scripts": {
     "start": "node ./scripts/start.js",
-    "build": "node ./scripts/build.js"
+    "build": "node ./scripts/build.js",
+    "build:prod": "rimraf ./build && webpack --config ./config/webpack.config.prod.js --deploy $npm_package_config_deploy"
   },
   "standard": {
     "globals": [
