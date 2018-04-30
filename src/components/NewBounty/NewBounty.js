@@ -662,7 +662,7 @@ class NewBounty extends Component {
 
                   </div>
                   <div style={{width: "490px", marginLeft: "25px", float: "left", display: "inline-block"}}>
-                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (ETH or whole tokens)</label>
+                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (TACO tokens)</label>
                     <input id="fulfillmentAmount" style={{width: "470px", border: "0px"}} type="number" step="any"></input>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&
@@ -699,7 +699,7 @@ class NewBounty extends Component {
                     <option value="later">Later</option>
                     <option value="now">Now</option>
                   </select>
-                  <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "10px", marginBottom: "15px"}}>The requirements for a bounty can only be edited while it is in the draft stage</p>
+                  <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "10px", marginBottom: "15px"}}>A bounty can only be edited while it is in the draft stage</p>
                 </div>
 
                   {this.state.activateNow === "now" && (
