@@ -75,7 +75,7 @@ class UserPage extends Component {
         console.log('parsing failed', ex)
       });
 
-      fetch(this.state.baseURL+"/stats/profile/"+this.state.userAddress+"/")
+      fetch(this.state.baseURL+"/stats/"+this.state.userAddress+"/")
         .then(function(response) {
           return response.json();
 

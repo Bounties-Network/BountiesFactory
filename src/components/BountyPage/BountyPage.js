@@ -361,6 +361,7 @@ class BountyPage extends Component {
                       loadingBounty: false,
                       usdValue: newBounty.usd_price,
                       webLink: newBounty.webReferenceURL,
+                      name: newBounty.issuer_name,
                       optionsValue: newBounty.data_categories? newBounty.data_categories.join(",").toLowerCase() : ""});
 
 
@@ -1801,6 +1802,8 @@ render() {
 
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px", display: "block", overflow: "hidden"}}><b style={{color: "rgb(255, 184, 21)", marginRight: "10px"}}>Deadline:</b> {this.state.deadlineString}</p>
 
+                  {this.state.name &&
+                    <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "rgb(255, 184, 21)", marginRight: "10px"}}>Bounty issuer:</b> { this.state.name}</p>}
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "rgb(255, 184, 21)", marginRight: "10px"}}>Contact the bounty issuer:</b> { this.state.contact}</p>
                   {this.state.webLink &&
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "rgb(255, 184, 21)", marginRight: "10px"}}>Github Link: </b> <Link style={{color: "#f52a34"}} target={"_blank"} to={this.state.webLink}> {this.state.webLink} </Link> </p>}

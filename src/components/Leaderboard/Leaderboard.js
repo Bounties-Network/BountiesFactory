@@ -153,7 +153,7 @@ class Leaderboard extends Component {
 
     for (var i = 0; i < this.state.leaderboard.length; i++){
       var reward;
-      var decimals = parseInt(this.state.leaderboard[i].decimals, 10);
+      var decimals = parseInt('18', 10);
       var newAmount = new BigNumber(this.state.leaderboard[i].total, 10);
       var decimalToMult = new BigNumber(10, 10);
       var decimalUnits = new BigNumber(decimals, 10);
@@ -183,7 +183,7 @@ class Leaderboard extends Component {
                 { this.state.leaderboard[i].address.substring(0,6)+"..."+this.state.leaderboard[i].address.substring(this.state.leaderboard[i].address.length-4,this.state.leaderboard[i].address.length)}
           </Link>
           <p style={{color: "rgb(25, 55, 83)", fontSize: "20px", margin: "16px", display: "inline-block", width: "70px", textAlign: "right", float: "right"}}>
-          {reward+this.state.leaderboard[i].symbol}
+          {reward+"TACO"}
           </p>
         </div>
       );

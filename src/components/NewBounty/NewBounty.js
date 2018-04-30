@@ -59,7 +59,7 @@ class NewBounty extends Component {
       sourceFileHash: "",
       sourceDirectoryHash: "",
       payoutMethod: "ERC",
-      activateNow: "later",
+      activateNow: "now",
       titleError: "",
       descriptionError: "",
       payoutError: "",
@@ -695,7 +695,7 @@ class NewBounty extends Component {
 
                 <div style={{width: "490px", marginRight: "15px", float: "left", display: "inline-block"}}>
                   <label style={{fontSize: "12px"}} >When to Activate</label>
-                  <select onChange={this.handleActivateNowChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid rgb(25, 55, 83)", color: "rgb(25, 55, 83)", width: "490px", height: "40px", display: "block"}}>
+                  <select onChange={this.handleActivateNowChange}  defaultValue="now" style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid rgb(25, 55, 83)", color: "rgb(25, 55, 83)", width: "490px", height: "40px", display: "block"}}>
                     <option value="later">Later</option>
                     <option value="now">Now</option>
                   </select>
