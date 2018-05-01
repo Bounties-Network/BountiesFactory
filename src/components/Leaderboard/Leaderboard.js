@@ -159,7 +159,7 @@ class Leaderboard extends Component {
       var decimalUnits = new BigNumber(decimals, 10);
       decimalToMult = decimalToMult.pow(decimalUnits);
       newAmount = newAmount.div(decimalToMult).toNumber();
-      reward = newAmount.toFixed(4);
+      reward = newAmount;
 
       leaderboard.push(
         <div style={{padding: "15px", borderBottom: "1px solid rgba(25, 55, 83,0.1)", display: "block", height: "50px"}} key={i}>
@@ -182,8 +182,8 @@ class Leaderboard extends Component {
               to={"/user/"+ this.state.leaderboard[i].address}>
                 { this.state.leaderboard[i].address.substring(0,6)+"..."+this.state.leaderboard[i].address.substring(this.state.leaderboard[i].address.length-4,this.state.leaderboard[i].address.length)}
           </Link>
-          <p style={{color: "rgb(25, 55, 83)", fontSize: "20px", margin: "16px", display: "inline-block", width: "70px", textAlign: "right", float: "right"}}>
-          {reward+"TACO"}
+          <p style={{color: "rgb(25, 55, 83)", fontSize: "18px", margin: "16px", display: "inline-block", width: "80px", textAlign: "right", float: "right"}}>
+          {reward+" TACO"}
           </p>
         </div>
       );
