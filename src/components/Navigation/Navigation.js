@@ -6,7 +6,7 @@ import SvgClose from 'material-ui/svg-icons/navigation/close';
 
 import { Link } from 'react-router';
 
-import logo from '../AppContainer/images/logo.svg';
+import logo from '../AppContainer/images/logo-cons.svg';
 import logoBounties from '../AppContainer/images/logo-bounties.svg';
 
 import FlatButton from 'material-ui/FlatButton';
