@@ -82,6 +82,7 @@ class BountyPage extends Component {
       loadingFulfillments: true,
       modalOpen: false,
       comments: [],
+      decimals: '18',
       sourceFileName: "",
       sourceFileHash: "",
       sourceDirectoryHash: "",
@@ -123,6 +124,7 @@ class BountyPage extends Component {
       containsCode: false,
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
       UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+      tokenContract: web3.eth.contract(json.interfaces.HumanStandardToken).at('0x22e5f4936629988e328323962fc9c6c0e2a65145'),
       version: this.props.params.version,
       baseURL: json.url.mainNet
     }
@@ -337,11 +339,11 @@ class BountyPage extends Component {
         if (newBounty.bountyStage == "1"){
           bountyStage = "Active";
         } else if (newBounty.bountyStage == "2"){
-          bountyStage = "Completed";
-        } else if (newBounty.bountyStage == "3"){
-          bountyStage = "Expired";
-        } else if (newBounty.bountyStage == "4"){
           bountyStage = "Dead";
+        } else if (newBounty.bountyStage == "3"){
+          bountyStage = "Completed";
+        } else if (newBounty.bountyStage == "4"){
+          bountyStage = "Expired";
         }
         this.setState({issuer: newBounty.issuer,
                       deadline: newBounty.deadline,
@@ -855,7 +857,7 @@ handleToggleComment(){
       if (amount !== 0){
         var newAmount = new BigNumber(amount, 10);
         var decimalToMult = new BigNumber(10, 10);
-        var decimalUnits = new BigNumber(this.state.decimals, 10);
+        var decimalUnits = new BigNumber('18', 10);
         decimalToMult = decimalToMult.pow(decimalUnits);
         newAmount = newAmount.mul(decimalToMult);
         this.setState({txModalOpen: true, txLoadingAmount: 10});
