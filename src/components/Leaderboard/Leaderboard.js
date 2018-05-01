@@ -153,7 +153,13 @@ class Leaderboard extends Component {
 
     for (var i = 0; i < this.state.leaderboard.length; i++){
       var reward = 0;
-      reward = this.state.leaderboard[i].total_usd.toFixed(2);
+      var decimals = parseInt('18', 10);
+       var newAmount = new BigNumber(this.state.leaderboard[i].total, 10);
+       var decimalToMult = new BigNumber(10, 10);
+       var decimalUnits = new BigNumber(decimals, 10);
+       decimalToMult = decimalToMult.pow(decimalUnits);
+       newAmount = newAmount.div(decimalToMult).toNumber();
+      reward = newAmount;
 
       leaderboard.push(
         <div className="leaderWrapper" style={{padding: "15px", borderBottom: "1px solid rgba(25, 55, 83,0.1)", display: "block", height: "50px"}} key={i}>
@@ -169,11 +175,11 @@ class Leaderboard extends Component {
             className={"identicon"}
           />
           </div>
-          <span className="leaderboardName" style={{color: "#2D0874", fontSize: "20px", margin: "16px", display: "inline-block", width: "calc(100% - 470px)", whiteSpace: "nowrap", textOverflow: "ellipsis"}}>
+          <span className="leaderboardName" style={{color: "#2D0874", fontSize: "20px", margin: "16px", display: "inline-block", width: "calc(100% - 490px)", whiteSpace: "nowrap", textOverflow: "ellipsis"}}>
           {this.state.leaderboard[i].name? this.state.leaderboard[i].name: "—"}
           </span>
-          <p style={{color: "#2D0874", fontSize: "20px", margin: "16px", display: "inline-block", width: "70px", textAlign: "left", float: "right", textOverflow: "ellipsis"}}>
-          {"$"+reward}
+          <p style={{color: "#2D0874", fontSize: "18px", margin: "16px", display: "inline-block", width: "80px", textAlign: "left", float: "right", textOverflow: "ellipsis"}}>
+          {reward+" TACO"}
           </p>
           <span className="leaderboardUserLink" style={{width: "100px", display: "inline-block", float: "right", margin: "18px 15px", textOverflow: "ellipsis", color: "#4A79FA"}}>
             <Link style={{color: "#4a79fa", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100px"}}

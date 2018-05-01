@@ -99,6 +99,7 @@ class BountyPage extends Component {
       mine: false,
       issuer: "0x0",
       balance: 0,
+      decimals: 0,
       bountyId: this.props.params.id,
       myComments: [],
       commentError: "",
@@ -126,6 +127,7 @@ class BountyPage extends Component {
       containsCode: false,
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
       UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+      tokenContract: web3.eth.contract(json.interfaces.HumanStandardToken),
       version: this.props.params.version,
       baseURL: json.url.mainNet,
       bountyError: false
@@ -360,6 +362,7 @@ class BountyPage extends Component {
                         sourceFileName: newBounty.sourceFileName,
                         sourceDirectoryHash: newBounty.sourceDirectoryHash,
                         contact: newBounty.issuer_email,
+                        name: newBounty.issuer_name,
                         categories: newBounty.categories,
                         symbol: newBounty.tokenSymbol,
                         mine: (newBounty.issuer === this.state.accounts[0]),
@@ -367,6 +370,8 @@ class BountyPage extends Component {
                         platform: newBounty.platform,
                         usdValue: newBounty.usd_price,
                         webLink: newBounty.webReferenceURL,
+                        decimals: this.state.tokenDecimals,
+                        tokenContract: this.state.tokenContract.at(newBounty.tokenContract),
                         optionsValue: newBounty.data_categories? newBounty.data_categories.join(",").toLowerCase() : ""});
         } else {
           console.log("no bounty");
@@ -1383,7 +1388,7 @@ render() {
           <div style={{width: "100%"}}>
           <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "#4a79fa"}} inkBarStyle={{backgroundColor: "#fe923b", color: "#4a79fa"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
             <Tab label="Activate Bounty" value={0} style={{color: this.state.tabValue === 0? ("#2D0874") : "#4a79fa"}}>
-              <ActivateForm onhandleActivate={this.handleActivate} tokenDetails={this.state.tokenDetails} amount={this.state.value}/>
+              <ActivateForm onhandleActivate={this.handleActivate} symbol={this.state.symbol} amount={this.state.value}/>
             </Tab>
             <Tab label="Edit Bounty" value={1} style={{color: this.state.tabValue === 1? ("#2D0874") : "#4a79fa"}}>
               <EditForm
@@ -1441,7 +1446,7 @@ render() {
            <div style={{width: "100%"}}>
            <Tabs tabItemContainerStyle={{backgroundColor: "rgba(0,0,0,0)", color: "#4a79fa"}} inkBarStyle={{backgroundColor: "#fe923b", color: "#4a79fa"}} style={{backgroundColor: "rgba(0,0,0,0)"}} onChange={this.handleTabsChange} value={this.state.tabValue}>
              <Tab label="Re-activate Bounty" value={0} style={{color: this.state.tabValue === 0? ("#2D0874") : "#4a79fa"}}>
-               <ActivateForm onhandleActivate={this.handleActivate} tokenDetails={this.state.tokenDetails} amount={this.state.value}/>
+               <ActivateForm onhandleActivate={this.handleActivate} symbol={this.state.symbol} amount={this.state.value}/>
              </Tab>
              <Tab label="Extend Bounty Deadline" value={1} style={{color: this.state.tabValue === 1?("#2D0874") : "#4a79fa"}}>
                <ExtendDeadlineForm onhandleDeadline={this.handleDeadline} deadlineError={this.state.deadlineError}/>
@@ -1840,6 +1845,9 @@ render() {
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Bounty Stage:</b> {this.state.stage}</p>
 
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px", display: "block", overflow: "hidden"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Deadline:</b> {this.state.deadlineString}</p>
+
+                  {this.state.name &&
+                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Bounty issuer:</b> { this.state.name}</p>}
 
                   <p style={{ fontSize: "14px", width: "100%", margin: "0px 0px 10px 0px"}}><b style={{color: "#fe923b", marginRight: "10px"}}>Contact the bounty issuer:</b> <a href={"mailto:"+this.state.contact} >{ this.state.contact}</a></p>
                   {this.state.webLink &&

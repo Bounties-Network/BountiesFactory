@@ -62,8 +62,8 @@ class NewBounty extends Component {
       sourceFileHash: "",
       sourceDirectoryHash: "",
       description: intitialDescription,
-      payoutMethod: "ETH",
-      activateNow: "later",
+      payoutMethod: "ERC",
+      activateNow: "now",
       titleError: "",
       descriptionError: "",
       payoutError: "",
@@ -619,11 +619,11 @@ class NewBounty extends Component {
                   <div style={{display: "inline-block", width: "100%", borderBottom: "1px solid rgba(45, 8, 116, 0.3)", marginBottom: "15px", paddingBottom: "25px"}}>
                     <div style={{width: "calc(50% - 28px)", float: "left", marginRight: "15px", display: "inline-block"}}>
                     <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Description</label>
-                    <textarea value={this.state.description} rows="17" id='contract_description' className='SendAmount ' type='text'  style={{width: "calc(100% - 20px)", marginBottom: "15px", fontSize: "12px", padding: "10px", border: "0px"}} onChange={this.handleChangeDescription}/>
+                    <textarea value={this.state.description} rows="17" id='contract_description' className='SendAmount ' type='text'  style={{width: "100%", marginBottom: "15px", fontSize: "12px", padding: "10px", border: "0px"}} onChange={this.handleChangeDescription}/>
                     {this.state.descriptionError &&
                       <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.descriptionError}</p>}
                     </div>
-                    <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                    <div style={{width: "calc(50% - 12px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_description'>Markdown Preview</label>
 
                     <div style={{backgroundColor: "rgba(238, 238, 238,0.5)", overflow: "hidden", padding: "0px 15px"}}>
@@ -647,7 +647,7 @@ class NewBounty extends Component {
                 <div style={{display: "inline-block", width: "100%"}}>
                   <div style={{width: "calc(50% - 13px)",  float: "left", display: "inline-block"}}>
                     <label style={{fontSize: "12px"}} >Payout Method</label>
-                    <select onChange={this.handleTokenChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid #1D1749", color:  "#1D1749", width: "100%", height: "40px", display: "block"}}>
+                    <select onChange={this.handleTokenChange} defaultValue="ERC" style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid #1D1749", color:  "#1D1749", width: "100%", height: "40px", display: "block"}}>
                       <option value="ETH">ETH</option>
                       <option value="ERC">ERC20 Token </option>
                     </select>
@@ -655,7 +655,7 @@ class NewBounty extends Component {
 
                   </div>
                   <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
-                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (ETH or whole tokens)</label>
+                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (TACO tokens)</label>
                     <input id="fulfillmentAmount" style={{width: "100%", border: "0px"}} type="number" step="any"></input>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&
@@ -665,7 +665,7 @@ class NewBounty extends Component {
                 {this.state.payoutMethod === "ERC" && (
                   <div style={{float: "left", display: "inline-block", width: "100%"}}>
                     <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
-                    <input id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
+                    <input defaultValue="0x22e5f4936629988e328323962fc9c6c0e2a65145" id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
                   </div>
                 )}
@@ -698,11 +698,11 @@ class NewBounty extends Component {
 
                 <div style={{width: "calc(50% - 13px)", float: "left", display: "inline-block"}}>
                   <label style={{fontSize: "12px"}} >When to Activate</label>
-                  <select onChange={this.handleActivateNowChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid rgb(25, 55, 83)", color: "rgb(25, 55, 83)", width: "100%", height: "40px", display: "block"}}>
+                  <select defaultValue="now" onChange={this.handleActivateNowChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid rgb(25, 55, 83)", color: "rgb(25, 55, 83)", width: "100%", height: "40px", display: "block"}}>
                     <option value="later">Later</option>
                     <option value="now">Now</option>
                   </select>
-                  <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "10px", marginBottom: "15px"}}>The requirements for a bounty can only be edited while it is in the draft stage</p>
+                  <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "10px", marginBottom: "15px"}}>A bounty may only be edited while it is in the draft stage</p>
                 </div>
 
                   {this.state.activateNow === "now" && (

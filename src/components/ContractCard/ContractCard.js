@@ -90,9 +90,9 @@ class ContractCard extends Component {
             <div style={{overflow: "hidden", display: "block",  width: "120px",}}>
             <h5 style={{ fontSize: "13px", width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontWeight: "600"}}>PRIZE</h5>
 
-            <h5 style={{ width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#2D0874", fontSize: "24px", fontWeight: "600"}}><b style={{color: "#fe923b", fontWeight: "6s00", lineHeight: "28px", fontSize: "18px"}}>$</b>{numberWithCommas(parseInt(this.props.usdValue))}</h5>
+            <h5 style={{ width: "100%", textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#2D0874", fontSize: "24px", fontWeight: "600"}}>{reward}<b style={{color: "#fe923b", fontWeight: "6s00", lineHeight: "28px", fontSize: "18px"}}>{this.props.symbol? this.props.symbol : 'ETH'}</b></h5>
 
-            <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontSize: "12px", fontWeight: "200"}}>{reward}{this.props.symbol? this.props.symbol : 'ETH'}</h1>
+            <h1 style={{textAlign: "center", marginTop: "0px", marginBottom: "0px", color: "#8C9899", fontSize: "12px", fontWeight: "200"}}>{"$"+numberWithCommas(parseInt(this.props.usdValue))}</h1>
 
             <h5 style={{ fontSize: "11px", width: "100%", textAlign: "center", marginTop: "10px", marginBottom: "0px", color:"#8C9899", fontWeight: "200"}}>{this.props.dateString}</h5>
 
