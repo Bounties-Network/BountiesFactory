@@ -86,11 +86,12 @@ class Leaderboard extends Component {
       web3.version.getNetwork((err, netId) => {
 
         if (netId === "1"){
-          this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
-                         UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
-                         selectedNetwork: netId,
-                        baseURL: json.url.mainNet});
+            this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
 
+            /*this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
+                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+                           selectedNetwork: netId,
+                          baseURL: json.url.mainNet});*/
         } else if (netId ===  "4"){
           this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                          UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),

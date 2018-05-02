@@ -1,6 +1,6 @@
 {
 	"url": {
-		"mainNet": "https://consensys.api.bounties.network",
+		"mainNet": "https://api.bounties.network",
 		"rinkeby": "https://consensys.api.bounties.network"
 	},
 	"mainNet": {
@@ -13,7 +13,8 @@
 	"rinkeby": {
 		"userCommentsAddress": "0xd0a170ba138d1cfe95fd4aba5a897bc4a1b53379",
 		"standardBountiesAddress": {
-			"v1":"0x12708d61650C2462F2E10276e0E65239d9b0DF4e"
+			"v0":"0x92f9d637355f96dc8c228827fe1b31f8e3477815",
+			"v1":"0x12708d61650c2462f2e10276e0e65239d9b0df4e"
 			}
 	},
 	"localhost": {
