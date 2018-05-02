@@ -12,6 +12,7 @@ const Buffer = require('buffer/').Buffer;
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 const ipfsAPI = require('ipfs-api');
+const BigNumber = require('bignumber.js');
 
 var ipfsNew = ipfsAPI({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
 
@@ -204,7 +205,6 @@ class NewBounty extends Component {
 
 
   handleSubmitContract(evt){
-
     evt.preventDefault();
     var info = evt.target.contact_info.value;
     var description = evt.target.contract_description.value;
@@ -401,9 +401,15 @@ class NewBounty extends Component {
           console.log("tokenContract", tokenContract);
           tokenContract.decimals((err, succ)=>{
             let decimals = parseInt(succ, 10);
-            var padding = Array(decimals+1).join("0");
-            stringAmount = "" + fulfillmentAmount + padding;
-            stringValue = "" + value + padding;
+            let decimalToMult = new BigNumber(10, 10);
+            const decimalUnits = new BigNumber(decimals, 10);
+            let fullAmount = new BigNumber(fulfillmentAmount, 10);
+            let totalValue = new BigNumber(value, 10);
+            decimalToMult = decimalToMult.pow(decimalUnits);
+            fullAmount = fullAmount.times(decimalToMult);
+            totalValue = totalValue.times(decimalToMult);
+            stringAmount = fullAmount.toString();
+            stringValue = totalValue.toString();
 
             var submit = {
               payload: {
