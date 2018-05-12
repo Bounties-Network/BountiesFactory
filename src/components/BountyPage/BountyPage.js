@@ -218,27 +218,27 @@ class BountyPage extends Component {
 
       web3.version.getNetwork((err, netId) => {
         if (netId === "1"){
-            this.setState({modalError: ("Please change your Ethereum network to the Rinkeby network"), modalOpen: true});
 
-            /*this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
                            selectedNetwork: netId,
-                          baseURL: json.url.mainNet});*/
+                          baseURL: json.url.mainNet});
         } else if (netId === "4"){
-          if (this.state.version == "v0"){
-            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
-                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
-                           selectedNetwork: netId,
-                          baseURL: json.url.rinkeby});
-          } else if (this.state.version == "v1"){
-            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
-                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
-                           selectedNetwork: netId,
-                          baseURL: json.url.rinkeby});
-          }
+          this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network "), modalOpen: true});
+          // if (this.state.version == "v0"){
+          //   this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
+          //                  UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
+          //                  selectedNetwork: netId,
+          //                 baseURL: json.url.rinkeby});
+          // } else if (this.state.version == "v1"){
+          //   this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
+          //                  UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.rinkeby.userCommentsAddress),
+          //                  selectedNetwork: netId,
+          //                 baseURL: json.url.rinkeby});
+          // }
 
         } else {
-          this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
+          this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network"), modalOpen: true});
         }
 
 
