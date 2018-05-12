@@ -486,9 +486,9 @@ class BountyPage extends Component {
             }
           },
           meta: {
-            platform: 'bounties-network',
+            platform: 'colorado',
             schemaVersion: '0.1',
-            schemaName: 'standardSchema'
+            schemaName: 'coloradoSchema'
           }
         }, (err, succ)=> {
           this.setState({txLoadingAmount: 40});

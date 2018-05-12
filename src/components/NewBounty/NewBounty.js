@@ -324,9 +324,9 @@ class NewBounty extends Component {
               }]
             },
             meta: {
-              platform: 'bounties-network',
+              platform: 'colorado',
               schemaVersion: '0.1',
-              schemaName: 'standardSchema'
+              schemaName: 'coloradoSchema'
             }
 
           };
@@ -662,7 +662,7 @@ class NewBounty extends Component {
 
                   </div>
                   <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
-                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (TACO tokens)</label>
+                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (COLO tokens)</label>
                     <input id="fulfillmentAmount" style={{width: "100%", border: "0px"}} type="number" step="any"></input>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&
@@ -672,7 +672,7 @@ class NewBounty extends Component {
                 {this.state.payoutMethod === "ERC" && (
                   <div style={{float: "left", display: "inline-block", width: "100%"}}>
                     <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
-                    <input defaultValue="0x22e5f4936629988e328323962fc9c6c0e2a65145" id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
+                    <input defaultValue="0xbf24a875bf58a2473005f9271bd023b656721d3e" id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
                   </div>
                 )}
