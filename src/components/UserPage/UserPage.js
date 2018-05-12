@@ -162,7 +162,7 @@ class UserPage extends Component {
       web3.setProvider(window.web3.currentProvider);
       web3.version.getNetwork((err, netId) => {
         if (netId === "1"){
-            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v0),
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
                            UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
                            selectedNetwork: netId,
                           baseURL: json.url.mainNet});

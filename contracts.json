@@ -8,21 +8,21 @@
 	"mainNet": {
 		"userCommentsAddress": "0xf75a8e70da328ba79482632774dde52d316ecffa",
 		"standardBountiesAddress": {
-			"v0": "0x066128b9f7557b5398db3d4ed141f2e64245ffa1",
+			"v0": "0x2af47a65da8CD66729b4209C22017d6A5C2d2400",
 			"v1": "0x2af47a65da8CD66729b4209C22017d6A5C2d2400"
 			}
 	},
 	"rinkeby": {
 		"userCommentsAddress": "0xd0a170ba138d1cfe95fd4aba5a897bc4a1b53379",
 		"standardBountiesAddress": {
-			"v0":"0x92f9d637355f96dc8c228827fe1b31f8e3477815",
+			"v0":"0x2af47a65da8CD66729b4209C22017d6A5C2d2400",
 			"v1":"0x2af47a65da8CD66729b4209C22017d6A5C2d2400"
 			}
 	},
 	"localhost": {
 		"userCommentsAddress": "0xd0a170ba138d1cfe95fd4aba5a897bc4a1b53379",
 		"standardBountiesAddress": {
-			"v0":"0x92f9d637355f96dc8c228827fe1b31f8e3477815",
+			"v0":"0x2af47a65da8CD66729b4209C22017d6A5C2d2400",
 			"v1":"0x2af47a65da8CD66729b4209C22017d6A5C2d2400"
 			}
 	},
