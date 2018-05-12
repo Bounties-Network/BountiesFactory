@@ -59,7 +59,7 @@ class Leaderboard extends Component {
   }
 
   getLeaderboard(){
-    fetch(this.state.baseURL+"/leaderboard/?limit=1000")
+    fetch(this.state.baseURL+"/leaderboard/?limit=1000&platform__in=" + json.platform)
       .then(function(response) {
         return response.json();
 

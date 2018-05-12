@@ -112,7 +112,7 @@ class UserPage extends Component {
   }
 
   getBounties(){
-    fetch(this.state.baseURL+"/bounty/?limit=5&issuer="+this.state.userAddress)
+    fetch(this.state.baseURL+"/bounty/?limit=5&issuer="+this.state.userAddress + "&platform__in=" + json.platform)
       .then(function(response) {
         return response.json();
 
@@ -124,7 +124,7 @@ class UserPage extends Component {
         console.log('parsing failed', ex)
       });
 
-      fetch(this.state.baseURL+"/stats/"+this.state.userAddress+"/")
+      fetch(this.state.baseURL+"/stats/"+this.state.userAddress + "/?platform__in=" + json.platform)
         .then(function(response) {
           return response.json();
 
@@ -142,7 +142,7 @@ class UserPage extends Component {
         }.bind(this)).catch(function(ex) {
           console.log('parsing failed', ex)
         });
-      fetch(this.state.baseURL+"/fulfillment/?limit=5&fulfiller="+this.state.userAddress)
+      fetch(this.state.baseURL+"/fulfillment/?limit=5&fulfiller="+this.state.userAddress + "&platform__in=" + json.platform)
         .then(function(response) {
           return response.json();
 

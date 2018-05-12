@@ -117,7 +117,7 @@ class NewBounty extends Component {
     this.getInitialData();
   }
   getCategories(){
-    fetch(this.state.baseURL+"/category/?limit=1000")
+    fetch(this.state.baseURL+"/category/?limit=1000&platform__in=categoryPlatform")
       .then(function(response) {
         return response.json();
 

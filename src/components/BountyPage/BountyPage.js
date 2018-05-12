@@ -287,7 +287,7 @@ class BountyPage extends Component {
 
   }
   getCategories(){
-    fetch(this.state.baseURL+"/category/?limit=1000")
+    fetch(this.state.baseURL+"/category/?limit=1000&platform__in=" + json.categoryPlatform)
       .then(function(response) {
         return response.json();
 

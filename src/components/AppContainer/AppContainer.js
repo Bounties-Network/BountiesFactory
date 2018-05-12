@@ -99,7 +99,7 @@ class AppContainer extends Component {
   }
   getBounties(){
 
-    var urlBase = this.state.baseURL+'/bounty/?limit=25';
+    var urlBase = this.state.baseURL+'/bounty/?limit=25&platform__in=' + json.platform;
 
     var selectedStageUrl = "";
 
@@ -188,7 +188,7 @@ class AppContainer extends Component {
   }
 
   getCategories(){
-    fetch(this.state.baseURL+"/category/?limit=1000")
+    fetch(this.state.baseURL+"/category/?limit=1000&platform__in=" + json.categoryPlatform)
       .then(function(response) {
         return response.json();
 
@@ -208,7 +208,7 @@ class AppContainer extends Component {
   }
 
   getMyBounties(){
-    fetch(this.state.baseURL+"/stats/"+this.state.accounts[0])
+    fetch(this.state.baseURL+"/stats/"+this.state.accounts[0] + '?platform__in=' + json.platform)
       .then(function(response) {
         return response.json();
 
