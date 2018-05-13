@@ -2,28 +2,28 @@
 	"platform": "colorado",
 	"categoryPlatform": "colorado",
 	"url": {
-		"mainNet": "https://api.bounties.network",
-		"rinkeby": "https://api.bounties.network"
+		"mainNet": "https://rinkeby.api.bounties.network",
+		"rinkeby": "https://rinkeby.api.bounties.network"
 	},
 	"mainNet": {
 		"userCommentsAddress": "0xf75a8e70da328ba79482632774dde52d316ecffa",
 		"standardBountiesAddress": {
-			"v0": "0x2af47a65da8CD66729b4209C22017d6A5C2d2400",
-			"v1": "0x2af47a65da8CD66729b4209C22017d6A5C2d2400"
+			"v0": "0xf209d2b723b6417cbf04c07e733bee776105a073",
+			"v1": "0xf209d2b723b6417cbf04c07e733bee776105a073"
 			}
 	},
 	"rinkeby": {
 		"userCommentsAddress": "0xd0a170ba138d1cfe95fd4aba5a897bc4a1b53379",
 		"standardBountiesAddress": {
-			"v0":"0x2af47a65da8CD66729b4209C22017d6A5C2d2400",
-			"v1":"0x2af47a65da8CD66729b4209C22017d6A5C2d2400"
+			"v0":"0xf209d2b723b6417cbf04c07e733bee776105a073",
+			"v1":"0xf209d2b723b6417cbf04c07e733bee776105a073"
 			}
 	},
 	"localhost": {
 		"userCommentsAddress": "0xd0a170ba138d1cfe95fd4aba5a897bc4a1b53379",
 		"standardBountiesAddress": {
-			"v0":"0x2af47a65da8CD66729b4209C22017d6A5C2d2400",
-			"v1":"0x2af47a65da8CD66729b4209C22017d6A5C2d2400"
+			"v0":"0xf209d2b723b6417cbf04c07e733bee776105a073",
+			"v1":"0xf209d2b723b6417cbf04c07e733bee776105a073"
 			}
 	},
 	"interfaces":
