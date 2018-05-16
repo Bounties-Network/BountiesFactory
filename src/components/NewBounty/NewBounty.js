@@ -617,7 +617,7 @@ class NewBounty extends Component {
             <div style={{display: "block", maxWidth: "1050px", margin: "0 auto", marginBottom: "75px", marginTop: "30px"}}>
             <div style={{ padding: "15px", width: "calc(100% - 90px)", marginRight: "30px", marginLeft: "30px", backgroundColor: "rgb(249,249,249)", border: "0px", borderBottom: "0px solid #4a79fa", color:"#1D1749"}} className="ContractCard">
               <h3 style={{fontFamily: "Open Sans", margin: "15px", textAlign: "Center",width: "1000px", fontWeight: "600", fontSize: "28px"}}>Create a New Bounty</h3>
-              <form className='AddProject' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "#1D1749"}}>
+              <form className='AddProject newForm' onSubmit={this.handleSubmitContract} style={{padding: "15px", color: "#1D1749", width: "calc(100% - 30px)",}}>
                 <label style={{fontSize: "12px", display: "block"}} htmlFor='contract_title'>Title</label>
                 <input id='contract_title' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text' />
                 {this.state.titleError &&
