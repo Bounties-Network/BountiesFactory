@@ -1588,18 +1588,6 @@ render() {
 
                   <p style={{ fontSize: "14px", width: "100%", margin: "2.5px 0px", color:"#fe923b", display: "block", overflow: "hidden"}}><b>Submission</b>:</p>
                   <Text style={{ fontSize: "14px", width: "100%", margin: "0px 10px 10px 0px", color: "#fe923b", textDecoration: "none", display: "block", overflow: "hidden"}}>{this.state.fulfillments[i].description}</Text>
-                  <FlatButton style={{backgroundColor: "rgba(0, 126, 255, 0.24)", border:"0px", color: "white", float: "left",  marginTop: "15px", display: "block", width: "200px"}} onClick={this.handleExpandComment.bind(this,i)}>Add Comment </FlatButton>
-
-                  {this.state.fulfillments[i].comments && this.state.fulfillments[i].comments.length > 0 &&
-                    <div style={{borderTop: "1px solid rgba(256,256,256, 0.18)", padding: "30px 0px 0px 30px", marginTop: this.state.fulfillments[i].commentsOpen?"30px":"70px"}}>
-                      <h5 style={{margin: "5px 0px", textAlign: "left", fontWeight: "200"}}><b style={{fontSize: "16px", fontWeight: "200", color: "rgb(255, 184, 21)"}}>{this.state.fulfillments[i].comments.length +"  Comment"+  (this.state.fulfillments[i].comments.length === 1? "" : "s")}</b></h5>
-
-                      {fulfillmentComments}
-
-                    </div>
-                  }
-
-
                 </div>
                 <div style={{width: "85px", display: "inline-block", float: "right"}}>
                 <Chip style={{float: "right", border: "1px solid #2D0874", backgroundColor:"#2D0874", height: "30px", margin: "5px auto"}}
