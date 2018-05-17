@@ -99,6 +99,7 @@ class BountyPage extends Component {
       mine: false,
       issuer: "0x0",
       balance: 0,
+      decimals: 0,
       bountyId: this.props.params.id,
       myComments: [],
       commentError: "",
@@ -367,6 +368,7 @@ class BountyPage extends Component {
                         platform: newBounty.platform,
                         usdValue: newBounty.usd_price,
                         webLink: newBounty.webReferenceURL,
+                        decimals: decimals,
                         optionsValue: newBounty.data_categories? newBounty.data_categories.join(",").toLowerCase() : ""});
         } else {
           console.log("no bounty");
