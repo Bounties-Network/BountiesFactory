@@ -370,7 +370,7 @@ class BountyPage extends Component {
                         platform: newBounty.platform,
                         usdValue: newBounty.usd_price,
                         webLink: newBounty.webReferenceURL,
-                        decimals: this.state.tokenDecimals,
+                        decimals: decimals,
                         tokenContract: this.state.tokenContract.at(newBounty.tokenContract),
                         optionsValue: newBounty.data_categories? newBounty.data_categories.join(",").toLowerCase() : ""});
         } else {
