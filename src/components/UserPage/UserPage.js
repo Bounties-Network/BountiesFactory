@@ -193,7 +193,7 @@ class UserPage extends Component {
               this.setState({modalError: "Please unlock your MetaMask Accounts", modalOpen: true});
 
             } else {
-            var account = web3.eth.accounts[0];
+            var account = accs[0];
             setInterval(function() {
               web3.eth.getAccounts(function(err, accs){
                 if (accs[0] !== account) {
