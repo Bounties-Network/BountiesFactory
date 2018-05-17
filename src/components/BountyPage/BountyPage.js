@@ -371,7 +371,7 @@ class BountyPage extends Component {
                         platform: newBounty.platform,
                         usdValue: newBounty.usd_price,
                         webLink: newBounty.webReferenceURL,
-                        decimals: this.state.tokenDecimals,
+                        decimals: decimals,
                         tokenContract: this.state.tokenContract.at(newBounty.tokenContract),
                         optionsValue: newBounty.data_categories? newBounty.data_categories.join(",").toLowerCase() : ""});
         } else {
@@ -1162,6 +1162,7 @@ handleChangePayout(evt){
     var finalPayout = web3.toWei(newPayout, 'ether');
 
     if (this.state.paysTokens){
+      console.log("")
       var newAmount = new BigNumber(newPayout, 10);
       var decimalToMult = new BigNumber(10, 10);
       var decimalUnits = new BigNumber(this.state.decimals, 10);
