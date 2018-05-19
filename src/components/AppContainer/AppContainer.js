@@ -136,9 +136,9 @@ class AppContainer extends Component {
       }
     } else if (this.state.sortBy == "Value"){
       if (this.state.descending){
-        sortByUrl = "&ordering=-fulfillmentAmount"
+        sortByUrl = "&ordering=-usd_price"
       } else {
-        sortByUrl = "&ordering=fulfillmentAmount"
+        sortByUrl = "&ordering=usd_price"
       }
     } else if (this.state.sortBy == "Expiry"){
       if (this.state.descending){
@@ -240,11 +240,10 @@ class AppContainer extends Component {
           console.log("rinkeby", json.url.rinkeby);
 
           if (netId === "1"){
-            this.setState({modalError: ("Please change your Ethereum network to the Rinkeby Ethereum network"), modalOpen: true});
-            // this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
-            //                UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
-            //                selectedNetwork: netId,
-            //               baseURL: json.url.mainNet});
+            this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
+                           UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+                           selectedNetwork: netId,
+                           baseURL: json.url.mainNet});
           } else if (netId === "4"){
             this.setState({StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v1),
                            StandardBountiesv0 : web3.eth.contract(json.interfaces.StandardBounties).at(json.rinkeby.standardBountiesAddress.v0),
@@ -253,7 +252,7 @@ class AppContainer extends Component {
                           baseURL: json.url.rinkeby});
                           console.log("rinkeby", json.url.rinkeby);
           } else {
-            this.setState({modalError: ("Please change your Ethereum network to the Rinkeby Ethereum network"), modalOpen: true});
+            this.setState({modalError: ("Please change your Ethereum network to the Main Ethereum network or the Rinkeby network"), modalOpen: true});
           }
 
           setInterval(function() {
@@ -274,7 +273,7 @@ class AppContainer extends Component {
                 this.setState({modalError: "Please unlock your MetaMask Accounts", modalOpen: true});
 
               } else {
-              var account = web3.eth.accounts[0];
+              var account = accs[0];
               setInterval(function() {
                 web3.eth.getAccounts(function(err, accs){
                   if (accs[0] !== account) {
