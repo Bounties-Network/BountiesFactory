@@ -58,7 +58,7 @@ class AppContainer extends Component {
       myExpired: 0,
       myTotal: 0,
       resultsCount: 0,
-      baseURL: json.url.mainNet
+      baseURL: json.url.rinkeby
     }
 
     this.getInitialData = this.getInitialData.bind(this);

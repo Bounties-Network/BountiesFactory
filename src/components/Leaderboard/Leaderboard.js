@@ -35,7 +35,7 @@ class Leaderboard extends Component {
       leaderboard: [],
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
-      baseURL: json.url.mainNet
+      baseURL: json.url.rinkeby
     }
     this.getInitialData = this.getInitialData.bind(this);
 

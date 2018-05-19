@@ -81,7 +81,7 @@ class NewBounty extends Component {
       containsCode: false,
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
       UserComments : web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
-      baseURL: json.url.mainNet
+      baseURL: json.url.rinkeby
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
 

@@ -129,7 +129,7 @@ class BountyPage extends Component {
       UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
       tokenContract: web3.eth.contract(json.interfaces.HumanStandardToken),
       version: this.props.params.version,
-      baseURL: json.url.mainNet,
+      baseURL: json.url.rinkeby,
       bountyError: false
     }
     this.ipfsApi = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: "https"});
