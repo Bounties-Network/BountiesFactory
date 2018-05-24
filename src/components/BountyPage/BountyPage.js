@@ -1750,7 +1750,7 @@ render() {
            onRequestClose={this.handleCloseNoWeb3}
          >
            <div style={{width: "75%", display: "block", margin: "0 auto", marginTop: "30px"}}>
-           <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#4a79fa"}}> Metamask </a> browser extension.</p>
+           <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#4a79fa"}}> MetaMask </a> browser extension.</p>
              </div>
          </Dialog>
         <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative"}}>
@@ -1768,7 +1768,7 @@ render() {
             <div style={{marginBottom: "0px", boxShadow: "none", borderRadius: "0", padding: "30px", marginTop: "15px", border: "0", backgroundColor: "rgb(249, 249, 249)", borderBottom: "0px solid #4A79FA", color:"#2D0874", paddingTop: "30px", marginLeft: "15px", marginRight: "15px"}} className="ContractCard">
               <h3 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "28px", textAlign: "center",  fontWeight: "600", textOverflow: "ellipsis", overflow: "hidden"}}>{"There's Nothing Here!"}</h3>
               <h4 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "22px", textAlign: "center",  fontWeight: "500", textOverflow: "ellipsis", overflow: "hidden"}}>{"Maybe someone sent you here by mistake, but this bounty doesn't exist. It's possible someone sent you this link for a bounty on the "}<b style={{fontWeight: "600"}}>{this.state.selectedNetwork == 1?"Rinkeby Testnet" : "Main Ethereum Network"},</b></h4>
-              <h4 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "22px", textAlign: "center",  fontWeight: "500", textOverflow: "ellipsis", overflow: "hidden"}}>Try changing your Metamask network to the {this.state.selectedNetwork == 1?"Rinkeby Network" : "Main Ethereum Network"} instead.</h4>
+              <h4 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "22px", textAlign: "center",  fontWeight: "500", textOverflow: "ellipsis", overflow: "hidden"}}>Try changing your MetaMask network to the {this.state.selectedNetwork == 1?"Rinkeby Network" : "Main Ethereum Network"} instead.</h4>
               <h4 className="bountyHeader" style={{margin: "0px 15px 30px 15px", width: "100%", display: "inline", fontSize: "28px", textAlign: "center",  fontWeight: "600", textOverflow: "ellipsis", overflow: "hidden"}}><Link to="/">Go Home</Link></h4>
 
 

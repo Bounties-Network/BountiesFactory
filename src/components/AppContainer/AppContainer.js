@@ -491,7 +491,7 @@ class AppContainer extends Component {
                   <div id="mc_embed_signup_scroll">
 
 										<div className="6u$ 12u$(xsmall)">
-											<input type="email" name="EMAIL" id="mce-EMAIL" placeholder="email address" required style={{fontFamily: "Open Sans", border: "0px", borderBottom: "1px solid #fe923b", backgroundColor: "rgba(0,0,0,0)", color: "rgb(208, 208, 208)", width: "16.2em"}}/>
+											<input type="email" name="EMAIL" id="mce-EMAIL" placeholder="email address" required style={{fontFamily: "Open Sans", border: "0px", borderBottom: "1px solid #fe923b", backgroundColor: "rgba(0,0,0,0)", color: "rgb(45, 7, 116)", width: "16.2em"}}/>
 										</div>
                   <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
                     <input type="text" name="b_03351ad14a86e9637146ada2a_96ba00fd12" tabIndex="-1" value=""/>
