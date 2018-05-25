@@ -331,19 +331,19 @@ class PrivacyPolicy extends Component {
                   </td>
                 </tr>
                 <tr>
-                  <td style={{padding: "15px", width: "20%", borderRight: "1px solid #1a3853", borderBottom: "1px solid #1a3853"}}>
+                  <td style={{padding: "15px", width: "20%", borderRight: "1px solid #1a3853"}}>
                   csrf_bounties
                   </td>
-                  <td style={{padding: "15px", width: "20%", borderRight: "1px solid #1a3853", borderBottom: "1px solid #1a3853"}}>
+                  <td style={{padding: "15px", width: "20%", borderRight: "1px solid #1a3853"}}>
                   User‑Centric Security
                   </td>
-                  <td style={{padding: "15px", width: "20%", borderRight: "1px solid #1a3853", borderBottom: "1px solid #1a3853"}}>
+                  <td style={{padding: "15px", width: "20%", borderRight: "1px solid #1a3853"}}>
                   1st
                   </td>
-                  <td style={{padding: "15px", width: "20%", borderRight: "1px solid #1a3853", borderBottom: "1px solid #1a3853"}}>
+                  <td style={{padding: "15px", width: "20%", borderRight: "1px solid #1a3853"}}>
                   Persistent
                   </td>
-                  <td style={{padding: "15px", borderBottom: "1px solid #1a3853"}}>
+                  <td style={{padding: "15px"}}>
                   [3 months]
                   </td>
                 </tr>
