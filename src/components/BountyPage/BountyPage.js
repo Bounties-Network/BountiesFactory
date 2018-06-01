@@ -482,9 +482,9 @@ class BountyPage extends Component {
             }
           },
           meta: {
-            platform: 'bounties-network',
+            platform: 'hiring',
             schemaVersion: '0.1',
-            schemaName: 'standardSchema'
+            schemaName: 'hiringSchema'
           }
         }, (err, succ)=> {
           this.setState({txLoadingAmount: 40});

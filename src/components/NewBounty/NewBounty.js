@@ -323,9 +323,9 @@ class NewBounty extends Component {
               }]
             },
             meta: {
-              platform: 'bounties-network',
+              platform: 'hiring',
               schemaVersion: '0.1',
-              schemaName: 'standardSchema'
+              schemaName: 'hiringSchema'
             }
 
           };
@@ -430,9 +430,9 @@ class NewBounty extends Component {
                 }]
               },
               meta: {
-                platform: 'bounties-network',
+                platform: 'hiring',
                 schemaVersion: '0.1',
-                schemaName: 'standardSchema'
+                schemaName: 'hiringSchema'
               }
 
             };
