@@ -59,7 +59,7 @@ class Leaderboard extends Component {
   }
 
   getLeaderboard(){
-    fetch(this.state.baseURL+"/leaderboard/?limit=1000")
+    fetch(this.state.baseURL+"/leaderboard/?limit=1000&platform__in=bounties-network")
       .then(function(response) {
         return response.json();
 

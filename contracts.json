@@ -1,6 +1,6 @@
 {
 	"url": {
-		"mainNet": "https://api.bounties.network",
+		"mainNet": "https://consensys.api.bounties.network",
 		"rinkeby": "https://consensys.api.bounties.network"
 	},
 	"mainNet": {
