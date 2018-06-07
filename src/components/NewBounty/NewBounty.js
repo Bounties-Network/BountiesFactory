@@ -63,6 +63,8 @@ class NewBounty extends Component {
       sourceDirectoryHash: "",
       description: intitialDescription,
       payoutMethod: "ETH",
+      otherTokenAddress: false,
+      tokenAddress: "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
       activateNow: "later",
       titleError: "",
       descriptionError: "",
@@ -89,6 +91,8 @@ class NewBounty extends Component {
     this.handleSubmitContract = this.handleSubmitContract.bind(this);
     this.handlecaptureFile = this.handlecaptureFile.bind(this);
     this.handleTokenChange = this.handleTokenChange.bind(this);
+    this.handleTokenAddressChange = this.handleTokenAddressChange.bind(this);
+    this.handleOtherTokenChange = this.handleOtherTokenChange.bind(this);
     this.handleEncryptChange = this.handleEncryptChange.bind(this);
     this.handleActivateNowChange = this.handleActivateNowChange.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
@@ -212,11 +216,8 @@ class NewBounty extends Component {
     var title = evt.target.contract_title.value;
     var oldDeadline = evt.target.bounty_deadline.value;
     var fulfillmentAmount = evt.target.fulfillmentAmount.value;
-    var tokenAddress = "0x0000000000000000000000000000000000000000";
+    var tokenAddress = this.state.tokenAddress;
     var difficulty = evt.target.difficulty.value;
-    if (evt.target.token_address){
-      tokenAddress = evt.target.token_address.value;
-    }
     var githubLink;
     if (evt.target.github_link){
       githubLink = evt.target.github_link.value;
@@ -554,6 +555,16 @@ class NewBounty extends Component {
   handleTokenChange(evt){
     this.setState({payoutMethod: evt.target.value});
   }
+  handleTokenAddressChange(evt){
+    var otherToken = false;
+    if (evt.target.value.length == 0){
+      otherToken = true;
+    }
+    this.setState({tokenAddress: evt.target.value, otherTokenAddress: otherToken});
+  }
+  handleOtherTokenChange(evt){
+    this.setState({tokenAddress: evt.target.value});
+  }
   handleActivateNowChange(evt){
     this.setState({activateNow: evt.target.value});
   }
@@ -564,6 +575,7 @@ class NewBounty extends Component {
     console.log('change', evt.target.value);
     this.setState({description: evt.target.value});
   }
+
 
   handleSelectChange (value) {
     var optionsList = value.split(",");
@@ -592,6 +604,25 @@ class NewBounty extends Component {
       fileName = this.state.sourceFileName;
     }
     document.title = "Bounties Explorer | New Bounty";
+    var tokenAddressOptions;
+    if (this.state.selectedNetwork == "1"){
+      tokenAddressOptions = (
+        <div style={{display: "block", width: "100%"}}>
+        <div style={{width: "100%",  float: "left", display: "inline-block"}}>
+          <label style={{fontSize: "12px"}} >Token Address</label>
+          <select onChange={this.handleTokenAddressChange} style={{fontSize: "16px", backgroundColor: "rgba(255, 255, 255, 0)", border:"1px solid #1D1749", color:  "#1D1749", width: "100%", height: "40px", display: "block"}}>
+            <option value="0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359">Dai Stablecoin v1.0 - 0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359</option>
+            <option value="0xd0d6d6c5fe4a677d343cc433536bb717bae167dd">AdToken - 0xd0d6d6c5fe4a677d343cc433536bb717bae167dd</option>
+            <option value="0xe41d2489571d322189246dafa5ebde1f4699f498">ZRX - 0xe41d2489571d322189246dafa5ebde1f4699f498</option>
+            <option value="0x960b236a07cf122663c4303350609a66a7b288c0">Aragon - 0x960b236a07cf122663c4303350609a66a7b288c0</option>
+            <option value="">Other</option>
+          </select>
+          <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
+
+        </div>
+        </div>
+      );
+    }
 
     return (
       <div style={{position: "relative"}}>
@@ -663,12 +694,19 @@ class NewBounty extends Component {
                   </div>
                 </div>
                 {this.state.payoutMethod === "ERC" && (
+                  <div>
                   <div style={{float: "left", display: "inline-block", width: "100%"}}>
-                    <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
-                    <input id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
-                    <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
+                  {tokenAddressOptions}
                   </div>
+                  {this.state.otherTokenAddress &&
+                    <div style={{float: "left", display: "inline-block", width: "100%"}}>
+                    <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Other Token Address</label>
+                    <input id='token_address' value={this.state.tokenAddress} onChange={this.handleOtherTokenChange} style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
+                    <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
+                    </div>}
+                    </div>
                 )}
+
                 <div style={{display: "inline-block", width: "100%"}}>
                 <div style={{width: "calc(50% - 13px)", float: "left", display: "inline-block"}} className={"LightMode"}>
                   <label style={{fontSize: "12px"}} >Bounty Category</label>
