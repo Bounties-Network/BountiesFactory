@@ -127,6 +127,7 @@ class BountyPage extends Component {
       containsCode: false,
       StandardBounties : web3.eth.contract(json.interfaces.StandardBounties).at(json.mainNet.standardBountiesAddress.v1),
       UserCommentsContract: web3.eth.contract(json.interfaces.UserComments).at(json.mainNet.userCommentsAddress),
+      tokenContract: web3.eth.contract(json.interfaces.HumanStandardToken),
       version: this.props.params.version,
       baseURL: json.url.mainNet,
       bountyError: false
@@ -369,6 +370,7 @@ class BountyPage extends Component {
                         usdValue: newBounty.usd_price,
                         webLink: newBounty.webReferenceURL,
                         decimals: decimals,
+                        tokenContract: this.state.tokenContract.at(newBounty.tokenContract),
                         optionsValue: newBounty.data_categories? newBounty.data_categories.join(",").toLowerCase() : ""});
         } else {
           console.log("no bounty");
