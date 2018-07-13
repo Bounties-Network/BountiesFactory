@@ -142,6 +142,7 @@ class BountyPage extends Component {
     this.handleContribute = this.handleContribute.bind(this);
     this.handleAccept = this.handleAccept.bind(this);
     this.handleDeadline = this.handleDeadline.bind(this);
+    this.handleDeadlineChange = this.handleDeadlineChange.bind(this);
     this.handleKill = this.handleKill.bind(this);
     this.handleTransfer = this.handleTransfer.bind(this);
     this.handleComment = this.handleComment.bind(this);
@@ -1262,7 +1263,7 @@ handleDeadlineChange(evt){
     this.setState({txModalOpen: true, txLoadingAmount: 10});
     this.setState({txLoadingMessage: "Please confirm the Ethereum transaction to extend the deadline of the bounty"});
 
-    this.state.StandardBounties.changeDeadline(this.state.bountyId, date, {from: this.state.accounts[0]}, (err, succ)=> {
+    this.state.StandardBounties.changeBountyDeadline(this.state.bountyId, date, {from: this.state.accounts[0]}, (err, succ)=> {
       if (err){
         console.log("err", err);
         this.setState({txLoadingMessage: "An error occurred. Please refresh the page and try again."});
@@ -1412,7 +1413,7 @@ render() {
               />
             </Tab>
             <Tab label="Change Deadline" value={2} style={{color: this.state.tabValue === 2? ("#2D0874") : "#4a79fa"}}>
-              <ChangeDeadlineForm onhandleChangeDeadline={this.handleChangeDeadline} deadlineError={this.state.deadlineError} />
+              <ChangeDeadlineForm onhandleChangeDeadline={this.handleDeadlineChange} deadlineError={this.state.deadlineError} />
             </Tab>
             <Tab label="Transfer Ownership" value={3} style={{color: this.state.tabValue === 3? ("#2D0874") : "#4a79fa"}}>
               <TransferOwnershipForm onhandleTransfer={this.handleTransfer} transferError={this.state.transferError} />
