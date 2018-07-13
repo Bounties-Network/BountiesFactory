@@ -336,8 +336,8 @@ class BountyPage extends Component {
             decimalToMult = decimalToMult.pow(decimalUnits);
             fulAmount = fulAmount.div(decimalToMult);
             balAmount = balAmount.div(decimalToMult);
-            valueTokens = fulAmount.toString();
-            balanceTokens = balAmount.toString();
+            valueTokens = parseInt(fulAmount, 10)
+            balanceTokens = parseInt(balAmount, 10);
           }
           var bountyStage = "Draft";
 
@@ -350,6 +350,7 @@ class BountyPage extends Component {
           } else if (newBounty.bountyStage == "4"){
             bountyStage = "Expired";
           }
+          console.log("valueTokens", valueTokens);
           this.setState({issuer: newBounty.issuer,
                         deadline: newBounty.deadline,
                         deadlineString: deadlineString,
@@ -1002,11 +1003,13 @@ handleTransfer(evt){
 handleIncreasePayout(evt){
   evt.preventDefault();
 
-  var newPayout = evt.target.newPayout.value;
-  var newDeposit = evt.target.newDeposit.value;
+  var newPayout = 0 + parseInt(evt.target.newPayout.value, 10);
+  var newDeposit = 0 + parseInt(evt.target.newDeposit.value, 10);
+
   if (newPayout === "" || newPayout === "0"){
     this.setState({increasePayoutError: "The new payout cannot be 0 or empty"});
   } else if (newPayout <= this.state.value){
+    console.log("newPayout", newPayout, this.state.value);
     this.setState({increasePayoutError: "The new payout cannot be less than or equal to the current payout amount"});
   } else {
     this.setState({increasePayoutError: ""});
@@ -1152,7 +1155,7 @@ handleIncreasePayout(evt){
 handleChangePayout(evt){
   evt.preventDefault();
 
-  var newPayout = evt.target.newPayout.value;
+  var newPayout = 0 + parseInt(evt.target.newPayout.value, 10);
   if (newPayout === "" || newPayout === "0"){
     this.setState({changePayoutError: "The new payout cannot be 0 or empty"});
   } else {
