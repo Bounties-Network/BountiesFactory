@@ -218,6 +218,7 @@ class NewBounty extends Component {
     var fulfillmentAmount = evt.target.fulfillmentAmount.value;
     var tokenAddress = this.state.tokenAddress;
     var difficulty = evt.target.difficulty.value;
+
     var githubLink;
     if (evt.target.github_link){
       githubLink = evt.target.github_link.value;

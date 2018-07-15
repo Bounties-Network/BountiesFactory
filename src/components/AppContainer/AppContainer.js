@@ -58,6 +58,7 @@ class AppContainer extends Component {
       myExpired: 0,
       myTotal: 0,
       resultsCount: 0,
+      platform: "bounties-network",
       baseURL: json.url.mainNet
     }
 
@@ -68,6 +69,7 @@ class AppContainer extends Component {
     this.handleMineChange = this.handleMineChange.bind(this);
     this.handleChangeToMine = this.handleChangeToMine.bind(this);
     this.handleAddCategory = this.handleAddCategory.bind(this);
+    this.handleChangePlatform = this.handleChangePlatform.bind(this);
 
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleToggleSort = this.handleToggleSort.bind(this);
@@ -99,7 +101,7 @@ class AppContainer extends Component {
   }
   getBounties(){
 
-    var urlBase = this.state.baseURL+'/bounty/?limit=25&platform__in=' + json.platform;
+    var urlBase = this.state.baseURL+'/bounty/?limit=25&platform__in=' + this.state.platform;
 
     var selectedStageUrl = "";
 
@@ -324,6 +326,20 @@ class AppContainer extends Component {
 
   }
 
+
+  handleChangePlatform(evt){
+    evt.preventDefault();
+    var query = queryString.parse(location.search);
+    query.platform = evt.target.value;
+    var qstring = queryString.stringify(query);
+    browserHistory.push({
+      search: "?"+qstring,
+    });
+    var platform = evt.target.value;
+    this.setState({platform: platform, loading: true, bounties: []}, this.getBounties);
+
+  }
+
   handleChangeToMine(evt){
     evt.preventDefault();
     var query = queryString.parse(location.search);
@@ -510,8 +526,14 @@ class AppContainer extends Component {
           </div>
           <div style={{width: "245px", float: "right", display: "block", marginLeft: "15px", marginRight: "15px"}} className={"FilterBarLight filterBar"}>
             <h3 style={{fontFamily: "Open Sans", marginTop: "15px", marginBottom: "15px", textAlign: "center", color:"#2D0874", width: "100%",  fontWeight: "600", fontSize: "16px"}}>FILTER</h3>
-
-            <div style={{display: "block", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", overflow: "hidden"}}>
+            <div style={{display: "block", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", overflow: "hidden", marginTop: "15px"}}>
+              <select onChange={this.handleChangePlatform} value={this.state.platform} style={{fontSize: "14px",backgroundColor: "rgba(10, 22, 40, 0)" , border: "0px", color: "#2D0874", width: "100%", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxZDE3NDk7fS5jbHMtMntmaWxsOiNmNWFiMmI7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPgo=') no-repeat 100% 50%", padding: "0px 10px"}}>
+                <option value="bounties-network" selected="selected">Bounties Network</option>
+                <option value="gitcoin">Gitcoin</option>
+                <option value="bounties-network,gitcoin,hiring">{"Anyone's Bounties"}</option>
+              </select>
+            </div>
+            <div style={{display: "block", width: "100%", backgroundColor: "rgba(1, 1, 1, 0.05)", overflow: "hidden", marginTop: "15px"}}>
               <select onChange={this.handleChangeStage} value={this.state.selectedStage} style={{fontSize: "14px", backgroundColor: "rgba(10, 22, 40, 0)", border: "0px",color: "#2D0874" , width: "100%", height: "40px", display: "block", borderRadius: "0px", WebkitAppearance: "none", 	background: "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNC45NSAxMCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMxZDE3NDk7fS5jbHMtMntmaWxsOiNmNWFiMmI7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5hcnJvd3M8L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjQuOTUiIGhlaWdodD0iMTAiLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMS40MSA0LjY3IDIuNDggMy4xOCAzLjU0IDQuNjcgMS40MSA0LjY3Ii8+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjMuNTQgNS4zMyAyLjQ4IDYuODIgMS40MSA1LjMzIDMuNTQgNS4zMyIvPjwvc3ZnPgo=') no-repeat 100% 50%", padding: "0px 10px"}}>
                 <option value="Draft">Draft Bounties</option>
                 <option value="Active">Active Bounties</option>
