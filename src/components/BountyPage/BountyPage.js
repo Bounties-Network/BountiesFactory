@@ -392,7 +392,7 @@ class BountyPage extends Component {
           return response.json();
 
         }.bind(this)).then(function(json) {
-          console.log('parsed ful', json);
+          //console.log('parsed ful', json);
 
           this.setState({fulfillments: json.results,
                         loadingFulfillments: false});
@@ -1568,7 +1568,7 @@ render() {
             );
           }
         }
-
+        if (this.state.mine){
         fulfillments.push(
           <div style={{display: "block", borderLeft:"1px solid rgb(25, 55, 83)", marginBottom: "15px", overflow: "hidden"}} key={this.state.fulfillments[i].fulfiller+i}>
 
@@ -1620,6 +1620,7 @@ render() {
             </div>
           </div>
         );
+        }
         numPushed++;
 
       }
