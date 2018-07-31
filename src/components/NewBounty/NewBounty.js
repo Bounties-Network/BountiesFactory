@@ -324,9 +324,9 @@ class NewBounty extends Component {
               }]
             },
             meta: {
-              platform: 'colorado',
+              platform: 'moksha',
               schemaVersion: '0.1',
-              schemaName: 'coloradoSchema'
+              schemaName: 'mokshaSchema'
             }
 
           };
@@ -437,9 +437,9 @@ class NewBounty extends Component {
                 }]
               },
               meta: {
-                platform: 'colorado',
+                platform: 'moksha',
                 schemaVersion: '0.1',
-                schemaName: 'coloradoSchema'
+                schemaName: 'mokshaSchema'
               }
 
             };
@@ -662,7 +662,7 @@ class NewBounty extends Component {
 
                   </div>
                   <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
-                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (COLO tokens)</label>
+                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (MOKSHA tokens)</label>
                     <input id="fulfillmentAmount" style={{width: "100%", border: "0px"}} type="number" step="any"></input>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&

@@ -1,6 +1,6 @@
 {
-	"platform": "colorado",
-	"categoryPlatform": "colorado",
+	"platform": "moksha",
+	"categoryPlatform": "moksha",
 	"url": {
 		"mainNet": "https://rinkeby.api.bounties.network",
 		"rinkeby": "https://rinkeby.api.bounties.network"
