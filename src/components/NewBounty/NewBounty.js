@@ -672,7 +672,7 @@ class NewBounty extends Component {
                 {this.state.payoutMethod === "ERC" && (
                   <div style={{float: "left", display: "inline-block", width: "100%"}}>
                     <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
-                    <input defaultValue="0xc069bfe8dc38940a15264564c51e362b2b849a29" id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
+                    <input defaultValue="0x6ba7dc8dd10880ab83041e60c4ede52bb607864b" id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
                   </div>
                 )}
