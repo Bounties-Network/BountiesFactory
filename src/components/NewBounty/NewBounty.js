@@ -662,7 +662,7 @@ class NewBounty extends Component {
 
                   </div>
                   <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
-                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (MOKSHA tokens)</label>
+                    <label style={{fontSize: "12px"}} htmlFor='contact_info'>Payout Amount (PRO tokens)</label>
                     <input id="fulfillmentAmount" style={{width: "100%", border: "0px"}} type="number" step="any"></input>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the reward amount for completing the task</p>
                     {this.state.fulfillmentError &&
@@ -672,7 +672,7 @@ class NewBounty extends Component {
                 {this.state.payoutMethod === "ERC" && (
                   <div style={{float: "left", display: "inline-block", width: "100%"}}>
                     <label style={{fontSize: "12px", textAlign: "left", display: "block"}} htmlFor='token_address'>Token Address</label>
-                    <input defaultValue="0x6ba7dc8dd10880ab83041e60c4ede52bb607864b" id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
+                    <input defaultValue="0xf9bdebbce737f86f81c921c53033154a4a336b31" id='token_address' style={{border: "none", width: "calc(100% - 15px)"}} className='SendAmount' type='text'/>
                     <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the address of the token you plan to use</p>
                   </div>
                 )}

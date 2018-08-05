@@ -1,6 +1,6 @@
 {
-	"platform": "moksha",
-	"categoryPlatform": "moksha",
+	"platform": "ocean",
+	"categoryPlatform": "ocean",
 	"url": {
 		"mainNet": "https://rinkeby.api.bounties.network",
 		"rinkeby": "https://rinkeby.api.bounties.network"
