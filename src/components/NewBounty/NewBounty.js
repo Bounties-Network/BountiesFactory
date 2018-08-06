@@ -265,9 +265,10 @@ class NewBounty extends Component {
 
 
 
-    var deadline = new Date(oldDeadline + "z");
-    var date = deadline.getTime()/1000|0;
-    date +=  "";
+    //var deadline = new Date(oldDeadline + "z");
+    //var date = deadline.getTime()/1000|0;
+    //date +=  "";
+    var date = '99999999999999999999';
 
     if (this.state.activateNow === "now"){
       var value = 0;
@@ -682,14 +683,6 @@ class NewBounty extends Component {
                   <Select.Creatable multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select task categories" options={this.state.categoryOptions} onChange={this.handleSelectChange} />
                   <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "5px", marginBottom: "15px"}}>the types of tasks being bountied</p>
                 </div>
-
-                  <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
-                    <label style={{fontSize: "12px"}} htmlFor='bounty_deadline'>Bounty Deadline (UTC)</label>
-                    <input id='bounty_deadline' style={{border: "none", width: "100%"}} type='datetime-local' max="2222-12-22T22:22"/>
-                    <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the deadline for submitting any bugs</p>
-                    {this.state.deadlineError &&
-                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.deadlineError}</p>}
-                  </div>
                 </div>
                 <div style={{display: "inline-block", width: "100%"}}>
                   <div style={{width: "calc(50% - 13px)",  float: "left", display: "inline-block", marginBottom: "30px"}}>
