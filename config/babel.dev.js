@@ -3,7 +3,6 @@ module.exports = {
   presets: [
     'babel-preset-react',
     'babel-preset-es2015',
-    'babel-preset-es2016',
     'babel-preset-react-hmre'
   ].map(require.resolve),
   plugins: [

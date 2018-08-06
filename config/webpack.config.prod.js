@@ -7,6 +7,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var S3Plugin = require('webpack-s3-plugin');
 var argv = require('yargs').argv;
+require('babel-loader');
 
 
 var deployment = argv.deploy;
@@ -44,8 +45,9 @@ module.exports = {
     }
   },
   resolveLoader: {
-    root: [ nodeModulesPath, path.resolve('lib/webpack-loaders') ],
-    moduleTemplates: ['*-loader'],
+    modulesDirectories: [
+          '/users/path/a/node_modules'
+      ]
   },
   module: {
     preLoaders: [
@@ -56,6 +58,13 @@ module.exports = {
       }
     ],
     loaders: [
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        query: {
+          presets: ['es2015']
+        }
+      },
       {
         test: /\.js$/,
         include: srcPath,

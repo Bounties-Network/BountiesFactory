@@ -1,5 +1,6 @@
 module.exports = {
   presets: [
-    'env'
+    'env',
+    'es2015'
   ].map(require.resolve)
 };
