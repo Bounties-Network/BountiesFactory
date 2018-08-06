@@ -211,7 +211,7 @@ class NewBounty extends Component {
     var description = evt.target.contract_description.value;
     var name = evt.target.contact_name.value;
     var title = evt.target.contract_title.value;
-    var oldDeadline = evt.target.bounty_deadline.value;
+    var oldDeadline;
     var fulfillmentAmount = evt.target.fulfillmentAmount.value;
     var tokenAddress = "0x0000000000000000000000000000000000000000";
     var difficulty = evt.target.difficulty.value;

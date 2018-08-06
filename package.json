@@ -50,6 +50,7 @@
     "webpack-dev-server": "1.14.1"
   },
   "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
     "bignumber.js": "^4.1.0",
     "blockies": "0.0.2",
     "bn.js": "^4.11.8",
