@@ -266,9 +266,8 @@ class NewBounty extends Component {
 
 
     var deadline = new Date(oldDeadline + "z");
-    //var date = deadline.getTime()/1000|0;
-    //date +=  "";
-    var date = '99999999999999999999';
+    var date = deadline.getTime()/1000|0;
+    date +=  "";
 
     if (this.state.activateNow === "now"){
       var value = 0;
@@ -325,9 +324,9 @@ class NewBounty extends Component {
               }]
             },
             meta: {
-              platform: 'moksha',
+              platform: 'ocean',
               schemaVersion: '0.1',
-              schemaName: 'mokshaSchema'
+              schemaName: 'oceanSchema'
             }
 
           };
@@ -406,12 +405,9 @@ class NewBounty extends Component {
             let decimalToMult = new BigNumber(10, 10);
             const decimalUnits = new BigNumber(decimals, 10);
             let fullAmount = new BigNumber(fulfillmentAmount, 10);
-            let totalValue = new BigNumber(value, 10);
             decimalToMult = decimalToMult.pow(decimalUnits);
             fullAmount = fullAmount.times(decimalToMult);
-            totalValue = totalValue.times(decimalToMult);
             stringAmount = fullAmount.toString();
-            stringValue = totalValue.toString();
 
             var submit = {
               payload: {
@@ -438,9 +434,9 @@ class NewBounty extends Component {
                 }]
               },
               meta: {
-                platform: 'moksha',
+                platform: 'ocean',
                 schemaVersion: '0.1',
-                schemaName: 'mokshaSchema'
+                schemaName: 'oceanSchema'
               }
 
             };
@@ -448,6 +444,10 @@ class NewBounty extends Component {
             ipfs.addJSON(submit, (err, result)=> {
               this.setState({loadingAmount: 40});
               if (this.state.activateNow === "now"){
+                let totalValue = new BigNumber(value, 10);
+                totalValue = totalValue.times(decimalToMult);
+                stringValue = totalValue.toString();
+                
                 this.setState({loadingString: "Please confirm the Ethereum transaction to transfer the tokens for the new bounty"});
 
                 tokenContract.approve(this.state.StandardBounties.address, stringValue, {from: this.state.accounts[0]}, (err, succ)=> {
@@ -683,6 +683,14 @@ class NewBounty extends Component {
                   <Select.Creatable multi simpleValue disabled={this.state.disabled} value={this.state.value} placeholder="Select task categories" options={this.state.categoryOptions} onChange={this.handleSelectChange} />
                   <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "5px", marginBottom: "15px"}}>the types of tasks being bountied</p>
                 </div>
+
+                  <div style={{width: "calc(50% - 28px)", marginLeft: "25px", float: "left", display: "inline-block"}}>
+                    <label style={{fontSize: "12px"}} htmlFor='bounty_deadline'>Bounty Deadline (UTC)</label>
+                    <input id='bounty_deadline' style={{border: "none", width: "100%"}} type='datetime-local' max="2222-12-22T22:22"/>
+                    <p style={{fontSize: "12px", color: "rgba(25, 55, 83,0.5)", marginTop: "-10px", marginBottom: "15px"}}>the deadline for submitting any bugs</p>
+                    {this.state.deadlineError &&
+                      <p style={{fontSize: "12px", color: "#fa4c04", marginTop: "0px", textAlign: "center"}}>{this.state.deadlineError}</p>}
+                  </div>
                 </div>
                 <div style={{display: "inline-block", width: "100%"}}>
                   <div style={{width: "calc(50% - 13px)",  float: "left", display: "inline-block", marginBottom: "30px"}}>

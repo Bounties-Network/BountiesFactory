@@ -1418,6 +1418,9 @@ render() {
             <Tab label="Change Prize" value={4} style={{color: this.state.tabValue === 4? ("#2D0874") : "#4a79fa"}}>
               <ChangePayoutForm onhandleChange={this.handleChangePayout} changePayoutError={this.state.changePayoutError} symbol={this.state.symbol}/>
             </Tab>
+            <Tab label="Kill Bounty" value={5} style={{color: this.state.tabValue === 1? ("#2D0874") : "#4a79fa"}}>
+              <KillBountyForm onhandleKill={this.handleKill} />
+            </Tab>
           </Tabs>
           </div>
         );
