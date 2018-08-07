@@ -406,12 +406,9 @@ class NewBounty extends Component {
             let decimalToMult = new BigNumber(10, 10);
             const decimalUnits = new BigNumber(decimals, 10);
             let fullAmount = new BigNumber(fulfillmentAmount, 10);
-            let totalValue = new BigNumber(value, 10);
             decimalToMult = decimalToMult.pow(decimalUnits);
             fullAmount = fullAmount.times(decimalToMult);
-            totalValue = totalValue.times(decimalToMult);
             stringAmount = fullAmount.toString();
-            stringValue = totalValue.toString();
 
             var submit = {
               payload: {
@@ -448,6 +445,11 @@ class NewBounty extends Component {
             ipfs.addJSON(submit, (err, result)=> {
               this.setState({loadingAmount: 40});
               if (this.state.activateNow === "now"){
+                let totalValue = new BigNumber(value, 10);
+
+                totalValue = totalValue.times(decimalToMult);
+
+                stringValue = totalValue.toString();
                 this.setState({loadingString: "Please confirm the Ethereum transaction to transfer the tokens for the new bounty"});
 
                 tokenContract.approve(this.state.StandardBounties.address, stringValue, {from: this.state.accounts[0]}, (err, succ)=> {

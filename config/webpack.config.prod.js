@@ -45,9 +45,8 @@ module.exports = {
     }
   },
   resolveLoader: {
-    modulesDirectories: [
-          '/users/path/a/node_modules'
-      ]
+    root: [ nodeModulesPath, path.resolve('lib/webpack-loaders') ],
+    moduleTemplates: ['*-loader'],
   },
   module: {
     preLoaders: [
@@ -58,13 +57,6 @@ module.exports = {
       }
     ],
     loaders: [
-      {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['es2015']
-        }
-      },
       {
         test: /\.js$/,
         include: srcPath,
