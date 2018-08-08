@@ -8,6 +8,7 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 var S3Plugin = require('webpack-s3-plugin');
 var argv = require('yargs').argv;
 require('babel-loader');
+var babelEnvDeps = require('webpack-babel-env-deps')
 
 
 var deployment = argv.deploy;
@@ -24,6 +25,78 @@ var nodeModulesPath = path.join(__dirname, '..', 'node_modules');
 var indexHtmlPath = path.resolve(__dirname, relativePath, 'index.html');
 var faviconPath = path.resolve(__dirname, relativePath, 'favicon.ico');
 var buildPath = path.join(__dirname, isInNodeModules ? '../../..' : '..', 'build');
+
+var exclusionPattern = babelEnvDeps.exclude(); // returns /node_modules(?!(/|\\)(detect-indent|request|...)(/|\\))/ ]
+var inclusionPattern = [
+  srcPath,
+  path.join(nodeModulesPath, 'query-string'),
+  path.join(nodeModulesPath, 'acorn'),
+  path.join(nodeModulesPath, 'cids'),
+  path.join(nodeModulesPath, 'copy-webpack-plugin'),
+  path.join(nodeModulesPath, 'css-color-keywords'),
+  path.join(nodeModulesPath, 'dir-glob'),
+  path.join(nodeModulesPath, 'eslint'),
+  path.join(nodeModulesPath, 'esrecurse'),
+  path.join(nodeModulesPath, 'ethjs-format'),
+  path.join(nodeModulesPath, 'ethjs-provider-http'),
+  path.join(nodeModulesPath, 'ethjs-query'),
+  path.join(nodeModulesPath, 'ethjs-rpc'),
+  path.join(nodeModulesPath, 'ethjs-signer'),
+  path.join(nodeModulesPath, 'ethjs-util'),
+  path.join(nodeModulesPath, 'globby'),
+  path.join(nodeModulesPath, 'har-schema'),
+  path.join(nodeModulesPath, 'har-validator'),
+  path.join(nodeModulesPath, 'hosted-git-info'),
+  path.join(nodeModulesPath, 'ipfs-api'),
+  path.join(nodeModulesPath, 'ipfs-block'),
+  // path.join(nodeModulesPath, 'ipfs-mini'),
+  path.join(nodeModulesPath, 'ipfs-unixfs'),
+  path.join(nodeModulesPath, 'ipld-dag-pb'),
+  path.join(nodeModulesPath, 'is-hex-prefixed'),
+  path.join(nodeModulesPath, 'jsx-ast-utils'),
+  path.join(nodeModulesPath, 'libp2p-crypto'),
+  path.join(nodeModulesPath, 'libp2p-crypto-secp256k1'),
+  path.join(nodeModulesPath, 'lolex'),
+  path.join(nodeModulesPath, 'material-ui'),
+  path.join(nodeModulesPath, 'mississippi'),
+  path.join(nodeModulesPath, 'moment'),
+  path.join(nodeModulesPath, 'multihashing-async'),
+  path.join(nodeModulesPath, 'nise'),
+  path.join(nodeModulesPath, 'normalize-url'),
+  path.join(nodeModulesPath, 'number-to-bn'),
+  path.join(nodeModulesPath, 'p-limit'),
+  path.join(nodeModulesPath, 'p-try'),
+  path.join(nodeModulesPath, 'path-type'),
+  path.join(nodeModulesPath, 'peer-id'),
+  path.join(nodeModulesPath, 'peer-info'),
+  path.join(nodeModulesPath, 'pem'),
+  path.join(nodeModulesPath, 'pify'),
+  path.join(nodeModulesPath, 'query-string'),
+  path.join(nodeModulesPath, 'react-onclickoutside'),
+  path.join(nodeModulesPath, 'react-responsive-navbar'),
+  path.join(nodeModulesPath, 'react-router'),
+  path.join(nodeModulesPath, 'react-select'),
+  path.join(nodeModulesPath, 'react-sidecar'),
+  path.join(nodeModulesPath, 'request'),
+  path.join(nodeModulesPath, 'resolve-pkg'),
+  path.join(nodeModulesPath, 'secp256k1'),
+  path.join(nodeModulesPath, 'strict-uri-encode'),
+  path.join(nodeModulesPath, 'strip-hex-prefix'),
+  path.join(nodeModulesPath, 'styled-components'),
+  path.join(nodeModulesPath, 'symbol-observable'),
+  path.join(nodeModulesPath, 'type-d'),
+];
+
+console.log('----- about to exclude the following pattern: -----');
+console.log();
+console.log(exclusionPattern);
+console.log();
+console.log();
+console.log('----- about to include the following pattern: -----');
+console.log();
+console.log(inclusionPattern);
+console.log();
+
 
 module.exports = {
   bail: true,
@@ -59,7 +132,9 @@ module.exports = {
     loaders: [
       {
         test: /\.js$/,
-        include: srcPath,
+        // include: srcPath,
+        include: inclusionPattern,
+        exclude: exclusionPattern,
         loader: 'babel',
         query: require('./babel.prod')
       },
