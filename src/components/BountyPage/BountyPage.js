@@ -1544,6 +1544,7 @@ render() {
     var numPushed = 0;
 
       var fulfillments = [];
+      if (this.state.mine){
       for (var i = 0; i < this.state.fulfillments.length; i++){
         var fulfillmentComments = [];
         if (this.state.fulfillments[i].comments){
@@ -1619,6 +1620,7 @@ render() {
         );
         numPushed++;
 
+      }
       }
       fulBody = (
         <div style={{width: "100%", marginTop: "15px", display: "block", marginBottom: "30px", paddingBottom: "30px", minHeight: "90vh"}}>
@@ -1801,15 +1803,15 @@ render() {
                       <p style={{fontSize: "12px", color: "#fe923b", marginTop: "0px", textAlign: "center"}}>{this.state.contributionError}</p>}
                     <button type='submit' className='AddBtn' style={{backgroundColor: "rgba(0, 126, 255, 0)", border:"1px solid rgb(25, 55, 83)", color: "rgb(25, 55, 83)", width: "200px"}}>Contribute</button>
                     <div style={{margin: "0 auto", display: "block", overflow: "hidden", width: "111px"}}>
-                      <Link target="_blank" to={"https://twitter.com/home?status=New Bounty: "+ this.state.title.substring(0,80) + (this.state.title.length > 80? "...":"")+"%20https%3A//beta.bounties.network/bounty/v1/"+this.state.bountyId}>
+                      <Link target="_blank" to={"https://twitter.com/home?status=New Bounty: "+ this.state.title.substring(0,80) + (this.state.title.length > 80? "...":"")+"%20https%3A//moksha.bounties.network/bounty/v1/"+this.state.bountyId}>
                       <SvgTwitter style={{width: "15px", height: "15px", color: "#4A79FA", padding: "5px", border: "1px solid rgb(25, 55, 83)", borderRadius: "100px", marginTop: "30px", marginRight: "15px"}}
                                   className="iconHover"/>
                       </Link>
-                      <Link target="_blank" to={"https://www.facebook.com/sharer/sharer.php?u=https%3A//beta.bounties.network/bounty/"+this.state.bountyId}>
+                      <Link target="_blank" to={"https://www.facebook.com/sharer/sharer.php?u=https%3A//moksha.bounties.network/bounty/"+this.state.bountyId}>
                       <SvgFacebook style={{width: "15px", height: "15px", color: "#4A79FA", padding: "5px", border: "1px solid rgb(25, 55, 83)", borderRadius: "100px", marginTop: "30px", marginRight: "15px"}}
                                   className="iconHover"/>
                       </Link>
-                      <Link target="_blank" to={"http://reddit.com/submit?url=https%3A%2F%2Fbeta.bounties.network%2Fbounty%2F"+this.state.bountyId+"&title="+ this.state.title.substring(0,80) + (this.state.title.length > 80? "...":"")}>
+                      <Link target="_blank" to={"http://reddit.com/submit?url=https%3A%2F%2Fmoksha.bounties.network%2Fbounty%2F"+this.state.bountyId+"&title="+ this.state.title.substring(0,80) + (this.state.title.length > 80? "...":"")}>
                       <SvgReddit style={{width: "15px", height: "15px", color: "#4A79FA", padding: "5px", border: "1px solid rgb(25, 55, 83)", borderRadius: "100px", marginTop: "30px"}}
                                   className="iconHover"/>
                       </Link>
@@ -1878,7 +1880,7 @@ render() {
                       overflowY: 'auto',
                       height: "fixed"
                   }}>
-              <Tab label={numPushed+" Submission"+(numPushed !== 1? "s" : "")} value={0} style={{color: this.state.mainTabValue === 0? "#fff" : "#4A79FA", fontSize: "16px", backgroundColor: this.state.mainTabValue === 0? ("#2D0874"): "rgba(10, 22, 40, 0)"}}>
+              <Tab label={this.state.fulfillments.length+" Submission"+(numPushed !== 1? "s" : "")} value={0} style={{color: this.state.mainTabValue === 0? "#fff" : "#4A79FA", fontSize: "16px", backgroundColor: this.state.mainTabValue === 0? ("#2D0874"): "rgba(10, 22, 40, 0)"}}>
                 {fulBody}
               </Tab>
               <Tab label={this.state.myComments.length+" Comment"+(this.state.myComments.length !== 1? "s" : "")} value={1} style={{color: this.state.mainTabValue === 1? "#fff" : "#4A79FA", fontSize: "16px", backgroundColor: this.state.mainTabValue === 1? ("#2D0874") : "rgba(10, 22, 40, 0)"}}>

@@ -179,7 +179,7 @@ class Leaderboard extends Component {
           {this.state.leaderboard[i].name? this.state.leaderboard[i].name: "—"}
           </span>
           <p style={{color: "#2D0874", fontSize: "18px", margin: "16px", display: "inline-block", width: "80px", textAlign: "left", float: "right", textOverflow: "ellipsis"}}>
-          {reward+" COLO"}
+          {reward+" MOKSHA"}
           </p>
           <span className="leaderboardUserLink" style={{width: "100px", display: "inline-block", float: "right", margin: "18px 15px", textOverflow: "ellipsis", color: "#4A79FA"}}>
             <Link style={{color: "#4a79fa", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100px"}}
