@@ -1704,62 +1704,27 @@ render() {
 
 
 
-    const modalActions = [
-      <FlatButton
-        label="Retry"
-        primary={true}
-        onClick={this.handleClose}
-      />
-    ];
-    const modalActions2 = [
-      <FlatButton
-        label="Close"
-        primary={true}
-        onClick={this.handleCloseTxLoading}
-      />
-    ];
-    const modalActions3 = [
-      <FlatButton
-        label="Close"
-        primary={true}
-        onClick={this.handleCloseNoWeb3}
-      />
-    ];
+      const modalActions = [
+        <FlatButton
+          label="Go To New Explorer"
+          primary={true}
+          href={"https://explorer.bounties.network/bounty/"+this.props.params.id+"/"}
+          style={{color: "#4a79fa"}}
+        />
+      ];
+
     return (
       <div>
       <Dialog
-         title=""
          actions={modalActions}
          modal={false}
-         open={this.state.modalOpen}
-         onRequestClose={this.handleClose}
+         open={true}
        >
-         {this.state.modalError}
+       <h2 style={{fontWeight: 400, textAlign: "center", color: "#5A28C6"}}> {"We've Moved!"}</h2>
+         <p style={{textAlign: "center"}}>{"Thanks to the feedback we received from our early beta users, we've rebuilt the Bounties Explorer from scratch to be easier to use than ever before."}</p>
+         <p style={{textAlign: "center", fontWeight: 600}}>{"We can't wait to show you what we've been up to!"}</p>
        </Dialog>
-       <Dialog
-          title=""
-          actions={modalActions2}
-          modal={false}
-          open={this.state.txModalOpen}
-          onRequestClose={this.handleCloseTxLoading}
-        >
-          <div style={{width: "50%", display: "block", margin: "0 auto", marginTop: "30px"}}>
-          <p style={{fontSize: "14px", textAlign: "center"}}> {this.state.txLoadingMessage}</p>
 
-            <LinearProgress mode="determinate" value={this.state.txLoadingAmount} color="rgb(255, 222, 70)"/>
-            </div>
-        </Dialog>
-        <Dialog
-           title=""
-           actions={modalActions3}
-           modal={false}
-           open={this.state.noWeb3Error}
-           onRequestClose={this.handleCloseNoWeb3}
-         >
-           <div style={{width: "75%", display: "block", margin: "0 auto", marginTop: "30px"}}>
-           <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#4a79fa"}}> MetaMask </a> browser extension.</p>
-             </div>
-         </Dialog>
         <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative"}}>
           <Navigation userAddress={this.state.accounts[0] || ""}/>
           <div style={{ overflow: "hidden", width: "100%", maxWidth: "1050px", margin: "0 auto", paddingBottom: "160px", display: "block"}}>

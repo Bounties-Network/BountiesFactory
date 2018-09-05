@@ -236,12 +236,13 @@ handleCloseNoWeb3(){
     document.title = "Bounties Explorer | User " + this.state.userAddress;
 
     const modalActions = [
-        <FlatButton
-          label="Retry"
-          primary={true}
-          onClick={this.handleClose}
-        />
-      ];
+      <FlatButton
+        label="Go To New Explorer"
+        primary={true}
+        href={"https://explorer.bounties.network/profile/"+this.state.userAddress}
+        style={{color: "#4a79fa"}}
+      />
+    ];
 
 var contactString = "";
 var myCategories = [];
@@ -370,25 +371,15 @@ var bountiesUI = (
     return (
       <div>
       <Dialog
-         title=""
          actions={modalActions}
          modal={false}
-         open={this.state.modalOpen}
-         onRequestClose={this.handleClose}
+         open={true}
        >
-         {this.state.modalError}
+       <h2 style={{fontWeight: 400, textAlign: "center", color: "#5A28C6"}}> {"We've Moved!"}</h2>
+         <p style={{textAlign: "center"}}>{"Thanks to the feedback we received from our early beta users, we've rebuilt the Bounties Explorer from scratch to be easier to use than ever before."}</p>
+         <p style={{textAlign: "center", fontWeight: 600}}>{"We can't wait to show you what we've been up to!"}</p>
        </Dialog>
-       <Dialog
-          title=""
-          actions={modalActions3}
-          modal={false}
-          open={this.state.noWeb3Error}
-          onRequestClose={this.handleCloseNoWeb3}
-        >
-          <div style={{width: "75%", display: "block", margin: "0 auto", marginTop: "30px"}}>
-          <p style={{fontSize: "18px", textAlign: "center"}}>To perform this action, you need to use a web3 enabled browser. We suggest using the <a href="https://metamask.io" target="_blank" style={{textDecoration: "none", color: "#4a79fa"}}> Metamask </a> browser extension.</p>
-            </div>
-        </Dialog>
+
         <div id={"colourBodyLight"} style={{minHeight: "100vh", position: "relative", overflow: "hidden"}}>
         <Navigation userAddress={this.state.accounts[0] || ""}/>
         {(this.state.loadingBounties || this.state.loadingFulfillments || this.state.loadingStats) &&
