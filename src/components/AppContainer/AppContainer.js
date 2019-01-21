@@ -433,7 +433,7 @@ class AppContainer extends Component {
         <Dialog
            actions={modalActions}
            modal={false}
-           open={true}
+           open={false}
          >
          <h2 style={{fontWeight: 400, textAlign: "center", color: "#5A28C6"}}> {"We've Moved!"}</h2>
            <p style={{textAlign: "center"}}>{"Thanks to the feedback we received from our early beta users, we've rebuilt the Bounties Explorer from scratch to be easier to use than ever before."}</p>
